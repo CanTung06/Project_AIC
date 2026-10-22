@@ -1,0 +1,11 @@
+logon_type,count
+Network,845706092
+?,147250039
+Service,48894653
+Unlock,3969891
+Interactive,2052831
+Batch,1789374
+NewCredentials,1113888
+NetworkCleartext,391055
+RemoteInteractive,153611
+CachedInteractive,109025
