@@ -1,0 +1,5 @@
+split,rows,redteam_rows,redteam_rate,output_file
+train,693773290,702,1.0118579226363702e-06,D:\Code\Python\Project_AIC\data\processed\02_dataset_train.csv.gz
+validation,179750327,0,0.0,D:\Code\Python\Project_AIC\data\processed\02_dataset_validation.csv.gz
+test,177906842,0,0.0,D:\Code\Python\Project_AIC\data\processed\02_dataset_test.csv.gz
+overall,1051430459,702,6.676618448619625e-07,
