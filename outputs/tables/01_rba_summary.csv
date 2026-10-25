@@ -1,0 +1,20 @@
+metric,value
+total_rows,31269264
+file_size_bytes,9052907531
+timestamp_min,2020-02-03 12:43:30.772000
+timestamp_max,2021-02-28 23:59:58.756000
+invalid_timestamps,0
+account_takeover_true,141
+account_takeover_rate,4.509220300164404e-06
+missing_or_dash::Login Timestamp,0
+missing_or_dash::Round-Trip Time [ms],29993329
+missing_or_dash::Login Successful,0
+missing_or_dash::Is Attack IP,0
+missing_or_dash::Is Account Takeover,0
+missing_or_dash::Country,0
+missing_or_dash::Region,14060790
+missing_or_dash::City,13913142
+missing_or_dash::ASN,0
+missing_or_dash::Browser Name and Version,0
+missing_or_dash::OS Name and Version,0
+missing_or_dash::Device Type,1526

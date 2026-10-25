@@ -1,0 +1,8 @@
+label_combination,count,rate
+False | False | False,16435336,0.52560674277463
+True | False | False,11736887,0.3753490008591184
+False | True | False,2292485,0.07331432553065528
+True | True | False,804415,0.025725421615296094
+True | True | True,76,2.430501722074431e-06
+True | False | True,64,2.0467382922732048e-06
+False | True | True,1,3.1980285816768825e-08

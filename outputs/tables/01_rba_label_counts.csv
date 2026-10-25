@@ -1,0 +1,7 @@
+column,value,count,rate
+Login Successful,false,18727822,0.5989211002855711
+Login Successful,true,12541442,0.40107889971442884
+Is Attack IP,false,28172287,0.9009577903720407
+Is Attack IP,true,3096977,0.09904220962795926
+Is Account Takeover,false,31269123,0.9999954907796998
+Is Account Takeover,true,141,4.509220300164404e-06
