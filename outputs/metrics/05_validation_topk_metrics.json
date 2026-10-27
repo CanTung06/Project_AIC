@@ -1,0 +1,41 @@
+{
+  "validation_rows": 4690870,
+  "validation_takeovers": 21,
+  "selected_model_threshold": 0.9994557499885559,
+  "threshold_confusion_matrix": [
+    [
+      4690833,
+      16
+    ],
+    [
+      13,
+      8
+    ]
+  ],
+  "threshold_precision": 0.3333333333333333,
+  "threshold_recall": 0.38095238095238093,
+  "top_k": {
+    "10": {
+      "rows_reviewed": 10,
+      "true_takeovers_found": 2,
+      "precision_at_k": 0.2,
+      "recall_at_k": 0.09523809523809523
+    },
+    "50": {
+      "rows_reviewed": 50,
+      "true_takeovers_found": 8,
+      "precision_at_k": 0.16,
+      "recall_at_k": 0.38095238095238093
+    },
+    "100": {
+      "rows_reviewed": 100,
+      "true_takeovers_found": 8,
+      "precision_at_k": 0.08,
+      "recall_at_k": 0.38095238095238093
+    }
+  },
+  "top_risk_csv": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\05_validation_top_risk.csv",
+  "source_row_mapping": "validation_row l\u00e0 s\u1ed1 th\u1ee9 t\u1ef1 trong validation.csv. B\u1ea3n preprocess hi\u1ec7n t\u1ea1i kh\u00f4ng gi\u1eef index ngu\u1ed3n ho\u1eb7c gi\u00e1 tr\u1ecb category g\u1ed1c \u0111\u1ec3 \u00e1nh x\u1ea1 tr\u1ef1c ti\u1ebfp v\u1ec1 s\u1ef1 ki\u1ec7n raw.",
+  "test_used": false,
+  "scoring_seconds": 174.7139757
+}

@@ -1,0 +1,35 @@
+{
+  "threshold": 0.9994557499885559,
+  "tp": 1,
+  "fp": 23,
+  "fn": 20,
+  "tn": 4689586,
+  "confusion_matrix": [
+    [
+      4689586,
+      23
+    ],
+    [
+      20,
+      1
+    ]
+  ],
+  "precision": 0.041666666666666664,
+  "recall": 0.047619047619047616,
+  "f1": 0.044444444444444446,
+  "fpr": 4.904460052000071e-06,
+  "fp_per_million_negatives": 4.904460052000071,
+  "brier_score": 0.003853886988026985,
+  "pr_auc": 0.02107308657505068,
+  "roc_auc": 0.9524408416260595,
+  "rows": 4689630,
+  "positive_rows": 21,
+  "negative_rows": 4689609,
+  "inference_seconds": 166.9448043999946,
+  "inference_rows_per_second": 28090.901162541068,
+  "model_size_bytes": 79647,
+  "model_file": "03_xgboost_account_takeover.joblib",
+  "test_used_for_threshold_selection": false,
+  "validation_target_met": false,
+  "test_target_met": false
+}

@@ -1,20 +1,33 @@
-metric,value
-total_rows,31269264
+﻿metric,value
 file_size_bytes,9052907531
+total_rows,31269264
+column_count,16
+duplicate_index_rows,0
+invalid_index_rows,0
+invalid_timestamps,0
 timestamp_min,2020-02-03 12:43:30.772000
 timestamp_max,2021-02-28 23:59:58.756000
-invalid_timestamps,0
-account_takeover_true,141
-account_takeover_rate,4.509220300164404e-06
-missing_or_dash::Login Timestamp,0
-missing_or_dash::Round-Trip Time [ms],29993329
-missing_or_dash::Login Successful,0
-missing_or_dash::Is Attack IP,0
-missing_or_dash::Is Account Takeover,0
-missing_or_dash::Country,0
-missing_or_dash::Region,14060790
-missing_or_dash::City,13913142
-missing_or_dash::ASN,0
-missing_or_dash::Browser Name and Version,0
-missing_or_dash::OS Name and Version,0
-missing_or_dash::Device Type,1526
+takeover_true,141
+takeover_false,31269123
+missing::index,0
+missing::Login Timestamp,0
+missing::User ID,0
+missing::Round-Trip Time [ms],29993329
+missing::IP Address,0
+missing::Country,0
+missing::Region,14060790
+missing::City,13913142
+missing::ASN,0
+missing::User Agent String,0
+missing::Browser Name and Version,0
+missing::OS Name and Version,0
+missing::Device Type,1526
+missing::Login Successful,0
+missing::Is Attack IP,0
+missing::Is Account Takeover,0
+rtt_non_missing,1275935
+rtt_missing,29993329
+rtt_min,8.0
+rtt_max,223457.0
+rtt_mean,663.933221519905
+rtt_std,1116.12498711317

@@ -1,0 +1,10 @@
+{
+  "alerts_at_selected_validation_threshold": 24,
+  "tp_by_dataset_label": 8,
+  "fp_by_dataset_label": 16,
+  "threshold": 0.9994557499885559,
+  "precision_by_dataset_label": 0.3333333333333333,
+  "review_csv": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\06_validation_alert_review.csv",
+  "validation_row_note": "Số thứ tự trong validation.csv; không phải ID sự kiện trong raw.",
+  "label_note": "TP/FP được tính theo nhãn hiện có trong dataset; chưa xác minh độc lập bằng log gốc."
+}
