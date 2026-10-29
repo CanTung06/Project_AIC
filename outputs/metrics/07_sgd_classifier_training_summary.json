@@ -1,0 +1,26 @@
+{
+  "model": "SGDClassifier(log_loss)",
+  "learning_type": "supervised_out_of_core",
+  "target": "Is Attack IP",
+  "training_data": "Toàn bộ tập train; đọc theo chunk, không lấy mẫu con.",
+  "train_rows": 21885883,
+  "class_0_rows": 19718375,
+  "class_1_rows": 2167508,
+  "class_weights": {
+    "0": 0.5549616284303347,
+    "1": 5.048627963541541
+  },
+  "feature_count": 33,
+  "standardization": "StandardScaler.partial_fit trên toàn bộ train trước khi huấn luyện.",
+  "hyperparameters": {
+    "loss": "log_loss",
+    "alpha": 1e-05,
+    "learning_rate": "optimal",
+    "epochs": 3,
+    "average": true,
+    "shuffle": true
+  },
+  "elapsed_seconds": 454.4306080999995,
+  "model_file": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_sgd_classifier_is_attack_ip.joblib",
+  "note": "Validation sẽ chọn ngưỡng tối đa F1 lớp 1; test chỉ dùng để đánh giá cuối cùng."
+}

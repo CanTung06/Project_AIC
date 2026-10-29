@@ -9,7 +9,8 @@ STEPS = [
     ("s04", "steps.s04_evaluate_logistic_regression"),
     ("s05", "steps.s05_train_random_forest"),
     ("s06", "steps.s06_evaluate_random_forest"),
-    ("s07", "steps.s07_compare_models"),
+    ("s07", "steps.s07_train_sgd_classifier"),
+    ("s08", "steps.s08_evaluate_sgd_classifier"),
 ]
 
 

@@ -1,0 +1,53 @@
+{
+  "model": "SGDClassifier(log_loss)",
+  "learning_type": "supervised_out_of_core",
+  "target": "Is Attack IP",
+  "threshold": 0.9907,
+  "threshold_selection": "Tối đa hóa F1 lớp 1 trên validation; không dùng test để chọn ngưỡng.",
+  "validation_precision_class_1_at_selected_threshold": 0.2843558960243563,
+  "validation_recall_class_1_at_selected_threshold": 0.7576992607591889,
+  "validation_f1_class_1_at_selected_threshold": 0.41352178108346704,
+  "test_metrics_at_f1_threshold": {
+    "rows": 4691222,
+    "actual_class_1_rate": 0.0989639799608716,
+    "predicted_class_1_rows": 1237500,
+    "predicted_class_1_rate": 0.2637905432742258,
+    "tp": 351646,
+    "fp": 885854,
+    "fn": 112616,
+    "tn": 3341106,
+    "precision_class_1": 0.2841583838383838,
+    "recall_class_1": 0.7574300718128988,
+    "f1_class_1": 0.41327283133599174,
+    "classification_report": {
+      "Is Attack IP=0": {
+        "precision": 0.967392859066248,
+        "recall": 0.7904276359369381,
+        "f1-score": 0.8700024294717579,
+        "support": 4226960.0
+      },
+      "Is Attack IP=1": {
+        "precision": 0.2841583838383838,
+        "recall": 0.7574300718128988,
+        "f1-score": 0.41327283133599174,
+        "support": 464262.0
+      },
+      "macro avg": {
+        "precision": 0.6257756214523159,
+        "recall": 0.7739288538749185,
+        "f1-score": 0.6416376304038748,
+        "support": 4691222.0
+      },
+      "weighted avg": {
+        "precision": 0.8997772561512211,
+        "recall": 0.7871620656622091,
+        "f1-score": 0.8248026506743129,
+        "support": 4691222.0
+      }
+    },
+    "classification_report_text": "                precision   recall  f1-score        support\nIs Attack IP=0   0.967393 0.790428  0.870002 4226960.000000\nIs Attack IP=1   0.284158 0.757430  0.413273  464262.000000\nmacro avg        0.625776 0.773929  0.641638 4691222.000000\nweighted avg     0.899777 0.787162  0.824803 4691222.000000",
+    "pr_auc": 0.2785757885130463
+  },
+  "test_pr_curve": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\08_sgd_classifier_test_pr_curve.png",
+  "note": "Mô hình dự đoán nhãn Is Attack IP; kết quả không xác nhận trực tiếp đăng nhập bất thường hoặc ATO."
+}

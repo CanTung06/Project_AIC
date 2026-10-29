@@ -30,8 +30,12 @@ SUPERVISED_MODEL = MODEL_DIR / "05_random_forest_is_attack_ip.joblib"
 SUPERVISED_TRAINING_SUMMARY = METRIC_DIR / "05_random_forest_training_summary.json"
 SUPERVISED_METRICS = METRIC_DIR / "06_random_forest_evaluation_metrics.json"
 SUPERVISED_TEST_PR_CURVE = FIGURE_DIR / "06_random_forest_test_pr_curve.png"
-MODEL_COMPARISON = METRIC_DIR / "07_model_comparison.json"
-MODEL_COMPARISON_TABLE = TABLE_DIR / "07_model_comparison.csv"
+SGD_MODEL = MODEL_DIR / "07_sgd_classifier_is_attack_ip.joblib"
+SGD_TRAINING_SUMMARY = METRIC_DIR / "07_sgd_classifier_training_summary.json"
+SGD_METRICS = METRIC_DIR / "08_sgd_classifier_evaluation_metrics.json"
+SGD_TEST_PR_CURVE = FIGURE_DIR / "08_sgd_classifier_test_pr_curve.png"
+MODEL_COMPARISON = METRIC_DIR / "09_model_comparison.json"
+MODEL_COMPARISON_TABLE = TABLE_DIR / "09_model_comparison.csv"
 
 CHUNK_SIZE = 500_000
 LR_PER_CLASS_SAMPLE_SIZE = 250_000
@@ -47,6 +51,9 @@ RF_N_ESTIMATORS = 200
 RF_MAX_DEPTH = 20
 RF_MIN_SAMPLES_LEAF = 5
 RF_MAX_SAMPLES = 100_000
+SGD_EPOCHS = 3
+SGD_ALPHA = 1e-5
+SGD_LEARNING_RATE = "optimal"
 
 FEATURES = [
     "hour_sin", "hour_cos", "weekday_sin", "weekday_cos",
