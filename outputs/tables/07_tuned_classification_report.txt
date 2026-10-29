@@ -9,3 +9,4 @@ Classification report | random_undersampling | tuned threshold=0.01082281
 weighted avg     0.9974    0.9972    0.9973    343057
 
 AUC-ROC: 0.9980
+PR-AUC: 0.6927

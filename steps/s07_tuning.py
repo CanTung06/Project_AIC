@@ -125,7 +125,9 @@ def main() -> int:
     )
     tuned_report_text = (
         f"Classification report | {selected_name} | tuned threshold={selected_threshold:.8f}\n"
-        f"{tuned_report}\nAUC-ROC: {test_metrics['roc_auc']:.4f}\n"
+        f"{tuned_report}\n"
+        f"AUC-ROC: {test_metrics['roc_auc']:.4f}\n"
+        f"PR-AUC: {test_metrics['pr_auc']:.4f}\n"
     )
     (C.TABLES_DIR / "07_tuned_classification_report.txt").write_text(
         tuned_report_text,
