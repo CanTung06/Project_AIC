@@ -1,0 +1,25 @@
+[
+  {
+    "strategy": "class_weight",
+    "training_rows": 1602561,
+    "feature_count": 78,
+    "fit_seconds": 40.15,
+    "fit_time": "00:00:40",
+    "epochs_used": 23,
+    "class_weight": {
+      "0": 0.5033791869973859,
+      "1": 74.48229224762967
+    },
+    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_class_weight.joblib"
+  },
+  {
+    "strategy": "random_undersampling",
+    "training_rows": 117810,
+    "feature_count": 78,
+    "fit_seconds": 3.19,
+    "fit_time": "00:00:03",
+    "epochs_used": 25,
+    "class_weight": null,
+    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_undersampling.joblib"
+  }
+]

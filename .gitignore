@@ -1,0 +1,18 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Môi trường ảo
+.venv/
+venv/
+env/
+ENV/
+
+# Cấu hình và bí mật cục bộ
+.env
+.env.*
+!.env.example
+
+# Dữ liệu đầu vào và dữ liệu đã xử lý
+/data

@@ -1,0 +1,7 @@
+{
+  "selected_model": "class_weight",
+  "threshold": 0.04150231555104256,
+  "false_positives": 10634,
+  "false_negatives": 268,
+  "examples_saved_per_error_type_max": 1000
+}

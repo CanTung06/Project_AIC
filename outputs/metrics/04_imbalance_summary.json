@@ -1,0 +1,17 @@
+{
+  "class_counts_full_train": {
+    "0": 1591803,
+    "1": 10758
+  },
+  "balanced_class_weight": {
+    "0": 0.5033791869973859,
+    "1": 74.48229224762967
+  },
+  "undersampling_negative_per_positive_target": 10,
+  "undersampled_counts": {
+    "0": 107052,
+    "1": 10758
+  },
+  "undersampled_train_path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\train_undersampled.csv",
+  "validation_test_resampled": false
+}

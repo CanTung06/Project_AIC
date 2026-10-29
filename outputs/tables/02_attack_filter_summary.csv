@@ -1,0 +1,16 @@
+﻿original_label,decision,sample_count,reason
+BENIGN,GIỮ,2273097,Dữ liệu bình thường
+FTP-Patator,GIỮ,7938,Tấn công brute-force mật khẩu
+SSH-Patator,GIỮ,5897,Tấn công brute-force mật khẩu
+Web Attack - Brute Force,GIỮ,1507,Tấn công brute-force mật khẩu
+DoS Hulk,LOẠI,231073,Không thuộc nhóm brute-force mật khẩu được chọn
+PortScan,LOẠI,158930,Không thuộc nhóm brute-force mật khẩu được chọn
+DDoS,LOẠI,128027,Không thuộc nhóm brute-force mật khẩu được chọn
+DoS GoldenEye,LOẠI,10293,Không thuộc nhóm brute-force mật khẩu được chọn
+DoS slowloris,LOẠI,5796,Không thuộc nhóm brute-force mật khẩu được chọn
+DoS Slowhttptest,LOẠI,5499,Không thuộc nhóm brute-force mật khẩu được chọn
+Bot,LOẠI,1966,Không thuộc nhóm brute-force mật khẩu được chọn
+Web Attack - XSS,LOẠI,652,Không thuộc nhóm brute-force mật khẩu được chọn
+Infiltration,LOẠI,36,Không thuộc nhóm brute-force mật khẩu được chọn
+Web Attack - Sql Injection,LOẠI,21,Không thuộc nhóm brute-force mật khẩu được chọn
+Heartbleed,LOẠI,11,Không thuộc nhóm brute-force mật khẩu được chọn

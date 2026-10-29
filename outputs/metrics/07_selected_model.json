@@ -1,0 +1,15 @@
+{
+  "selected_model": "class_weight",
+  "threshold": 0.04150231555104256,
+  "selection_metric": "validation_f1_class_1",
+  "validation_metrics": {
+    "threshold": 0.04150231555104256,
+    "precision": 0.15661417322834645,
+    "recall": 0.8580672993960311,
+    "f1": 0.2648821414302836
+  },
+  "thresholds_by_model": {
+    "class_weight": 0.04150231555104256,
+    "random_undersampling": 0.001340150716714561
+  }
+}

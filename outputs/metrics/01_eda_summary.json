@@ -1,0 +1,32 @@
+{
+  "raw_directory": "D:\\Code\\Python\\Project_AIC\\data\\raw",
+  "csv_file_count": 8,
+  "total_rows": 2830743,
+  "column_count": 79,
+  "schemas_match": true,
+  "schema_mismatches": [],
+  "duplicated_header_columns": [
+    "Fwd Header Length"
+  ],
+  "label_distribution": {
+    "DDoS": 128027,
+    "BENIGN": 2273097,
+    "PortScan": 158930,
+    "Bot": 1966,
+    "Infiltration": 36,
+    "Web Attack - Brute Force": 1507,
+    "Web Attack - XSS": 652,
+    "Web Attack - Sql Injection": 21,
+    "FTP-Patator": 7938,
+    "SSH-Patator": 5897,
+    "DoS Hulk": 231073,
+    "DoS slowloris": 5796,
+    "DoS Slowhttptest": 5499,
+    "DoS GoldenEye": 10293,
+    "Heartbleed": 11
+  },
+  "total_missing_values": 1358,
+  "total_infinite_values": 4376,
+  "processing_time_seconds": 34.26,
+  "processing_time": "00:00:34"
+}

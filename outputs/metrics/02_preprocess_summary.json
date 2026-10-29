@@ -1,0 +1,43 @@
+{
+  "task": "Binary classification of BENIGN and password brute-force traffic",
+  "source_directory": "D:\\Code\\Python\\Project_AIC\\data\\raw",
+  "source_file_count": 8,
+  "source_row_count": 2830743,
+  "retained_row_count": 2288439,
+  "dropped_row_count": 542304,
+  "retained_label_counts": {
+    "BENIGN": 2273097,
+    "Web Attack - Brute Force": 1507,
+    "FTP-Patator": 7938,
+    "SSH-Patator": 5897
+  },
+  "dropped_label_counts": {
+    "DDoS": 128027,
+    "PortScan": 158930,
+    "Bot": 1966,
+    "Infiltration": 36,
+    "Web Attack - XSS": 652,
+    "Web Attack - Sql Injection": 21,
+    "DoS Hulk": 231073,
+    "DoS slowloris": 5796,
+    "DoS Slowhttptest": 5499,
+    "DoS GoldenEye": 10293,
+    "Heartbleed": 11
+  },
+  "benign_sample_count": 2273097,
+  "attack_sample_count": 15342,
+  "attack_rate_percent": 0.670413,
+  "target_column": "is_attack",
+  "label_mapping": {
+    "0": "BENIGN",
+    "1": [
+      "FTP-Patator",
+      "SSH-Patator",
+      "Web Attack - Brute Force"
+    ]
+  },
+  "output_file": "D:\\Code\\Python\\Project_AIC\\data\\processed\\password_attack_dataset.csv",
+  "chunk_size": 500000,
+  "processing_time_seconds": 87.96,
+  "processing_time": "00:01:27"
+}

@@ -1,0 +1,13 @@
+﻿split,attack_type,sample_count
+test,BENIGN,340791
+test,FTP-Patator,1146
+test,SSH-Patator,913
+test,Web Attack - Brute Force,207
+train,BENIGN,1591803
+train,FTP-Patator,5607
+train,SSH-Patator,4099
+train,Web Attack - Brute Force,1052
+validation,BENIGN,340503
+validation,FTP-Patator,1185
+validation,SSH-Patator,885
+validation,Web Attack - Brute Force,248

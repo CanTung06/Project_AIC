@@ -1,0 +1,12 @@
+{
+  "selected_model": "class_weight",
+  "threshold": 0.04150231555104256,
+  "test_records": 343057,
+  "alerts": 12632,
+  "tp": 1998,
+  "fp": 10634,
+  "fn": 268,
+  "tn": 330157,
+  "prediction_file": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\11_stream_predictions.csv",
+  "elapsed": "00:00:03"
+}
