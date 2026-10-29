@@ -1,15 +1,17 @@
 {
-  "selected_model": "class_weight",
-  "threshold": 0.04150231555104256,
-  "selection_metric": "validation_f1_class_1",
+  "selected_model": "random_undersampling",
+  "threshold": 0.012381545267999172,
+  "selection_metric": "validation_precision_with_minimum_recall",
+  "minimum_recall_target": 0.8,
   "validation_metrics": {
-    "threshold": 0.04150231555104256,
-    "precision": 0.15661417322834645,
-    "recall": 0.8580672993960311,
-    "f1": 0.2648821414302836
+    "threshold": 0.012381545267999172,
+    "precision": 0.20539480137322216,
+    "recall": 0.903364969801553,
+    "f1": 0.3346919204027811,
+    "minimum_recall_target": 0.8
   },
   "thresholds_by_model": {
-    "class_weight": 0.04150231555104256,
-    "random_undersampling": 0.001340150716714561
+    "class_weight": 0.04320088401436806,
+    "random_undersampling": 0.012381545267999172
   }
 }

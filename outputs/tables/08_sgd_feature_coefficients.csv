@@ -1,74 +1,74 @@
 ﻿rank,feature,coefficient,absolute_coefficient,direction
-1,Min Packet Length,-34.464706,34.464706,lower_attack_score
-2,Bwd Packet Length Min,-31.455114,31.455114,lower_attack_score
-3,PSH Flag Count,29.470047,29.470047,higher_attack_score
-4,Destination Port,-26.275593,26.275593,lower_attack_score
-5,Fwd Packet Length Min,-15.968727,15.968727,lower_attack_score
-6,ACK Flag Count,14.561029,14.561029,higher_attack_score
-7,Idle Max,-12.499878,12.499878,lower_attack_score
-8,Idle Mean,-12.407296,12.407296,lower_attack_score
-9,Idle Min,-11.825323,11.825323,lower_attack_score
-10,Average Packet Size,-10.627047,10.627047,lower_attack_score
-11,URG Flag Count,10.5637665,10.5637665,higher_attack_score
-12,Packet Length Mean,-7.8979273,7.8979273,lower_attack_score
-13,Active Max,-7.374447,7.374447,lower_attack_score
-14,Packet Length Variance,-6.2015233,6.2015233,lower_attack_score
-15,Bwd Packet Length Mean,-6.068888,6.068888,lower_attack_score
-16,Avg Bwd Segment Size,-6.068888,6.068888,lower_attack_score
-17,Bwd IAT Min,-6.0285845,6.0285845,lower_attack_score
-18,Bwd Packet Length Max,5.987257,5.987257,higher_attack_score
-19,Active Mean,-5.971524,5.971524,lower_attack_score
-20,Flow Duration,-5.8318415,5.8318415,lower_attack_score
-21,Fwd IAT Std,5.698529,5.698529,higher_attack_score
-22,FIN Flag Count,-5.59946,5.59946,lower_attack_score
-23,Fwd IAT Min,-5.3430953,5.3430953,lower_attack_score
-24,Active Std,-5.103301,5.103301,lower_attack_score
-25,Bwd IAT Std,4.983978,4.983978,higher_attack_score
-26,Bwd Packet Length Std,4.4511333,4.4511333,higher_attack_score
-27,Active Min,-4.3541284,4.3541284,lower_attack_score
-28,SYN Flag Count,3.7851727,3.7851727,higher_attack_score
-29,Fwd PSH Flags,3.7851727,3.7851727,higher_attack_score
-30,Total Length of Fwd Packets,3.7803283,3.7803283,higher_attack_score
-31,Subflow Fwd Bytes,3.7803283,3.7803283,higher_attack_score
-32,Flow IAT Min,-3.7779734,3.7779734,lower_attack_score
-33,Idle Std,-3.2823064,3.2823064,lower_attack_score
-34,Fwd IAT Mean,-3.229842,3.229842,lower_attack_score
-35,Fwd Packet Length Std,3.2290404,3.2290404,higher_attack_score
-36,Flow Bytes/s,-3.0560207,3.0560207,lower_attack_score
-37,Fwd IAT Total,-2.8062136,2.8062136,lower_attack_score
-38,Flow IAT Mean,-2.643824,2.643824,lower_attack_score
-39,Bwd IAT Mean,-2.580712,2.580712,lower_attack_score
-40,Bwd IAT Max,-2.4298294,2.4298294,lower_attack_score
-41,Packet Length Std,-2.3018498,2.3018498,lower_attack_score
-42,Bwd Header Length,2.0621526,2.0621526,higher_attack_score
-43,Bwd IAT Total,1.7793019,1.7793019,higher_attack_score
-44,Fwd IAT Max,-1.3262961,1.3262961,lower_attack_score
-45,Flow IAT Std,1.1789527,1.1789527,higher_attack_score
-46,Flow IAT Max,-1.1398841,1.1398841,lower_attack_score
-47,Subflow Bwd Bytes,-0.99977714,0.99977714,lower_attack_score
-48,Total Length of Bwd Packets,-0.99952614,0.99952614,lower_attack_score
-49,act_data_pkt_fwd,0.8294524,0.8294524,higher_attack_score
-50,Flow Packets/s,-0.7858444,0.7858444,lower_attack_score
-51,Bwd Packets/s,-0.6095075,0.6095075,lower_attack_score
-52,Init_Win_bytes_backward,0.51022875,0.51022875,higher_attack_score
-53,Fwd Packet Length Max,0.41142485,0.41142485,higher_attack_score
-54,min_seg_size_forward,0.37031433,0.37031433,higher_attack_score
-55,Max Packet Length,-0.34810075,0.34810075,lower_attack_score
-56,Fwd Packets/s,-0.33056745,0.33056745,lower_attack_score
-57,CWE Flag Count,0.30605072,0.30605072,higher_attack_score
-58,Fwd URG Flags,0.30605072,0.30605072,higher_attack_score
-59,Down/Up Ratio,-0.28764445,0.28764445,lower_attack_score
-60,Total Backward Packets,-0.219095,0.219095,lower_attack_score
-61,Subflow Bwd Packets,-0.21909498,0.21909498,lower_attack_score
-62,Fwd Header Length.1,-0.21157292,0.21157292,lower_attack_score
-63,Fwd Header Length,-0.21157292,0.21157292,lower_attack_score
-64,ECE Flag Count,-0.14832798,0.14832798,lower_attack_score
-65,RST Flag Count,-0.1452453,0.1452453,lower_attack_score
-66,Fwd Packet Length Mean,-0.13251302,0.13251302,lower_attack_score
-67,Avg Fwd Segment Size,-0.13251302,0.13251302,lower_attack_score
-68,Total Fwd Packets,0.11891625,0.11891625,higher_attack_score
-69,Subflow Fwd Packets,0.11891625,0.11891625,higher_attack_score
-70,Init_Win_bytes_forward,0.04764244,0.04764244,higher_attack_score
+1,Min Packet Length,-17.14152,17.14152,lower_attack_score
+2,Bwd Packet Length Min,-15.551529,15.551529,lower_attack_score
+3,min_seg_size_forward,13.81383,13.81383,higher_attack_score
+4,Destination Port,-13.720912,13.720912,lower_attack_score
+5,PSH Flag Count,13.320861,13.320861,higher_attack_score
+6,Fwd Packet Length Min,-8.594531,8.594531,lower_attack_score
+7,Idle Mean,-7.030655,7.030655,lower_attack_score
+8,Idle Max,-7.0166965,7.0166965,lower_attack_score
+9,Idle Min,-6.7392063,6.7392063,lower_attack_score
+10,Average Packet Size,-6.2820883,6.2820883,lower_attack_score
+11,ACK Flag Count,5.5847983,5.5847983,higher_attack_score
+12,Active Max,-4.9026484,4.9026484,lower_attack_score
+13,Packet Length Mean,-4.6852617,4.6852617,lower_attack_score
+14,Fwd URG Flags,-3.9640234,3.9640234,lower_attack_score
+15,CWE Flag Count,-3.9640234,3.9640234,lower_attack_score
+16,Fwd IAT Std,3.923645,3.923645,higher_attack_score
+17,Bwd IAT Min,-3.9153752,3.9153752,lower_attack_score
+18,Active Mean,-3.7663975,3.7663975,lower_attack_score
+19,Bwd Packet Length Max,3.718055,3.718055,higher_attack_score
+20,URG Flag Count,3.6977088,3.6977088,higher_attack_score
+21,Bwd IAT Std,3.6796865,3.6796865,higher_attack_score
+22,Avg Bwd Segment Size,-3.6306715,3.6306715,lower_attack_score
+23,Bwd Packet Length Mean,-3.6306715,3.6306715,lower_attack_score
+24,Active Std,-3.5784094,3.5784094,lower_attack_score
+25,Packet Length Variance,-3.4967241,3.4967241,lower_attack_score
+26,Flow Bytes/s,-3.1976898,3.1976898,lower_attack_score
+27,Fwd IAT Min,-3.002601,3.002601,lower_attack_score
+28,Flow IAT Min,-2.9945693,2.9945693,lower_attack_score
+29,FIN Flag Count,-2.8635406,2.8635406,lower_attack_score
+30,Active Min,-2.5649512,2.5649512,lower_attack_score
+31,Bwd Packet Length Std,2.3024812,2.3024812,higher_attack_score
+32,Flow IAT Mean,-2.2523234,2.2523234,lower_attack_score
+33,Bwd IAT Total,2.2140944,2.2140944,higher_attack_score
+34,Bwd IAT Mean,-2.0387745,2.0387745,lower_attack_score
+35,Packet Length Std,-1.751828,1.751828,lower_attack_score
+36,SYN Flag Count,1.6080725,1.6080725,higher_attack_score
+37,Fwd PSH Flags,1.6080725,1.6080725,higher_attack_score
+38,Fwd IAT Mean,-1.5795683,1.5795683,lower_attack_score
+39,Flow IAT Max,-1.4093057,1.4093057,lower_attack_score
+40,Fwd IAT Total,-1.4025292,1.4025292,lower_attack_score
+41,Bwd IAT Max,-1.3103114,1.3103114,lower_attack_score
+42,Avg Fwd Segment Size,-1.3015954,1.3015954,lower_attack_score
+43,Fwd Packet Length Mean,-1.3015954,1.3015954,lower_attack_score
+44,Idle Std,-1.2677852,1.2677852,lower_attack_score
+45,Fwd Packet Length Std,1.1551448,1.1551448,higher_attack_score
+46,act_data_pkt_fwd,1.1473035,1.1473035,higher_attack_score
+47,Total Length of Bwd Packets,-1.1264547,1.1264547,lower_attack_score
+48,Subflow Bwd Bytes,-1.1260285,1.1260285,lower_attack_score
+49,Init_Win_bytes_forward,-0.9078421,0.9078421,lower_attack_score
+50,Subflow Fwd Bytes,0.8365349,0.8365349,higher_attack_score
+51,Total Length of Fwd Packets,0.8365349,0.8365349,higher_attack_score
+52,Flow IAT Std,0.7471702,0.7471702,higher_attack_score
+53,Fwd IAT Max,-0.6704207,0.6704207,lower_attack_score
+54,Fwd Header Length,0.60548663,0.60548663,higher_attack_score
+55,Fwd Header Length.1,0.60548663,0.60548663,higher_attack_score
+56,Fwd Packets/s,-0.5440817,0.5440817,lower_attack_score
+57,Fwd Packet Length Max,0.50769246,0.50769246,higher_attack_score
+58,Subflow Bwd Packets,-0.48858464,0.48858464,lower_attack_score
+59,Total Backward Packets,-0.48858455,0.48858455,lower_attack_score
+60,Bwd Packets/s,-0.47437394,0.47437394,lower_attack_score
+61,Flow Packets/s,-0.44855028,0.44855028,lower_attack_score
+62,RST Flag Count,0.4357098,0.4357098,higher_attack_score
+63,ECE Flag Count,0.4357098,0.4357098,higher_attack_score
+64,Max Packet Length,-0.29129684,0.29129684,lower_attack_score
+65,Subflow Fwd Packets,-0.17782037,0.17782037,lower_attack_score
+66,Total Fwd Packets,-0.17782037,0.17782037,lower_attack_score
+67,Bwd Header Length,0.133108,0.133108,higher_attack_score
+68,Down/Up Ratio,0.099043876,0.099043876,higher_attack_score
+69,Flow Duration,0.04416809,0.04416809,higher_attack_score
+70,Init_Win_bytes_backward,0.008834511,0.008834511,higher_attack_score
 71,Bwd URG Flags,0.0,0.0,higher_attack_score
 72,Bwd PSH Flags,0.0,0.0,higher_attack_score
 73,Bwd Avg Bulk Rate,0.0,0.0,higher_attack_score

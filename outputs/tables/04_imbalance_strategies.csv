@@ -1,3 +1,3 @@
 ﻿strategy,normal_count,attack_count,attack_to_normal_ratio,normal_class_weight,attack_class_weight
 class_weight_balanced,1591803,10758,0.006758373994771966,0.5033791869973859,74.48229224762967
-random_undersampling_10_to_1,107052,10758,0.10049321824907521,1.0,1.0
+random_undersampling_3_to_1,32274,10758,0.3333333333333333,1.0,1.0

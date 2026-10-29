@@ -7,9 +7,9 @@
     "0": 0.5033791869973859,
     "1": 74.48229224762967
   },
-  "undersampling_negative_per_positive_target": 10,
+  "undersampling_negative_per_positive_target": 3,
   "undersampled_counts": {
-    "0": 107052,
+    "0": 32274,
     "1": 10758
   },
   "undersampled_train_path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\train_undersampled.csv",

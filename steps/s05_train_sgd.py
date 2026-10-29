@@ -1,6 +1,6 @@
 """Bước 05 - Huấn luyện SGDClassifier với hai chiến lược mất cân bằng.
 
-1) class_weight trên toàn bộ train; 2) random undersampling train theo tỷ lệ 10:1.
+1) class_weight trên toàn bộ train; 2) random undersampling train theo tỷ lệ 3:1.
 Validation và test không được resample. Chạy: python steps/s05_train_sgd.py
 """
 

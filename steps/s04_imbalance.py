@@ -1,7 +1,7 @@
 """Bước 04 - Xử lý mất cân bằng bằng class weight và random undersampling.
 
 Tạo class weight cho SGDClassifier trên toàn bộ train và một bản train undersampled
-với tối đa 10 mẫu bình thường cho mỗi mẫu tấn công. Validation/test không bị lấy mẫu lại.
+với đúng 3 mẫu bình thường cho mỗi mẫu tấn công. Validation/test không bị lấy mẫu lại.
 Chạy: python steps/s04_imbalance.py
 """
 
@@ -49,13 +49,15 @@ def main() -> int:
         negative_count,
         positive_count * C.UNDERSAMPLE_NEGATIVE_PER_POSITIVE,
     )
-    keep_probability = requested_negative_count / negative_count
-
     temporary_path = C.UNDERSAMPLED_TRAIN_DATA.with_suffix(".tmp.csv")
     temporary_path.unlink(missing_ok=True)
     wrote_header = False
     sampled_counts = {0: 0, 1: 0}
     rng = np.random.default_rng(C.SEED)
+    sampled_negative_positions = np.sort(
+        rng.choice(negative_count, size=requested_negative_count, replace=False)
+    )
+    negative_rows_seen = 0
     rows_read = 0
     started = time.perf_counter()
 
@@ -66,7 +68,16 @@ def main() -> int:
         low_memory=False,
     ):
         labels = chunk[C.TARGET_COLUMN].astype(np.int8).to_numpy()
-        mask = (labels == 1) | ((labels == 0) & (rng.random(len(chunk)) < keep_probability))
+        negative_indices = np.flatnonzero(labels == 0)
+        negative_stop = negative_rows_seen + len(negative_indices)
+        sample_start = np.searchsorted(sampled_negative_positions, negative_rows_seen, side="left")
+        sample_stop = np.searchsorted(sampled_negative_positions, negative_stop, side="left")
+        selected_negative_offsets = (
+            sampled_negative_positions[sample_start:sample_stop] - negative_rows_seen
+        )
+        mask = labels == 1
+        mask[negative_indices[selected_negative_offsets]] = True
+        negative_rows_seen = negative_stop
         selected = chunk.loc[mask]
         for class_id, count in selected[C.TARGET_COLUMN].value_counts().items():
             sampled_counts[int(class_id)] += int(count)
@@ -89,6 +100,11 @@ def main() -> int:
 
     if not wrote_header:
         raise RuntimeError("Không tạo được train undersampled.")
+    if negative_rows_seen != negative_count:
+        raise RuntimeError(
+            f"Số mẫu âm đã đọc ({negative_rows_seen:,}) không khớp thống kê "
+            f"ban đầu ({negative_count:,})."
+        )
     temporary_path.replace(C.UNDERSAMPLED_TRAIN_DATA)
 
     strategy_table = pd.DataFrame([
@@ -101,7 +117,7 @@ def main() -> int:
             "attack_class_weight": weights["1"],
         },
         {
-            "strategy": "random_undersampling_10_to_1",
+            "strategy": "random_undersampling_3_to_1",
             "normal_count": sampled_counts[0],
             "attack_count": sampled_counts[1],
             "attack_to_normal_ratio": sampled_counts[1] / max(sampled_counts[0], 1),
