@@ -1,0 +1,53 @@
+{
+  "model": "LogisticRegression",
+  "learning_type": "supervised",
+  "target": "Is Attack IP",
+  "threshold": 0.6379,
+  "threshold_selection": "Tối đa hóa F1 lớp 1 trên validation; test không dùng để chọn ngưỡng.",
+  "validation_precision_class_1_at_selected_threshold": 0.27865805492309836,
+  "validation_recall_class_1_at_selected_threshold": 0.7863531718138377,
+  "validation_f1_class_1_at_selected_threshold": 0.41149546566118556,
+  "test_metrics_at_f1_threshold": {
+    "rows": 4691222,
+    "actual_class_1_rate": 0.0989639799608716,
+    "predicted_class_1_rows": 1310711,
+    "predicted_class_1_rate": 0.27939649839636665,
+    "tp": 365114,
+    "fp": 945597,
+    "fn": 99148,
+    "tn": 3281363,
+    "precision_class_1": 0.27856178822028654,
+    "recall_class_1": 0.7864395535279648,
+    "f1_class_1": 0.41140231428872437,
+    "classification_report": {
+      "Is Attack IP=0": {
+        "precision": 0.9706707062926285,
+        "recall": 0.7762938376516456,
+        "f1-score": 0.8626685530579085,
+        "support": 4226960.0
+      },
+      "Is Attack IP=1": {
+        "precision": 0.27856178822028654,
+        "recall": 0.7864395535279648,
+        "f1-score": 0.41140231428872437,
+        "support": 464262.0
+      },
+      "macro avg": {
+        "precision": 0.6246162472564576,
+        "recall": 0.7813666955898052,
+        "f1-score": 0.6370354336733164,
+        "support": 4691222.0
+      },
+      "weighted avg": {
+        "precision": 0.9021768531937768,
+        "recall": 0.7772978980743184,
+        "f1-score": 0.818009450047337,
+        "support": 4691222.0
+      }
+    },
+    "classification_report_text": "                precision   recall  f1-score        support\nIs Attack IP=0   0.970671 0.776294  0.862669 4226960.000000\nIs Attack IP=1   0.278562 0.786440  0.411402  464262.000000\nmacro avg        0.624616 0.781367  0.637035 4691222.000000\nweighted avg     0.902177 0.777298  0.818009 4691222.000000",
+    "pr_auc": 0.27310048697466566
+  },
+  "test_pr_curve": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\04_logistic_regression_test_pr_curve.png",
+  "note": "Mô hình dự đoán nhãn Is Attack IP; kết quả không xác nhận trực tiếp đăng nhập bất thường hoặc ATO."
+}

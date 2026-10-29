@@ -1,0 +1,48 @@
+{
+  "dataset": "D:\\Code\\Python\\Project_AIC\\data\\raw\\rba-dataset.csv",
+  "rows": 31269264,
+  "columns": [
+    "index",
+    "Login Timestamp",
+    "User ID",
+    "Round-Trip Time [ms]",
+    "IP Address",
+    "Country",
+    "Region",
+    "City",
+    "ASN",
+    "User Agent String",
+    "Browser Name and Version",
+    "OS Name and Version",
+    "Device Type",
+    "Login Successful",
+    "Is Attack IP"
+  ],
+  "target": "Is Attack IP",
+  "label_counts": {
+    "not_attack_ip_0": 28172287,
+    "attack_ip_1": 3096977
+  },
+  "attack_ip_rate": 0.09904220962795926,
+  "timestamp_min_utc": "2020-02-03T12:43:30.772000+00:00",
+  "timestamp_max_utc": "2021-02-28T23:59:58.756000+00:00",
+  "missing_values_in_required_columns": {
+    "index": 0,
+    "Login Timestamp": 0,
+    "User ID": 0,
+    "IP Address": 0,
+    "Country": 0,
+    "Browser Name and Version": 0,
+    "Device Type": 1526,
+    "ASN": 0,
+    "Region": 47409,
+    "OS Name and Version": 0,
+    "Login Successful": 0,
+    "Round-Trip Time [ms]": 29993329,
+    "Is Attack IP": 0
+  },
+  "notes": [
+    "Is Attack IP là nhãn đối chiếu; không được đưa vào danh sách feature.",
+    "Is Account Takeover không được sử dụng trong pipeline này."
+  ]
+}

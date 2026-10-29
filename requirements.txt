@@ -1,5 +1,7 @@
-numpy
+﻿numpy
 pandas
 scikit-learn
-xgboost>=2.0
+scipy
+matplotlib
 joblib
+

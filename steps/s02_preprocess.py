@@ -1,476 +1,324 @@
-"""Tiền xử lý RBA theo chunk, tạo feature và chia train/validation/test."""
-from collections import Counter
 import json
-import sys
 import time
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 from ids import config as C
 
-CHUNK_SIZE = 500_000
-MAX_CATEGORIES_PER_COLUMN = 100
-DENSE_BATCH_MAX_ROWS = 10_000
-DENSE_BATCH_MAX_CELLS = 10_000_000
-TRAIN_FRACTION, VALIDATION_FRACTION, TEST_FRACTION = 0.70, 0.15, 0.15
-SEED = C.SEED
 
 INDEX_COLUMN = "index"
-TIMESTAMP_COLUMN = "Login Timestamp"
-USER_ID_COLUMN = "User ID"
-RTT_COLUMN = "Round-Trip Time [ms]"
-LOGIN_SUCCESS_COLUMN = "Login Successful"
-ATTACK_IP_COLUMN = "Is Attack IP"
-CATEGORY_COLUMNS = [
-    "IP Address", "Country", "Region", "City", "ASN", "User Agent String",
-    "Browser Name and Version", "OS Name and Version", "Device Type",
-]
-READ_COLUMNS = [
-    INDEX_COLUMN, TIMESTAMP_COLUMN, USER_ID_COLUMN, RTT_COLUMN,
-    *CATEGORY_COLUMNS, LOGIN_SUCCESS_COLUMN, ATTACK_IP_COLUMN, C.TARGET,
-]
+TIME_COLUMN = "Login Timestamp"
+USER_COLUMN = "User ID"
 MISSING = "<MISSING>"
-OTHER = "__RBA_INTERNAL_OTHER_8F27A6__"
-SPLITS = {0: "train", 1: "validation", 2: "test"}
-
-TIME_FEATURES = [
-    "login_hour", "login_day_of_week", "login_month", "login_is_weekend",
-    "login_timestamp_missing", "login_hour_sin", "login_hour_cos",
-    "login_day_of_week_sin", "login_day_of_week_cos",
-    "login_day_of_year_sin", "login_day_of_year_cos",
+CATEGORY_COLUMNS = {
+    "IP Address": "ip",
+    "Country": "country",
+    "Browser Name and Version": "browser",
+    "Device Type": "device_type",
+    "ASN": "asn",
+    "Region": "region",
+    "OS Name and Version": "os",
+}
+BOOLEAN_COLUMNS = {
+    "Login Successful": ("login_successful", "login_successful_missing"),
+}
+RTT_COLUMN = "Round-Trip Time [ms]"
+REQUIRED_COLUMNS = [
+    INDEX_COLUMN, TIME_COLUMN, USER_COLUMN, *CATEGORY_COLUMNS.keys(),
+    *BOOLEAN_COLUMNS.keys(), RTT_COLUMN, C.RAW_LABEL,
 ]
-RTT_FEATURES = ["round_trip_time_ms", "round_trip_time_log1p", "round_trip_time_missing"]
-BOOLEAN_FEATURES = [
-    "login_successful", "login_successful_missing", "is_attack_ip", "is_attack_ip_missing",
-]
-HISTORY_FEATURES = [
-    "account_prior_login_count_log1p", "account_prior_failed_login_count_log1p",
-    "seconds_since_previous_login_log1p", "account_has_previous_login",
-    "previous_login_successful", "previous_login_failed",
-    "previous_login_successful_missing",
-    *[f"previous_{name}_changed" for name in (
-        "ip_address", "country", "region", "city", "asn", "user_agent",
-        "browser", "operating_system", "device_type",
-    )],
-]
-NUMERIC_FEATURES = TIME_FEATURES + RTT_FEATURES + BOOLEAN_FEATURES + HISTORY_FEATURES
+SPLIT_NAMES = ("train", "validation", "test")
 
 
-def elapsed_text(seconds: float) -> str:
-    hours, rest = divmod(int(seconds), 3600)
-    minutes, seconds = divmod(rest, 60)
-    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+def normalize(series):
+    values = series.astype("string").str.strip()
+    missing = values.isna() | values.isin(["", "-"])
+    values = values.mask(missing, MISSING)
+    return values.to_numpy(dtype=object), missing.to_numpy(dtype=bool)
 
 
-def parse_target(chunk: pd.DataFrame) -> np.ndarray:
-    values = chunk[C.TARGET].fillna("").astype("string").str.strip().str.lower()
-    mapped = values.map({"true": 1, "false": 0})
-    if mapped.isna().any():
-        raise ValueError(f"Nhãn {C.TARGET} không hợp lệ: {values[mapped.isna()].value_counts().head().to_dict()}")
-    return mapped.to_numpy(dtype=np.uint8)
-
-
-def normalize_category(values: pd.Series) -> pd.Series:
-    result = values.astype("string").str.strip()
-    missing = result.isna() | result.eq("") | result.eq("-")
-    return result.mask(missing, MISSING).astype("string")
-
-
-def parse_boolean(values: pd.Series, name: str) -> tuple[np.ndarray, np.ndarray]:
-    normalized = values.astype("string").str.strip().str.lower()
-    mapped = normalized.map({"true": 1.0, "false": 0.0})
-    missing = normalized.isna() | normalized.eq("") | normalized.eq("-")
+def parse_boolean_feature(series):
+    normalized = series.fillna("").astype("string").str.strip().str.lower()
+    missing = normalized.isin(["", "-"])
+    mapped = normalized.map({"true": 1.0, "false": 0.0, "1": 1.0, "0": 0.0})
     invalid = mapped.isna() & ~missing
     if invalid.any():
-        raise ValueError(f"Giá trị {name} không hợp lệ: {normalized[invalid].value_counts().head().to_dict()}")
+        examples = normalized[invalid].value_counts().head().to_dict()
+        raise ValueError(f"Giá trị boolean không hợp lệ ở {series.name}: {examples}")
     return mapped.fillna(0).to_numpy(dtype=np.float32), missing.to_numpy(dtype=np.float32)
 
 
-def check_index_chunk(chunk: pd.DataFrame, seen: np.ndarray) -> np.ndarray:
-    numeric = pd.to_numeric(chunk[INDEX_COLUMN], errors="coerce")
-    valid = numeric.notna() & numeric.ge(0) & numeric.mod(1).eq(0)
-    if not valid.all():
-        raise ValueError("Cột index có giá trị thiếu, âm hoặc không phải số nguyên.")
-    indices = numeric.to_numpy(dtype=np.int64)
-    unique, counts = np.unique(indices, return_counts=True)
-    duplicates = int(np.maximum(counts - 1, 0).sum())
-    in_range = unique < len(seen)
-    if in_range.any():
-        duplicates += int(seen[unique[in_range]].sum())
-    if duplicates:
-        raise ValueError(f"Phát hiện {duplicates:,} index sự kiện trùng; dừng để không âm thầm bỏ/giữ sai bản ghi.")
-    largest = int(unique[-1])
-    if largest >= len(seen):
-        new_size = max(largest + 1, max(1024, len(seen) * 2))
-        if new_size > 100_000_000:
-            raise ValueError("index quá lớn để kiểm tra duy nhất an toàn trong RAM.")
-        seen = np.pad(seen, (0, new_size - len(seen)))
-    seen[unique] = True
-    return seen
+def local_prior_counts(local_codes, base_counts, keys, state):
+    """Tính số lần trước đó trong chunk và cập nhật trạng thái toàn cục."""
+    if not len(local_codes):
+        return np.empty(0, dtype=np.int64)
+    order = np.argsort(local_codes, kind="stable")
+    sorted_codes = local_codes[order]
+    starts = np.r_[0, np.flatnonzero(sorted_codes[1:] != sorted_codes[:-1]) + 1]
+    group_sizes = np.diff(np.r_[starts, len(local_codes)])
+    within_group = np.arange(len(local_codes), dtype=np.int64) - np.repeat(starts, group_sizes)
+    prior = np.empty(len(local_codes), dtype=np.int64)
+    prior[order] = base_counts[local_codes[order]] + within_group
+    counts = np.bincount(local_codes, minlength=len(keys))
+    for code, key in enumerate(keys):
+        state[key] = int(base_counts[code] + counts[code])
+    return prior
 
 
-def validate_time_order(chunk: pd.DataFrame, previous_ns: int | None) -> int:
-    timestamps = pd.to_datetime(chunk[TIMESTAMP_COLUMN], errors="coerce")
-    if timestamps.isna().any():
-        raise ValueError(f"{TIMESTAMP_COLUMN} có giá trị không hợp lệ; không thể tạo feature lịch sử.")
-    ns = timestamps.to_numpy(dtype="datetime64[ns]").view(np.int64)
-    if len(ns) > 1 and np.any(np.diff(ns) < 0):
-        raise ValueError("Nguồn chưa sắp xếp tăng dần theo timestamp; dừng để tránh dùng tương lai làm lịch sử.")
-    if previous_ns is not None and len(ns) and ns[0] < previous_ns:
-        raise ValueError("Timestamp bị lùi giữa hai chunk.")
-    return int(ns[-1]) if len(ns) else previous_ns
+def category_prior_counts(category_codes, state_counts):
+    """Tính số lần trước đó theo category bằng mảng đếm gọn, không dùng nhãn."""
+    codes = np.asarray(category_codes, dtype=np.int64)
+    if not len(codes):
+        return np.empty(0, dtype=np.uint64)
+
+    max_code = int(codes.max())
+    if max_code >= len(state_counts):
+        new_size = max(max_code + 1, len(state_counts) * 2)
+        expanded = np.zeros(new_size, dtype=np.uint64)
+        expanded[: len(state_counts)] = state_counts
+        state_counts = expanded
+
+    order = np.argsort(codes, kind="stable")
+    sorted_codes = codes[order]
+    starts = np.r_[0, np.flatnonzero(sorted_codes[1:] != sorted_codes[:-1]) + 1]
+    group_sizes = np.diff(np.r_[starts, len(codes)])
+    within_group = np.arange(len(codes), dtype=np.int64) - np.repeat(starts, group_sizes)
+    prior = np.empty(len(codes), dtype=np.uint64)
+    prior[order] = state_counts[sorted_codes] + within_group.astype(np.uint64)
+    state_counts[sorted_codes[starts]] += group_sizes.astype(np.uint64)
+    return prior, state_counts
 
 
-def assign_splits(labels: np.ndarray, row_start: int, rng, positive_assignment=None) -> np.ndarray:
-    random_values = rng.random(len(labels))
-    split = np.where(
-        random_values < TRAIN_FRACTION,
-        0,
-        np.where(random_values < TRAIN_FRACTION + VALIDATION_FRACTION, 1, 2),
-    ).astype(np.uint8)
-    if positive_assignment:
-        for local in np.flatnonzero(labels == 1):
-            split[local] = positive_assignment[row_start + int(local)]
-    return split
-
-
-def positive_split_counts(total: int) -> tuple[int, int, int]:
-    if total < 3:
-        raise ValueError(f"Chỉ có {total} takeover; cần ít nhất 3 để chia vào cả ba tập.")
-    raw = np.array([TRAIN_FRACTION, VALIDATION_FRACTION, TEST_FRACTION]) * total
-    counts = np.floor(raw).astype(int)
-    for split_id in np.argsort(-(raw - counts))[: total - int(counts.sum())]:
-        counts[split_id] += 1
-    for split_id in range(3):
-        if counts[split_id] == 0:
-            donor = int(np.argmax(counts))
-            counts[donor] -= 1
-            counts[split_id] += 1
-    return tuple(int(value) for value in counts)
-
-
-def read_chunks():
-    return pd.read_csv(
-        C.RAW_FILE, usecols=READ_COLUMNS, dtype="string",
-        chunksize=CHUNK_SIZE, low_memory=False,
-    )
-
-
-class AccountHistory:
-    """Tạo lịch sử chỉ từ các sự kiện trước đó theo thứ tự timestamp."""
-    def __init__(self, category_levels: dict[str, list[str]]):
-        self.state: dict[str, tuple] = {}
-        self.last_timestamp_ns: int | None = None
-        self.processed_rows = 0
-        self.category_maps = {}
-        self.other_codes = {}
-        for column, levels in category_levels.items():
-            kept = [value for value in levels if value != OTHER]
-            self.category_maps[column] = {value: code for code, value in enumerate(kept)}
-            self.other_codes[column] = len(kept)
-
-    def transform(self, chunk: pd.DataFrame) -> np.ndarray:
-        timestamps = pd.to_datetime(chunk[TIMESTAMP_COLUMN], errors="coerce")
-        ns = timestamps.to_numpy(dtype="datetime64[ns]").view(np.int64)
-        if len(ns) > 1 and np.any(np.diff(ns) < 0):
-            raise ValueError("Timestamp trong chunk không tăng dần.")
-        if self.last_timestamp_ns is not None and len(ns) and ns[0] < self.last_timestamp_ns:
-            raise ValueError("Timestamp lùi giữa các chunk khi tính lịch sử.")
-        if len(ns):
-            self.last_timestamp_ns = int(ns[-1])
-
-        raw_users = normalize_category(chunk[USER_ID_COLUMN]).astype(str).to_numpy(dtype=object)
-        missing_user = raw_users == MISSING
-        row_start = self.processed_rows
-        # Tài khoản thiếu ID được xem như một tài khoản riêng cho từng event.
-        raw_users[missing_user] = [f"__MISSING_USER_{row_start+i}" for i in np.flatnonzero(missing_user)]
-        codes, unique_users = pd.factorize(raw_users, sort=False)
-        row_count, user_count = len(chunk), len(unique_users)
-        categories = {}
-        for column in CATEGORY_COLUMNS:
-            normalized = normalize_category(chunk[column])
-            encoded = normalized.map(self.category_maps[column])
-            categories[column] = encoded.fillna(self.other_codes[column]).to_numpy(dtype=np.uint8)
-        success, success_missing = parse_boolean(chunk[LOGIN_SUCCESS_COLUMN], LOGIN_SUCCESS_COLUMN)
-        failed = ((success == 0) & (success_missing == 0)).astype(np.int64)
-
-        source = pd.DataFrame({
-            "timestamp": timestamps.to_numpy(dtype="datetime64[ns]"),
-            "success": success,
-            "success_missing": success_missing,
-            **categories,
-        })
-        previous = source.groupby(codes, sort=False).shift(1)
-        previous_ns = previous["timestamp"].to_numpy(dtype="datetime64[ns]").view(np.int64).copy()
-        previous_success = previous["success"].fillna(0).to_numpy(dtype=np.float32, copy=True)
-        previous_success_missing = previous["success_missing"].fillna(0).to_numpy(dtype=np.float32, copy=True)
-        previous_categories = {
-            col: previous[col].fillna(self.other_codes[col]).to_numpy(dtype=np.uint8, copy=True)
-            for col in CATEGORY_COLUMNS
+class UserHistory:
+    def __init__(self):
+        self.user_ids = {}
+        self.next_user_code = 1
+        self.category_ids = {column: {} for column in CATEGORY_COLUMNS}
+        self.next_category_code = {column: 1 for column in CATEGORY_COLUMNS}
+        self.user_counts = {}
+        self.user_category_counts = {column: {} for column in CATEGORY_COLUMNS}
+        self.global_category_counts = {
+            column: np.zeros(1024, dtype=np.uint64)
+            for column in ("IP Address", "ASN")
         }
-        prior_in_chunk = (
-            pd.Series(np.ones(row_count, dtype=np.int64))
-            .groupby(codes, sort=False).cumcount().to_numpy(dtype=np.int64)
-        )
-        base_logins = np.zeros(user_count, dtype=np.int64)
-        base_failed = np.zeros(user_count, dtype=np.int64)
-        for position in np.flatnonzero(prior_in_chunk == 0):
-            key = str(unique_users[codes[position]])
-            state = self.state.get(key)
-            if state is None:
-                continue
-            code = codes[position]
-            base_logins[code], base_failed[code] = state[0], state[1]
-            previous_ns[position], previous_success[position] = state[2], state[3]
-            previous_success_missing[position] = state[4]
-            for category_index, column in enumerate(CATEGORY_COLUMNS):
-                previous_categories[column][position] = state[5 + category_index]
+        self.rows_seen = 0
 
-        prior_logins = base_logins[codes] + prior_in_chunk
-        prior_failed = base_failed[codes] + (
-            pd.Series(failed).groupby(codes, sort=False).cumsum().to_numpy(dtype=np.int64) - failed
+    def encode_users(self, values, missing_mask):
+        local_codes, unique_values = pd.factorize(values, sort=False)
+        unique_codes = np.zeros(len(unique_values), dtype=np.uint64)
+        for position, value in enumerate(unique_values):
+            if value == MISSING:
+                continue
+            key = str(value)
+            if key not in self.user_ids:
+                self.user_ids[key] = self.next_user_code
+                self.next_user_code += 1
+            unique_codes[position] = self.user_ids[key]
+        encoded = unique_codes[local_codes]
+        missing_positions = np.flatnonzero(missing_mask)
+        if len(missing_positions):
+            encoded[missing_positions] = np.arange(
+                self.next_user_code,
+                self.next_user_code + len(missing_positions),
+                dtype=np.uint64,
+            )
+            self.next_user_code += len(missing_positions)
+        return encoded
+
+    def encode_categories(self, column, values):
+        local_codes, unique_values = pd.factorize(values, sort=False)
+        unique_codes = np.zeros(len(unique_values), dtype=np.uint64)
+        mapping = self.category_ids[column]
+        next_code = self.next_category_code[column]
+        for position, value in enumerate(unique_values):
+            if value == MISSING:
+                continue
+            key = str(value)
+            if key not in mapping:
+                mapping[key] = next_code
+                next_code += 1
+            unique_codes[position] = mapping[key]
+        self.next_category_code[column] = next_code
+        return unique_codes[local_codes]
+
+    def transform(self, chunk):
+        timestamp = pd.to_datetime(chunk[TIME_COLUMN], errors="coerce", utc=True)
+        hour = timestamp.dt.hour + timestamp.dt.minute / 60.0
+        weekday = timestamp.dt.dayofweek
+        month = timestamp.dt.month - 1
+        hour = hour.fillna(0).to_numpy(dtype=np.float32)
+        weekday = weekday.fillna(0).to_numpy(dtype=np.float32)
+        month = month.fillna(0).to_numpy(dtype=np.float32)
+
+        users, missing_users = normalize(chunk[USER_COLUMN])
+        user_codes = self.encode_users(users, missing_users)
+        user_local, user_keys_raw = pd.factorize(user_codes, sort=False)
+        user_keys = [int(key) for key in user_keys_raw]
+        user_base = np.fromiter(
+            (self.user_counts.get(key, 0) for key in user_keys),
+            dtype=np.int64,
+            count=len(user_keys),
         )
-        has_previous = prior_logins > 0
-        has_previous_time = previous_ns != np.iinfo(np.int64).min
-        seconds = np.zeros(row_count, dtype=np.float64)
-        seconds[has_previous_time] = np.maximum(
-            (ns[has_previous_time] - previous_ns[has_previous_time]) / 1_000_000_000.0, 0.0
+        user_prior = local_prior_counts(
+            user_local, user_base, user_keys, self.user_counts
         )
-        columns = [
-            np.log1p(prior_logins).astype(np.float32),
-            np.log1p(prior_failed).astype(np.float32),
-            np.log1p(seconds).astype(np.float32),
-            has_previous.astype(np.float32),
-            (previous_success * has_previous).astype(np.float32),
-            ((previous_success == 0) & (previous_success_missing == 0) & has_previous).astype(np.float32),
-            (previous_success_missing * has_previous).astype(np.float32),
+
+        features = [
+            np.sin(2 * np.pi * hour / 24),
+            np.cos(2 * np.pi * hour / 24),
+            np.sin(2 * np.pi * weekday / 7),
+            np.cos(2 * np.pi * weekday / 7),
+            np.sin(2 * np.pi * month / 12),
+            np.cos(2 * np.pi * month / 12),
+            (weekday >= 5).astype(np.float32),
+            np.log1p(user_prior),
         ]
-        for column in CATEGORY_COLUMNS:
-            columns.append(((categories[column] != previous_categories[column]) & has_previous).astype(np.float32))
-        result = np.column_stack(columns).astype(np.float32, copy=False)
 
-        local_counts = np.bincount(codes, minlength=user_count)
-        local_failed = np.bincount(codes, weights=failed, minlength=user_count).astype(np.int64)
-        last_positions = np.full(user_count, -1, dtype=np.int64)
-        np.maximum.at(last_positions, codes, np.arange(row_count, dtype=np.int64))
-        for code, user in enumerate(unique_users):
-            position = int(last_positions[code])
-            if missing_user[position]:
-                continue
-            key = str(user)
-            old = self.state.get(key)
-            base_login = int(old[0]) if old else 0
-            base_fail = int(old[1]) if old else 0
-            self.state[key] = (
-                base_login + int(local_counts[code]),
-                base_fail + int(local_failed[code]),
-                int(ns[position]),
-                float(success[position]),
-                float(success_missing[position]),
-                *[int(categories[col][position]) for col in CATEGORY_COLUMNS],
+        for column in BOOLEAN_COLUMNS:
+            values, missing = parse_boolean_feature(chunk[column])
+            features.extend([values, missing])
+
+        rtt = pd.to_numeric(chunk[RTT_COLUMN], errors="coerce").to_numpy(dtype=np.float32)
+        rtt_missing = ~np.isfinite(rtt)
+        rtt = np.nan_to_num(rtt, nan=0.0, posinf=0.0, neginf=0.0)
+        rtt = np.log1p(np.maximum(rtt, 0.0))
+        features.extend([rtt, rtt_missing.astype(np.float32)])
+
+        for column, prefix in CATEGORY_COLUMNS.items():
+            values, _ = normalize(chunk[column])
+            category_codes = self.encode_categories(column, values)
+            if column in self.global_category_counts:
+                global_prior, self.global_category_counts[column] = category_prior_counts(
+                    category_codes, self.global_category_counts[column]
+                )
+                prior_row_numbers = self.rows_seen + np.arange(len(chunk), dtype=np.int64)
+                global_frequency = global_prior / np.maximum(prior_row_numbers, 1)
+                features.extend([
+                    np.log1p(global_prior),
+                    global_frequency.astype(np.float32, copy=False),
+                ])
+
+            pair_local, pair_values = pd.factorize(
+                pd.MultiIndex.from_arrays([user_codes, category_codes]), sort=False
             )
-        self.processed_rows += row_count
-        return result
-
-
-def numeric_features(chunk: pd.DataFrame, history: np.ndarray) -> np.ndarray:
-    timestamps = pd.to_datetime(chunk[TIMESTAMP_COLUMN], errors="coerce")
-    hour = timestamps.dt.hour + timestamps.dt.minute / 60.0
-    weekday = timestamps.dt.dayofweek
-    day_year = timestamps.dt.dayofyear
-    time_frame = pd.DataFrame({
-        "login_hour": timestamps.dt.hour.fillna(0),
-        "login_day_of_week": weekday.fillna(0),
-        "login_month": timestamps.dt.month.fillna(0),
-        "login_is_weekend": (weekday >= 5).fillna(False),
-        "login_timestamp_missing": timestamps.isna(),
-        "login_hour_sin": np.sin(2*np.pi*hour/24),
-        "login_hour_cos": np.cos(2*np.pi*hour/24),
-        "login_day_of_week_sin": np.sin(2*np.pi*weekday/7),
-        "login_day_of_week_cos": np.cos(2*np.pi*weekday/7),
-        "login_day_of_year_sin": np.sin(2*np.pi*day_year/365.2425),
-        "login_day_of_year_cos": np.cos(2*np.pi*day_year/365.2425),
-    }).fillna(0).astype(np.float32)
-    rtt = pd.to_numeric(chunk[RTT_COLUMN], errors="coerce")
-    rtt_features = np.column_stack((
-        rtt.fillna(0).to_numpy(dtype=np.float32),
-        np.log1p(rtt.clip(lower=0).fillna(0).to_numpy(dtype=np.float32)),
-        rtt.isna().to_numpy(dtype=np.float32),
-    ))
-    success, success_missing = parse_boolean(chunk[LOGIN_SUCCESS_COLUMN], LOGIN_SUCCESS_COLUMN)
-    attack_ip, attack_ip_missing = parse_boolean(chunk[ATTACK_IP_COLUMN], ATTACK_IP_COLUMN)
-    boolean = np.column_stack((success, success_missing, attack_ip, attack_ip_missing))
-    return np.concatenate((time_frame.to_numpy(), rtt_features, boolean, history), axis=1).astype(np.float32, copy=False)
-
-
-def make_feature_schema(category_levels: dict[str, list[str]]) -> tuple[list[str], list[str]]:
-    one_hot_names = []
-    for column in CATEGORY_COLUMNS:
-        for value in category_levels[column]:
-            one_hot_names.append(
-                f"{column}=OTHER" if value == OTHER else f"{column}=VALUE::{value}"
+            pair_keys = [(int(user), int(category)) for user, category in pair_values]
+            state = self.user_category_counts[column]
+            pair_base = np.fromiter(
+                (state.get(key, 0) for key in pair_keys),
+                dtype=np.int64,
+                count=len(pair_keys),
             )
-    return one_hot_names, NUMERIC_FEATURES + one_hot_names
+            prior_count = local_prior_counts(pair_local, pair_base, pair_keys, state)
+            frequency = prior_count / np.maximum(user_prior, 1)
+            features.extend([np.log1p(prior_count), frequency])
+
+        self.rows_seen += len(chunk)
+        return np.column_stack(features).astype(np.float32, copy=False)
 
 
-def main() -> None:
+def main():
+    C.ensure_dirs()
     if not C.RAW_FILE.exists():
         raise FileNotFoundError(f"Không tìm thấy dataset: {C.RAW_FILE}")
-    actual_columns = pd.read_csv(C.RAW_FILE, nrows=0).columns.tolist()
-    if actual_columns != READ_COLUMNS:
-        raise ValueError(
-            "Schema/delimiter nguồn không khớp. File cần là CSV dấu phẩy với đúng 16 cột "
-            f"đã xác nhận. Cột thực tế: {actual_columns}"
-        )
-    if C.PROCESSED_DIR.exists() and any(C.PROCESSED_DIR.iterdir()):
-        raise FileExistsError(f"{C.PROCESSED_DIR} không rỗng; hãy chuyển kết quả cũ ra trước để tránh ghi đè.")
+    eda_file = C.TABLE_DIR / "01_eda_summary.json"
+    if not eda_file.exists():
+        raise FileNotFoundError("Hãy chạy bước 01 EDA trước.")
+    eda = json.loads(eda_file.read_text(encoding="utf-8"))
+    expected_rows = int(eda["rows"])
 
+    header = pd.read_csv(C.RAW_FILE, nrows=0).columns.tolist()
+    missing = sorted(set(REQUIRED_COLUMNS) - set(header))
+    if missing:
+        raise ValueError(f"Dataset thiếu các cột bắt buộc: {missing}")
+
+    paths = {"train": C.TRAIN, "validation": C.VALIDATION, "test": C.TEST}
+    for path in paths.values():
+        if path.exists():
+            path.unlink()
+
+    history = UserHistory()
+    seen_headers = set()
+    row_counts = {name: 0 for name in SPLIT_NAMES}
+    anomaly_counts = {name: 0 for name in SPLIT_NAMES}
+    scanned = 0
     started = time.perf_counter()
-    total_rows = 0
-    positives: dict[int, list[str]] = {}
-    train_category_counts = {column: Counter() for column in CATEGORY_COLUMNS}
-    rng = np.random.default_rng(SEED)
-    previous_ns = None
-    seen_indices = np.zeros(0, dtype=np.bool_)
 
-    print("Lượt 1/2: kiểm tra schema, index, thời gian, nhãn và category train.")
-    for chunk in read_chunks():
-        seen_indices = check_index_chunk(chunk, seen_indices)
-        previous_ns = validate_time_order(chunk, previous_ns)
-        y = parse_target(chunk)
-        split = assign_splits(y, total_rows, rng)
-        train_negative = (split == 0) & (y == 0)
-        for column in CATEGORY_COLUMNS:
-            values = normalize_category(chunk[column])
-            if values.eq(OTHER).any():
-                raise ValueError("Giá trị nguồn đụng token nội bộ OTHER; đổi token trước khi chạy.")
-            train_category_counts[column].update(values[train_negative].value_counts().to_dict())
-        for local in np.flatnonzero(y == 1):
-            row_id = total_rows + int(local)
-            positives[row_id] = [str(normalize_category(chunk[col].iloc[[local]]).iloc[0]) for col in CATEGORY_COLUMNS]
-        total_rows += len(chunk)
+    for chunk in pd.read_csv(
+        C.RAW_FILE,
+        usecols=REQUIRED_COLUMNS,
+        chunksize=C.CHUNK_SIZE,
+        low_memory=False,
+    ):
+        source_index = pd.to_numeric(chunk[INDEX_COLUMN], errors="raise").to_numpy(dtype=np.int64)
+        labels = C.parse_label(chunk[C.RAW_LABEL])
+        features = history.transform(chunk)
+
+        output = pd.DataFrame(features, columns=C.FEATURES)
+        output.insert(0, C.SOURCE_INDEX, source_index)
+        output[C.TARGET] = labels
+        split_codes = C.split_for_source_index(source_index)
+
+        for split_code, split_name in enumerate(SPLIT_NAMES):
+            mask = split_codes == split_code
+            if not np.any(mask):
+                continue
+            part = output.loc[mask]
+            part.to_csv(
+                paths[split_name],
+                mode="a",
+                index=False,
+                header=split_name not in seen_headers,
+                encoding="utf-8",
+            )
+            seen_headers.add(split_name)
+            row_counts[split_name] += len(part)
+            anomaly_counts[split_name] += int(part[C.TARGET].sum())
+
+        scanned += len(chunk)
         print(
-            f"Lượt 1: {total_rows:,} dòng, takeover={len(positives):,} | "
-            f"{elapsed_text(time.perf_counter()-started)}",
+            f"Đã xử lý {scanned:,} / {expected_rows:,} dòng | "
+            f"{C.elapsed_text(time.perf_counter() - started)}",
             flush=True,
         )
 
-    if not positives:
-        raise ValueError("Dataset không có mẫu takeover.")
-    positive_counts = positive_split_counts(len(positives))
-    positive_ids = np.array(list(positives), dtype=np.int64)
-    shuffled = np.random.default_rng(SEED + 1).permutation(positive_ids)
-    positive_assignment: dict[int, int] = {}
-    cursor = 0
-    for split_id, count in enumerate(positive_counts):
-        for row_id in shuffled[cursor:cursor+count]:
-            positive_assignment[int(row_id)] = split_id
-        cursor += count
-    for row_id, values in positives.items():
-        if positive_assignment[row_id] == 0:
-            for column, value in zip(CATEGORY_COLUMNS, values):
-                train_category_counts[column][value] += 1
+    if scanned != expected_rows:
+        raise ValueError(f"EDA ghi nhận {expected_rows:,} dòng nhưng preprocess đọc {scanned:,}.")
+    total_anomalies = sum(anomaly_counts.values())
+    expected_anomalies = int(eda["label_counts"]["attack_ip_1"])
+    if total_anomalies != expected_anomalies:
+        raise ValueError(f"Nhãn Is Attack IP không khớp: EDA={expected_anomalies:,}, preprocess={total_anomalies:,}.")
 
-    category_levels = {}
-    for column, counter in train_category_counts.items():
-        top_values = [
-            value for value, _ in sorted(counter.items(), key=lambda item: (-item[1], item[0]))
-            if value != OTHER
-        ][:MAX_CATEGORIES_PER_COLUMN]
-        category_levels[column] = top_values + [OTHER]
-    one_hot_names, feature_names = make_feature_schema(category_levels)
-    if len(feature_names) != len(set(feature_names)):
-        raise ValueError("Tên feature bị trùng sau mã hóa category.")
-
-    C.PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    split_paths = {name: C.PROCESSED_DIR / f"{name}.csv" for name in SPLITS.values()}
-    row_start = 0
-    rng = np.random.default_rng(SEED)
-    history = AccountHistory(category_levels)
-    split_rows, split_positives = Counter(), Counter()
-    batch_counts = Counter()
-    batch_rows = max(1, min(DENSE_BATCH_MAX_ROWS, DENSE_BATCH_MAX_CELLS // max(len(one_hot_names), 1)))
-    headers_written = set()
-
-    with (
-        split_paths["train"].open("w", encoding="utf-8-sig", newline="") as f_train,
-        split_paths["validation"].open("w", encoding="utf-8-sig", newline="") as f_validation,
-        split_paths["test"].open("w", encoding="utf-8-sig", newline="") as f_test,
-    ):
-        file_handles = {"train": f_train, "validation": f_validation, "test": f_test}
-        print("Lượt 2/2: tạo feature quá khứ, one-hot category và ghi CSV.")
-        for chunk in read_chunks():
-            y = parse_target(chunk)
-            split = assign_splits(y, row_start, rng, positive_assignment)
-            history_array = history.transform(chunk)
-            numeric = numeric_features(chunk, history_array)
-            normalized = {col: normalize_category(chunk[col]) for col in CATEGORY_COLUMNS}
-
-            for split_id, split_name in SPLITS.items():
-                local_rows = np.flatnonzero(split == split_id)
-                for start in range(0, len(local_rows), batch_rows):
-                    idx = local_rows[start:start+batch_rows]
-                    cats = pd.DataFrame({col: normalized[col].iloc[idx].to_numpy() for col in CATEGORY_COLUMNS})
-                    for col in CATEGORY_COLUMNS:
-                        cats[col] = cats[col].where(cats[col].isin(category_levels[col]), OTHER)
-                    encoded = pd.get_dummies(cats, columns=CATEGORY_COLUMNS, prefix_sep="=", dtype=np.uint8)
-                    rename = {}
-                    for col in CATEGORY_COLUMNS:
-                        for value in category_levels[col]:
-                            if value == OTHER:
-                                rename[f"{col}={OTHER}"] = f"{col}=OTHER"
-                            else:
-                                rename[f"{col}={value}"] = f"{col}=VALUE::{value}"
-                    encoded = encoded.rename(columns=rename).reindex(columns=one_hot_names, fill_value=0)
-                    numeric_frame = pd.DataFrame(numeric[idx], columns=NUMERIC_FEATURES)
-                    output = pd.concat([numeric_frame, encoded], axis=1)
-                    output[C.TARGET] = y[idx]
-                    output.to_csv(file_handles[split_name], index=False, header=split_name not in headers_written)
-                    headers_written.add(split_name)
-                    batch_counts[split_id] += 1
-                    split_rows[split_id] += len(idx)
-                    split_positives[split_id] += int(y[idx].sum())
-            row_start += len(chunk)
-            print(
-                f"Lượt 2: {row_start:,}/{total_rows:,} dòng | "
-                f"{elapsed_text(time.perf_counter()-started)}",
-                flush=True,
-            )
-
-    if row_start != total_rows:
-        raise RuntimeError(f"Số dòng đổi giữa hai lượt: {total_rows:,} và {row_start:,}.")
-    summary = []
-    for split_id, split_name in SPLITS.items():
-        n_rows = int(split_rows[split_id])
-        n_positive = int(split_positives[split_id])
-        summary.append({
-            "split": split_name, "rows": n_rows, "takeover_true": n_positive,
-            "takeover_rate": n_positive / n_rows if n_rows else 0.0,
-            "batches": int(batch_counts[split_id]), "file": split_paths[split_name].name,
+    split_rows = []
+    for split_name in SPLIT_NAMES:
+        normal_count = row_counts[split_name] - anomaly_counts[split_name]
+        split_rows.append({
+            "split": split_name,
+            "rows": row_counts[split_name],
+            "normal_rows": normal_count,
+            "attack_ip_rows": anomaly_counts[split_name],
+            "attack_ip_rate": anomaly_counts[split_name] / row_counts[split_name] if row_counts[split_name] else 0.0,
+            "file": paths[split_name].name,
         })
-    pd.DataFrame(summary).to_csv(C.TABLE_DIR / "02_split_summary.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame(split_rows).to_csv(C.SPLIT_SUMMARY, index=False, encoding="utf-8")
+
     schema = {
-        "target": C.TARGET,
-        "numeric_features": NUMERIC_FEATURES,
-        "categorical_columns": CATEGORY_COLUMNS,
-        "category_levels": category_levels,
-        "one_hot_features": one_hot_names,
-        "feature_columns": feature_names,
-        "max_categories_per_column": MAX_CATEGORIES_PER_COLUMN,
-        "split_method": "random row split; positive labels apportioned to all splits",
-        "history_rule": "past events in timestamp order only",
-        "history_category_policy": "history-change features use the train category vocabulary; unseen values map to OTHER",
-        "raw_id_policy": "index excluded; User ID used only as history key",
+        "target_column": C.TARGET,
+        "source_label": C.RAW_LABEL,
+        "feature_columns": C.FEATURES,
+        "target_meaning": "0 = Is Attack IP False; 1 = Is Attack IP True",
+        "split": "Phân hoạch giả ngẫu nhiên ổn định 70/15/15 theo source_index; giữ nguyên toàn bộ tỷ lệ lớp.",
+        "history": "Tần suất IP, quốc gia, trình duyệt, thiết bị, ASN, region và OS được tính từ các lần đăng nhập trước của cùng user; số lần IP và ASN xuất hiện toàn cục chỉ tính từ các dòng đứng trước.",
+        "label_usage": "Feature lịch sử IP và ASN không dùng nhãn Is Attack IP; chỉ s05 mới huấn luyện theo nhãn.",
+        "additional_signals": ["Login Successful", "Round-Trip Time [ms]"],
+        "prediction_timing": "Có thể chấm điểm trong hoặc ngay sau lần đăng nhập; Login Successful chỉ có sau khi có kết quả đăng nhập.",
+        "excluded_from_features": [C.SOURCE_INDEX, C.TARGET, USER_COLUMN, C.RAW_LABEL, "Is Account Takeover"],
     }
-    (C.TABLE_DIR / "02_feature_schema.json").write_text(json.dumps(schema, indent=2), encoding="utf-8")
-    print(f"Hoàn tất: {total_rows:,} dòng, {len(feature_names):,} feature.")
-    print(f"Chia tập: {summary}")
-    print(f"Kết quả: {C.PROCESSED_DIR}; tổng thời gian {elapsed_text(time.perf_counter()-started)}")
+    C.FEATURE_SCHEMA.write_text(json.dumps(schema, indent=2, ensure_ascii=False), encoding="utf-8")
+    print("\nTiền xử lý hoàn tất")
+    print(pd.DataFrame(split_rows).to_string(index=False))
+    print(f"Thời gian: {C.elapsed_text(time.perf_counter() - started)}")
+    print(f"Feature schema: {C.FEATURE_SCHEMA}")
 
 
 if __name__ == "__main__":

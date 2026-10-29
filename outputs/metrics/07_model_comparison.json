@@ -1,0 +1,36 @@
+{
+  "target": "Is Attack IP",
+  "test_rows": 4691222,
+  "positive_rate_in_test": 0.0989639799608716,
+  "primary_comparison": "So sánh Logistic Regression và Random Forest trên cùng test; mỗi mô hình dùng ngưỡng tối đa F1 lớp 1 được chọn riêng trên validation.",
+  "models": [
+    {
+      "model": "Logistic Regression",
+      "comparison": "Ngưỡng validation tối đa F1 lớp 1",
+      "pr_auc": 0.27310048697466566,
+      "precision_class_1": 0.27856178822028654,
+      "recall_class_1": 0.7864395535279648,
+      "f1_class_1": 0.41140231428872437,
+      "predicted_class_1_rate": 0.27939649839636665,
+      "tp": 365114,
+      "fp": 945597,
+      "fn": 99148,
+      "tn": 3281363
+    },
+    {
+      "model": "Random Forest",
+      "comparison": "Ngưỡng validation tối đa F1 lớp 1",
+      "pr_auc": 0.11294952004782438,
+      "precision_class_1": 0.14078664794609902,
+      "recall_class_1": 0.8842313176611483,
+      "f1_class_1": 0.2428990854784197,
+      "predicted_class_1_rate": 0.6215578798018938,
+      "tp": 410515,
+      "fp": 2505351,
+      "fn": 53747,
+      "tn": 1721609
+    }
+  ],
+  "table_file": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\07_model_comparison.csv",
+  "note": "Các metric đo khả năng dự đoán nhãn Is Attack IP; không khẳng định nhãn này đồng nghĩa với đăng nhập bất thường hoặc ATO."
+}

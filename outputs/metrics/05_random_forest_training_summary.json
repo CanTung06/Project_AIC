@@ -1,0 +1,25 @@
+{
+  "model": "RandomForestClassifier",
+  "learning_type": "supervised",
+  "target": "Is Attack IP",
+  "training_sample_method": "Balanced Subsampling 50-50: 250,000 mẫu lớp 0 và 250,000 mẫu lớp 1 để triệt tiêu độ lệch lớp.",
+  "train_rows_scanned": 3000000,
+  "train_rows_sampled": 500000,
+  "class_0_rows_sampled": 250000,
+  "class_1_rows_sampled": 250000,
+  "class_1_rate_sampled": 0.5,
+  "feature_count": 30,
+  "class_weight": "balanced_subsample",
+  "hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 20,
+    "min_samples_leaf": 5,
+    "max_features": "sqrt",
+    "max_samples_per_tree": 100000,
+    "bootstrap": true,
+    "n_jobs": -1
+  },
+  "fit_seconds": 14.968069999998988,
+  "model_file": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_random_forest_is_attack_ip.joblib",
+  "note": "Mô hình Random Forest duy nhất trong pipeline, học nhãn Is Attack IP."
+}

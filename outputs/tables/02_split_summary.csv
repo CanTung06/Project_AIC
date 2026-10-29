@@ -1,4 +1,4 @@
-﻿split,rows,takeover_true,takeover_rate,batches,file
-train,21888764,99,4.522868445198642e-06,2221,train.csv
-validation,4690870,21,4.47678149255895e-06,501,validation.csv
-test,4689630,21,4.477965212607391e-06,501,test.csv
+split,rows,normal_rows,attack_ip_rows,attack_ip_rate,file
+train,21885883,19718375,2167508,0.09903680833896443,train.csv
+validation,4692159,4226952,465207,0.09914561718816434,validation.csv
+test,4691222,4226960,464262,0.0989639799608716,test.csv
