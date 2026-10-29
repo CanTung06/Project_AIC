@@ -19,7 +19,6 @@ VALIDATION_DATA = PROCESSED_DIR / "validation.csv"
 TEST_DATA = PROCESSED_DIR / "test.csv"
 UNDERSAMPLED_TRAIN_DATA = PROCESSED_DIR / "train_undersampled.csv"
 
-WEIGHTED_MODEL = MODELS_DIR / "05_sgd_class_weight.joblib"
 UNDERSAMPLED_MODEL = MODELS_DIR / "05_sgd_undersampling.joblib"
 SELECTED_MODEL_INFO = METRICS_DIR / "07_selected_model.json"
 

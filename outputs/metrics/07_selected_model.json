@@ -1,17 +1,18 @@
 {
   "selected_model": "random_undersampling",
-  "threshold": 0.012381545267999172,
+  "threshold": 0.010822810369652065,
   "selection_metric": "validation_precision_with_minimum_recall",
   "minimum_recall_target": 0.8,
   "validation_metrics": {
-    "threshold": 0.012381545267999172,
-    "precision": 0.20539480137322216,
-    "recall": 0.903364969801553,
-    "f1": 0.3346919204027811,
+    "threshold": 0.010822810369652065,
+    "precision": 0.7503955696202531,
+    "recall": 0.8183779119930975,
+    "f1": 0.7829137432934378,
     "minimum_recall_target": 0.8
   },
   "thresholds_by_model": {
-    "class_weight": 0.04320088401436806,
-    "random_undersampling": 0.012381545267999172
-  }
+    "random_undersampling": 0.010822810369652065
+  },
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_undersampling.joblib",
+  "threshold_embedded_in_model": true
 }

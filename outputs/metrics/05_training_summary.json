@@ -1,25 +1,12 @@
 [
   {
-    "strategy": "class_weight",
-    "training_rows": 1602561,
-    "feature_count": 78,
-    "fit_seconds": 39.71,
-    "fit_time": "00:00:39",
-    "epochs_used": 23,
-    "class_weight": {
-      "0": 0.5033791869973859,
-      "1": 74.48229224762967
-    },
-    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_class_weight.joblib"
-  },
-  {
-    "strategy": "random_undersampling",
+    "strategy": "random_undersampling_signed_log",
     "training_rows": 43032,
     "feature_count": 78,
-    "fit_seconds": 1.66,
+    "fit_seconds": 1.26,
     "fit_time": "00:00:01",
-    "epochs_used": 42,
-    "class_weight": null,
+    "epochs_used": 37,
+    "feature_transform": "signed_log_then_standard_scaler",
     "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_undersampling.joblib"
   }
 ]

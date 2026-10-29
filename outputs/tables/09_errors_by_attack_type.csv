@@ -1,5 +1,0 @@
-﻿error_type,attack_type,error_count,examples_saved
-false_negative,FTP-Patator,169,169
-false_negative,Web Attack - Brute Force,16,16
-false_negative,SSH-Patator,3,3
-false_positive,BENIGN,8148,1000

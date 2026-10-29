@@ -1,4 +1,4 @@
-"""Bước 10 - So sánh phân phối feature giữa train và test."""
+"""Bước 9 - So sánh phân phối feature giữa train và test."""
 
 import numpy as np
 import pandas as pd
@@ -67,7 +67,7 @@ def main() -> int:
         "train_valid_count": train_count,
         "test_valid_count": test_count,
     }).sort_values("standardized_mean_shift", ascending=False)
-    table.to_csv(C.TABLES_DIR / "10_feature_drift.csv", index=False, encoding="utf-8-sig")
+    table.to_csv(C.TABLES_DIR / "09_feature_drift.csv", index=False, encoding="utf-8-sig")
     print(f"Đã so sánh {len(feature_names)} feature trên train/test | {elapsed_text(time.perf_counter() - started)}")
     print("Top 20 feature có độ dịch chuyển trung bình chuẩn hóa lớn nhất:")
     print(table.head(20).to_string(index=False, float_format=lambda value: f"{value:.5f}"))

@@ -21,9 +21,7 @@ STEPS = [
     ("s06", "steps.s06_evaluate"),
     ("s07", "steps.s07_tuning"),
     ("s08", "steps.s08_explain"),
-    ("s09", "steps.s09_error_analysis"),
-    ("s10", "steps.s10_drift"),
-    ("s11", "steps.s11_stream"),
+    ("s09", "steps.s09_drift"),
 ]
 
 

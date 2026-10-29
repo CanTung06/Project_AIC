@@ -1,9 +1,4 @@
-"""Bước 04 - Xử lý mất cân bằng bằng class weight và random undersampling.
-
-Tạo class weight cho SGDClassifier trên toàn bộ train và một bản train undersampled
-với đúng 3 mẫu bình thường cho mỗi mẫu tấn công. Validation/test không bị lấy mẫu lại.
-Chạy: python steps/s04_imbalance.py
-"""
+"""Bước 04 - Xử lý mất cân bằng bằng class weight và random undersampling"""
 
 import json
 import sys

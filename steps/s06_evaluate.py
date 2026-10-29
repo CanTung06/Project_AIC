@@ -1,8 +1,4 @@
-"""Bước 06 - Đánh giá SGDClassifier, in classification report và confusion matrix.
-
-Đánh giá validation/test với ngưỡng 0.5. Bước s07 sẽ chọn ngưỡng riêng trên validation.
-Chạy: python steps/s06_evaluate.py
-"""
+"""Bước 06 - Đánh giá SGDClassifier, in classification report và confusion matrix. Đánh giá validation/test với ngưỡng 0.5"""
 
 import json
 import sys
@@ -20,7 +16,6 @@ from ids.common import calculate_metrics, confusion_table, elapsed_text, load_xy
 
 
 MODELS = {
-    "class_weight": C.WEIGHTED_MODEL,
     "random_undersampling": C.UNDERSAMPLED_MODEL,
 }
 
@@ -61,6 +56,17 @@ def main() -> int:
                 output_dict=True,
                 zero_division=0,
             )
+            print(f"\nClassification report | {model_name} | {split_name} | threshold=0.5")
+            print(classification_report(
+                y,
+                predicted,
+                labels=[0, 1],
+                target_names=["Normal", "Attack"],
+                digits=4,
+                zero_division=0,
+            ))
+            if result["roc_auc"] is not None:
+                print(f"AUC-ROC: {result['roc_auc']:.4f}")
             for class_name in ["Normal (0)", "Attack (1)", "macro avg", "weighted avg"]:
                 values = report[class_name]
                 report_rows.append({

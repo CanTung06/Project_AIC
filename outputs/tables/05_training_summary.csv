@@ -1,3 +1,2 @@
-﻿strategy,training_rows,feature_count,fit_seconds,fit_time,epochs_used,model_path
-class_weight,1602561,78,39.71,00:00:39,23,D:\Code\Python\Project_AIC\outputs\models\05_sgd_class_weight.joblib
-random_undersampling,43032,78,1.66,00:00:01,42,D:\Code\Python\Project_AIC\outputs\models\05_sgd_undersampling.joblib
+﻿strategy,training_rows,feature_count,fit_seconds,fit_time,epochs_used,feature_transform,model_path
+random_undersampling_signed_log,43032,78,1.26,00:00:01,37,signed_log_then_standard_scaler,D:\Code\Python\Project_AIC\outputs\models\05_sgd_undersampling.joblib

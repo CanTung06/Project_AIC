@@ -1,8 +1,4 @@
-"""Bước 03 - Làm sạch số và chia train/validation/test theo từng chunk.
-
-Giữ nguyên tỷ lệ nhãn tự nhiên; attack_type chỉ để phân tích và không dùng làm feature.
-Chạy: python steps/s03_split_data.py
-"""
+"""Bước 03 - Làm sạch số và chia train/validation/test theo từng chunk"""
 
 import json
 import sys

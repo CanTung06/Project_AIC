@@ -1,8 +1,4 @@
-"""Bước 07 - Tối đa hóa precision trên validation với recall tối thiểu.
-
-Ngưỡng chỉ được chọn từ validation; test chỉ dùng để báo cáo kết quả cuối.
-Chạy: python steps/s07_tuning.py
-"""
+"""Bước 07 - Tối đa hóa precision trên validation với recall tối thiểu"""
 
 import json
 import gc
@@ -14,7 +10,7 @@ import joblib
 import matplotlib
 import numpy as np
 import pandas as pd
-from sklearn.metrics import average_precision_score, precision_recall_curve
+from sklearn.metrics import average_precision_score, classification_report, precision_recall_curve
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -23,10 +19,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from ids import config as C
 from ids.common import calculate_metrics, confusion_table, elapsed_text, load_xy, print_table, save_json
+from ids.thresholded import ThresholdedClassifier
 
 
 MODELS = {
-    "class_weight": C.WEIGHTED_MODEL,
     "random_undersampling": C.UNDERSAMPLED_MODEL,
 }
 
@@ -45,6 +41,8 @@ def main() -> int:
 
     for model_name, model_path in MODELS.items():
         model = joblib.load(model_path)
+        if isinstance(model, ThresholdedClassifier):
+            model = model.estimator
         scores_val = model.predict_proba(X_val)[:, 1]
         precision, recall, thresholds = precision_recall_curve(y_val, scores_val)
         if len(thresholds) == 0:
@@ -112,8 +110,27 @@ def main() -> int:
     gc.collect()
     X_test, y_test, _ = load_xy(C.TEST_DATA, feature_names)
     selected_model = joblib.load(MODELS[selected_name])
+    if isinstance(selected_model, ThresholdedClassifier):
+        selected_model = selected_model.estimator
     scores_test = selected_model.predict_proba(X_test)[:, 1]
     test_metrics = calculate_metrics(y_test, scores_test, selected_threshold)
+    predictions_test = (scores_test >= selected_threshold).astype(np.int8)
+    tuned_report = classification_report(
+        y_test,
+        predictions_test,
+        labels=[0, 1],
+        target_names=["Normal", "Attack"],
+        digits=4,
+        zero_division=0,
+    )
+    tuned_report_text = (
+        f"Classification report | {selected_name} | tuned threshold={selected_threshold:.8f}\n"
+        f"{tuned_report}\nAUC-ROC: {test_metrics['roc_auc']:.4f}\n"
+    )
+    (C.TABLES_DIR / "07_tuned_classification_report.txt").write_text(
+        tuned_report_text,
+        encoding="utf-8",
+    )
     test_row = {"model": selected_name, **test_metrics}
     test_table = pd.DataFrame([test_row])
     test_table.to_csv(C.TABLES_DIR / "07_tuned_test_metrics.csv", index=False, encoding="utf-8-sig")
@@ -127,6 +144,15 @@ def main() -> int:
         encoding="utf-8-sig",
     )
 
+    final_model = ThresholdedClassifier(
+        estimator=selected_model,
+        threshold=selected_threshold,
+        model_name=selected_name,
+    )
+    joblib.dump(final_model, MODELS[selected_name], compress=3)
+    selected_info["model_path"] = str(MODELS[selected_name])
+    selected_info["threshold_embedded_in_model"] = True
+
     save_json(C.SELECTED_MODEL_INFO, selected_info)
     save_json(C.METRICS_DIR / "07_threshold_tuning.json", {
         "selection_rule": "maximize_validation_precision_subject_to_minimum_recall",
@@ -137,10 +163,11 @@ def main() -> int:
     })
 
     print_table(
-        f"Ngưỡng precision cao nhất trên validation (recall >= {C.MIN_RECALL_TARGET:.0%})",
+        f"Ngưỡng precision cao nhất trên validation",
         threshold_table,
     )
     print_table("Kết quả test của mô hình được chọn", test_table)
+    print("\n" + tuned_report_text)
     print_table(f"Confusion matrix test | {selected_name} | threshold={selected_threshold:.6f}", matrix, index=True)
     print(f"\nModel được chọn theo precision validation với recall tối thiểu: {selected_name}")
     print(f"Ngưỡng lưu tại: {C.SELECTED_MODEL_INFO}")

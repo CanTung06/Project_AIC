@@ -1,0 +1,11 @@
+Classification report | random_undersampling | tuned threshold=0.01082281
+              precision    recall  f1-score   support
+
+      Normal     0.9990    0.9982    0.9986    340791
+      Attack     0.7545    0.8504    0.7996      2266
+
+    accuracy                         0.9972    343057
+   macro avg     0.8768    0.9243    0.8991    343057
+weighted avg     0.9974    0.9972    0.9973    343057
+
+AUC-ROC: 0.9980

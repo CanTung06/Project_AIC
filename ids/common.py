@@ -18,6 +18,11 @@ from sklearn.metrics import (
 from . import config as C
 
 
+def signed_log_transform(values):
+    values = np.asarray(values, dtype=np.float64)
+    return np.sign(values) * np.log1p(np.abs(values))
+
+
 def elapsed_text(seconds: float) -> str:
     seconds = int(seconds)
     hours, seconds = divmod(seconds, 3600)

@@ -12,8 +12,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from ids import config as C
 
-# Chuẩn hóa Unicode và dấu câu trước khi so khớp để nhận diện được nhãn có dấu
-# gạch ngang khác nhau hoặc ký tự thay thế do lỗi encoding của file nguồn.
 KEEP_LABELS = {
     "benign": "BENIGN",
     "ftp patator": "FTP-Patator",

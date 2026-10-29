@@ -22,7 +22,7 @@ def main() -> int:
         raise FileNotFoundError("Hãy chạy s07_tuning.py trước.")
     with C.SELECTED_MODEL_INFO.open("r", encoding="utf-8") as source:
         selected = json.load(source)
-    model_path = C.WEIGHTED_MODEL if selected["selected_model"] == "class_weight" else C.UNDERSAMPLED_MODEL
+    model_path = C.UNDERSAMPLED_MODEL
     model = joblib.load(model_path)
     classifier = model.named_steps["classifier"]
     feature_names = load_feature_names(C.TRAIN_DATA)

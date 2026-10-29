@@ -2,54 +2,48 @@
   "selection_rule": "maximize_validation_precision_subject_to_minimum_recall",
   "minimum_recall_target": 0.8,
   "validation": {
-    "class_weight": {
-      "threshold": 0.04320088401436806,
-      "precision": 0.156791104050834,
-      "recall": 0.8515962036238136,
-      "f1": 0.26482425543332433,
-      "minimum_recall_target": 0.8
-    },
     "random_undersampling": {
-      "threshold": 0.012381545267999172,
-      "precision": 0.20539480137322216,
-      "recall": 0.903364969801553,
-      "f1": 0.3346919204027811,
+      "threshold": 0.010822810369652065,
+      "precision": 0.7503955696202531,
+      "recall": 0.8183779119930975,
+      "f1": 0.7829137432934378,
       "minimum_recall_target": 0.8
     }
   },
   "test_at_validation_threshold": [
     {
       "model": "random_undersampling",
-      "threshold": 0.012381545267999172,
-      "balanced_accuracy": 0.9465626698913747,
-      "precision": 0.20320751026794445,
-      "recall": 0.9170344218887908,
-      "f1": 0.3326929234710215,
-      "tp": 2078,
-      "fp": 8148,
-      "fn": 188,
-      "tn": 332643,
+      "threshold": 0.010822810369652065,
+      "balanced_accuracy": 0.9242786691601232,
+      "precision": 0.754502740798747,
+      "recall": 0.850397175639894,
+      "f1": 0.799585062240664,
+      "tp": 1927,
+      "fp": 627,
+      "fn": 339,
+      "tn": 340164,
       "support_0": 340791,
       "support_1": 2266,
-      "pr_auc": 0.21418032163476264,
-      "roc_auc": 0.9865733438283085
+      "pr_auc": 0.692655273617458,
+      "roc_auc": 0.9980343236204464
     }
   ],
   "selected_model": {
     "selected_model": "random_undersampling",
-    "threshold": 0.012381545267999172,
+    "threshold": 0.010822810369652065,
     "selection_metric": "validation_precision_with_minimum_recall",
     "minimum_recall_target": 0.8,
     "validation_metrics": {
-      "threshold": 0.012381545267999172,
-      "precision": 0.20539480137322216,
-      "recall": 0.903364969801553,
-      "f1": 0.3346919204027811,
+      "threshold": 0.010822810369652065,
+      "precision": 0.7503955696202531,
+      "recall": 0.8183779119930975,
+      "f1": 0.7829137432934378,
       "minimum_recall_target": 0.8
     },
     "thresholds_by_model": {
-      "class_weight": 0.04320088401436806,
-      "random_undersampling": 0.012381545267999172
-    }
+      "random_undersampling": 0.010822810369652065
+    },
+    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_undersampling.joblib",
+    "threshold_embedded_in_model": true
   }
 }
