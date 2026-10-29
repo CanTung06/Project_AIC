@@ -7,18 +7,18 @@
   "train_rows_sampled": 500000,
   "class_0_rows_sampled": 250000,
   "class_1_rows_sampled": 250000,
-  "feature_count": 30,
+  "feature_count": 33,
   "standardization": "StandardScaler được fit trên train.",
   "class_weight": "balanced",
   "hyperparameters": {
     "C": 1.0,
-    "penalty": "l2",
+    "regularization": "L2 (mặc định của LogisticRegression)",
     "solver": "lbfgs",
     "max_iter": 300,
     "tol": 0.001,
-    "n_iter_actual": 32
+    "n_iter_actual": 33
   },
-  "fit_seconds": 1.1215231000005588,
+  "fit_seconds": 2.9528282999999647,
   "model_file": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\03_logistic_regression_is_attack_ip.joblib",
   "note": "Ngưỡng phân loại sẽ được chọn theo F1 lớp 1 trên validation ở bước 04."
 }

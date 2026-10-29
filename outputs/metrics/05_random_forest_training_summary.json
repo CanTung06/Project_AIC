@@ -8,7 +8,7 @@
   "class_0_rows_sampled": 250000,
   "class_1_rows_sampled": 250000,
   "class_1_rate_sampled": 0.5,
-  "feature_count": 30,
+  "feature_count": 33,
   "class_weight": "balanced_subsample",
   "hyperparameters": {
     "n_estimators": 200,
@@ -19,7 +19,7 @@
     "bootstrap": true,
     "n_jobs": -1
   },
-  "fit_seconds": 14.968069999998988,
+  "fit_seconds": 15.243502199999057,
   "model_file": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_random_forest_is_attack_ip.joblib",
-  "note": "Mô hình Random Forest duy nhất trong pipeline, học nhãn Is Attack IP."
+  "note": "Mô hình học nhãn Is Attack IP; đây là đối chứng có giám sát với Isolation Forest không giám sát."
 }

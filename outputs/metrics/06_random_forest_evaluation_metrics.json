@@ -2,51 +2,51 @@
   "model": "RandomForestClassifier",
   "learning_type": "supervised",
   "target": "Is Attack IP",
-  "threshold": 0.9480000000000001,
+  "threshold": 0.9455,
   "threshold_selection": "Tối đa hóa F1 lớp 1 trên validation; không dùng test để chọn ngưỡng.",
-  "validation_precision_class_1_at_selected_threshold": 0.140922373809176,
-  "validation_recall_class_1_at_selected_threshold": 0.8834045919343432,
-  "validation_f1_class_1_at_selected_threshold": 0.24306979371367143,
+  "validation_precision_class_1_at_selected_threshold": 0.143483540394469,
+  "validation_recall_class_1_at_selected_threshold": 0.8788388824759731,
+  "validation_f1_class_1_at_selected_threshold": 0.24669108585120347,
   "test_metrics_at_f1_threshold": {
     "rows": 4691222,
     "actual_class_1_rate": 0.0989639799608716,
-    "predicted_class_1_rows": 2915866,
-    "predicted_class_1_rate": 0.6215578798018938,
-    "tp": 410515,
-    "fp": 2505351,
-    "fn": 53747,
-    "tn": 1721609,
-    "precision_class_1": 0.14078664794609902,
-    "recall_class_1": 0.8842313176611483,
-    "f1_class_1": 0.2428990854784197,
+    "predicted_class_1_rows": 2848614,
+    "predicted_class_1_rate": 0.6072221694049014,
+    "tp": 408407,
+    "fp": 2440207,
+    "fn": 55855,
+    "tn": 1786753,
+    "precision_class_1": 0.14337042505583417,
+    "recall_class_1": 0.8796907780520482,
+    "f1_class_1": 0.24655737190284213,
     "classification_report": {
       "Is Attack IP=0": {
-        "precision": 0.9697260718413659,
-        "recall": 0.40729247497019133,
-        "f1-score": 0.5736482384466263,
+        "precision": 0.9696869871399668,
+        "recall": 0.4227040236955164,
+        "f1-score": 0.5887578819448106,
         "support": 4226960.0
       },
       "Is Attack IP=1": {
-        "precision": 0.14078664794609902,
-        "recall": 0.8842313176611483,
-        "f1-score": 0.24289908547841976,
+        "precision": 0.14337042505583417,
+        "recall": 0.8796907780520482,
+        "f1-score": 0.24655737190284213,
         "support": 464262.0
       },
       "macro avg": {
-        "precision": 0.5552563598937325,
-        "recall": 0.6457618963156698,
-        "f1-score": 0.408273661962523,
+        "precision": 0.5565287060979005,
+        "recall": 0.6511974008737823,
+        "f1-score": 0.41765762692382635,
         "support": 4691222.0
       },
       "weighted avg": {
-        "precision": 0.8876909273062182,
-        "recall": 0.4544922410408205,
-        "f1-score": 0.5409159859002054,
+        "precision": 0.8879114114485365,
+        "recall": 0.46792925169603994,
+        "f1-score": 0.5548923575264172,
         "support": 4691222.0
       }
     },
-    "classification_report_text": "                precision   recall  f1-score        support\nIs Attack IP=0   0.969726 0.407292  0.573648 4226960.000000\nIs Attack IP=1   0.140787 0.884231  0.242899  464262.000000\nmacro avg        0.555256 0.645762  0.408274 4691222.000000\nweighted avg     0.887691 0.454492  0.540916 4691222.000000",
-    "pr_auc": 0.11294952004782438
+    "classification_report_text": "                precision   recall  f1-score        support\nIs Attack IP=0   0.969687 0.422704  0.588758 4226960.000000\nIs Attack IP=1   0.143370 0.879691  0.246557  464262.000000\nmacro avg        0.556529 0.651197  0.417658 4691222.000000\nweighted avg     0.887911 0.467929  0.554892 4691222.000000",
+    "pr_auc": 0.11831607378377744
   },
   "test_pr_curve": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\06_random_forest_test_pr_curve.png",
   "note": "Mô hình học nhãn Is Attack IP; chỉ số đo khả năng dự đoán nhãn này, không phải xác nhận ATO."

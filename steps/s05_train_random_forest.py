@@ -126,7 +126,7 @@ def main():
         },
         "fit_seconds": fit_seconds,
         "model_file": str(C.SUPERVISED_MODEL),
-        "note": "Mô hình Random Forest duy nhất trong pipeline, học nhãn Is Attack IP.",
+        "note": "Mô hình học nhãn Is Attack IP; đây là đối chứng có giám sát với Isolation Forest không giám sát.",
     }
     C.SUPERVISED_TRAINING_SUMMARY.write_text(
         json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"

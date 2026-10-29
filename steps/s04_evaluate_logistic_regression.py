@@ -166,6 +166,10 @@ def main():
         f"Recall lớp 1={metrics_at_f1['recall_class_1']:.6f} | "
         f"F1 lớp 1={metrics_at_f1['f1_class_1']:.6f}"
     )
+    print(
+        f"TP={metrics_at_f1['tp']:,} | FP={metrics_at_f1['fp']:,} | "
+        f"FN={metrics_at_f1['fn']:,} | TN={metrics_at_f1['tn']:,}"
+    )
     print(f"Ngưỡng tối đa F1={threshold:.6f} | Metrics: {C.METRICS}")
 
 

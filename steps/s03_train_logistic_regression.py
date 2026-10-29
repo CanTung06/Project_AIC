@@ -77,7 +77,6 @@ def main():
         ("standard_scaler", StandardScaler()),
         ("logistic_regression", LogisticRegression(
             C=C.LR_C,
-            penalty="l2",
             solver="lbfgs",
             class_weight="balanced",
             max_iter=C.LR_MAX_ITER,
@@ -122,7 +121,7 @@ def main():
         "class_weight": "balanced",
         "hyperparameters": {
             "C": C.LR_C,
-            "penalty": "l2",
+            "regularization": "L2 (mặc định của LogisticRegression)",
             "solver": "lbfgs",
             "max_iter": C.LR_MAX_ITER,
             "tol": C.LR_TOL,

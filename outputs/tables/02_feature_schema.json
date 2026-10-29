@@ -31,7 +31,10 @@
     "region_user_prior_count_log1p",
     "region_user_prior_frequency",
     "os_user_prior_count_log1p",
-    "os_user_prior_frequency"
+    "os_user_prior_frequency",
+    "device_familiarity_index",
+    "network_vs_device_mismatch",
+    "suspicious_auth_failure"
   ],
   "target_meaning": "0 = Is Attack IP False; 1 = Is Attack IP True",
   "split": "Phân hoạch giả ngẫu nhiên ổn định 70/15/15 theo source_index; giữ nguyên toàn bộ tỷ lệ lớp.",

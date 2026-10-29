@@ -62,6 +62,9 @@ FEATURES = [
     "asn_user_prior_count_log1p", "asn_user_prior_frequency",
     "region_user_prior_count_log1p", "region_user_prior_frequency",
     "os_user_prior_count_log1p", "os_user_prior_frequency",
+    "device_familiarity_index",
+    "network_vs_device_mismatch",
+    "suspicious_auth_failure",
 ]
 
 

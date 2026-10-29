@@ -175,9 +175,12 @@ class UserHistory:
             np.log1p(user_prior),
         ]
 
+        login_successful_val = None
         for column in BOOLEAN_COLUMNS:
             values, missing = parse_boolean_feature(chunk[column])
             features.extend([values, missing])
+            if column == "Login Successful":
+                login_successful_val = values
 
         rtt = pd.to_numeric(chunk[RTT_COLUMN], errors="coerce").to_numpy(dtype=np.float32)
         rtt_missing = ~np.isfinite(rtt)
@@ -185,6 +188,7 @@ class UserHistory:
         rtt = np.log1p(np.maximum(rtt, 0.0))
         features.extend([rtt, rtt_missing.astype(np.float32)])
 
+        user_freq_by_category = {}
         for column, prefix in CATEGORY_COLUMNS.items():
             values, _ = normalize(chunk[column])
             category_codes = self.encode_categories(column, values)
@@ -212,6 +216,23 @@ class UserHistory:
             prior_count = local_prior_counts(pair_local, pair_base, pair_keys, state)
             frequency = prior_count / np.maximum(user_prior, 1)
             features.extend([np.log1p(prior_count), frequency])
+            user_freq_by_category[column] = frequency
+
+        # 3 Đặc trưng tương tác mới bảo vệ người dùng lành tính
+        ip_freq = user_freq_by_category["IP Address"]
+        browser_freq = user_freq_by_category["Browser Name and Version"]
+        device_type_freq = user_freq_by_category["Device Type"]
+        os_freq = user_freq_by_category["OS Name and Version"]
+
+        device_familiarity = ((browser_freq + device_type_freq + os_freq) / 3.0).astype(np.float32, copy=False)
+        network_device_mismatch = ((1.0 - ip_freq) * device_familiarity).astype(np.float32, copy=False)
+        suspicious_failure = ((1.0 - login_successful_val) * (1.0 - ip_freq)).astype(np.float32, copy=False)
+
+        features.extend([
+            device_familiarity,
+            network_device_mismatch,
+            suspicious_failure,
+        ])
 
         self.rows_seen += len(chunk)
         return np.column_stack(features).astype(np.float32, copy=False)
