@@ -1,4 +1,4 @@
-"""Bước 10: Huấn luyện và đánh giá Logistic Regression để so sánh với SGD."""
+"""Bước 06: Huấn luyện, chọn threshold và đánh giá Logistic Regression."""
 
 import gc
 import sys
@@ -132,10 +132,10 @@ def main() -> int:
         model_name="logistic_regression_undersampling",
     )
     joblib.dump(final_model, C.LOGISTIC_REGRESSION_MODEL, compress=3)
-    report_path = C.TABLES_DIR / "10_logistic_regression_classification_report.txt"
+    report_path = C.TABLES_DIR / "06_logistic_regression_classification_report.txt"
     report_path.write_text(report_text, encoding="utf-8")
     save_json(
-        C.METRICS_DIR / "10_logistic_regression_confusion_test.json",
+        C.METRICS_DIR / "06_logistic_regression_confusion_test.json",
         confusion_table(y_test, test_scores, threshold).to_dict(orient="index"),
     )
 
@@ -162,11 +162,11 @@ def main() -> int:
         "test_classification_report": report_dict,
         "classification_report_path": str(report_path),
     }
-    save_json(C.METRICS_DIR / "10_logistic_regression_metrics.json", result)
+    save_json(C.METRICS_DIR / "06_logistic_regression_metrics.json", result)
 
     print("\n" + report_text)
     print(f"Đã lưu model: {C.LOGISTIC_REGRESSION_MODEL}")
-    print(f"Đã lưu metrics: {C.METRICS_DIR / '10_logistic_regression_metrics.json'}")
+    print(f"Đã lưu metrics: {C.METRICS_DIR / '06_logistic_regression_metrics.json'}")
     print(f"Tổng thời gian: {elapsed_text(time.perf_counter() - started)}")
     return 0
 

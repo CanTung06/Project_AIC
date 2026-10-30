@@ -1,6 +1,7 @@
 # CIC-IDS2017 Password Brute-Force Detection
 
-Pipeline phân loại có giám sát với `SGDClassifier`. Nhãn `is_attack=1` gồm
+Pipeline phân loại có giám sát với `SGDClassifier`, `Logistic Regression` và
+`XGBoost`. Nhãn `is_attack=1` gồm
 `FTP-Patator`, `SSH-Patator` và `Web Attack - Brute Force`; `BENIGN` là lớp 0.
 Cột `attack_type` chỉ dùng để phân tích lỗi và bị loại khỏi feature khi train.
 
@@ -13,20 +14,23 @@ pip install -r requirements.txt
 python run_all.py
 ```
 
-Hoặc chạy từng bước theo thứ tự `s01` đến `s11`. Có thể chạy lại một phần, ví dụ:
+Các bước model: s05 là SGD, s06 là Logistic Regression, s07 là XGBoost.
+s05 tự train, đánh giá threshold 0.5 và tuning threshold. Có thể chạy riêng:
 
 ```powershell
-python run_all.py --only s05,s06
-python run_all.py --from s07
+python run_all.py --only s05,s06,s07
+python run_all.py --from s06
 ```
 
 ## Xử lý mất cân bằng
 
 - `s04`: tạo trọng số lớp cho toàn bộ train và tạo thêm tập train random undersampling
   với đúng 3 mẫu bình thường cho mỗi mẫu tấn công.
-- `s05`: huấn luyện `SGDClassifier` dùng tập undersampling. Validation và test giữ nguyên phân phối tự nhiên.
-- `s06` và `s07`: báo cáo PR-AUC, precision, recall, F1 lớp 1, TP/FP/FN/TN và
-  confusion matrix. Ngưỡng được chọn trên validation; test chỉ đánh giá cuối.
+- `s05`: train SGD, đánh giá threshold 0.5, chọn threshold trên validation và đánh giá test.
+- `s06`: train Logistic Regression, chọn threshold trên validation và đánh giá test.
+- `s07`: train XGBoost trên train đầy đủ, early stopping bằng validation, chọn threshold
+  trên validation và đánh giá test.
+- Ba bước model báo cáo PR-AUC, precision, recall, F1 lớp 1, TP/FP/FN/TN và confusion matrix.
 
 ## Đầu ra
 

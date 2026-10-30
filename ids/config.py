@@ -20,8 +20,9 @@ TEST_DATA = PROCESSED_DIR / "test.csv"
 UNDERSAMPLED_TRAIN_DATA = PROCESSED_DIR / "train_undersampled.csv"
 
 UNDERSAMPLED_MODEL = MODELS_DIR / "05_sgd_undersampling.joblib"
-LOGISTIC_REGRESSION_MODEL = MODELS_DIR / "10_logistic_regression.joblib"
-SELECTED_MODEL_INFO = METRICS_DIR / "07_selected_model.json"
+LOGISTIC_REGRESSION_MODEL = MODELS_DIR / "06_logistic_regression.joblib"
+XGBOOST_MODEL = MODELS_DIR / "07_xgboost.joblib"
+SELECTED_MODEL_INFO = METRICS_DIR / "05_selected_model.json"
 
 TARGET_COLUMN = "is_attack"
 METADATA_COLUMNS = ["attack_type"]

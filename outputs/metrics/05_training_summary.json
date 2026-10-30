@@ -3,7 +3,7 @@
     "strategy": "random_undersampling_signed_log",
     "training_rows": 43032,
     "feature_count": 78,
-    "fit_seconds": 1.26,
+    "fit_seconds": 1.9,
     "fit_time": "00:00:01",
     "epochs_used": 37,
     "feature_transform": "signed_log_then_standard_scaler",

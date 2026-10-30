@@ -1,6 +1,6 @@
 {
   "model": "LogisticRegression",
-  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\10_logistic_regression.joblib",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_logistic_regression.joblib",
   "training_rows": 43032,
   "training_support_0": 32274,
   "training_support_1": 10758,
@@ -65,5 +65,5 @@
       "support": 343057.0
     }
   },
-  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\10_logistic_regression_classification_report.txt"
+  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\06_logistic_regression_classification_report.txt"
 }

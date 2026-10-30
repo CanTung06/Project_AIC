@@ -13,17 +13,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from ids import config as C
 from ids.common import elapsed_text, load_feature_names
+from ids.thresholded import ThresholdedClassifier
 
 
 def main() -> int:
     C.ensure_dirs()
     started = time.perf_counter()
     if not C.SELECTED_MODEL_INFO.exists():
-        raise FileNotFoundError("Hãy chạy s07_tuning.py trước.")
+        raise FileNotFoundError("Hãy chạy s05 trước.")
     with C.SELECTED_MODEL_INFO.open("r", encoding="utf-8") as source:
         selected = json.load(source)
     model_path = C.UNDERSAMPLED_MODEL
     model = joblib.load(model_path)
+    if isinstance(model, ThresholdedClassifier):
+        model = model.estimator
     classifier = model.named_steps["classifier"]
     feature_names = load_feature_names(C.TRAIN_DATA)
     coefficients = classifier.coef_.ravel()
