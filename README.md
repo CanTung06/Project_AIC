@@ -15,7 +15,7 @@ python run_all.py
 ```
 
 Các bước model: s05 là SGD, s06 là Logistic Regression, s07 là XGBoost.
-s05 tự train, đánh giá threshold 0.5 và tuning threshold. Có thể chạy riêng:
+Mỗi bước chọn threshold bằng validation rồi đánh giá trên test. Có thể chạy riêng:
 
 ```powershell
 python run_all.py --only s05,s06,s07
@@ -26,10 +26,10 @@ python run_all.py --from s06
 
 - `s04`: tạo trọng số lớp cho toàn bộ train và tạo thêm tập train random undersampling
   với đúng 3 mẫu bình thường cho mỗi mẫu tấn công.
-- `s05`: train SGD, đánh giá threshold 0.5, chọn threshold trên validation và đánh giá test.
+- `s05`: train SGD, chọn threshold trên validation và đánh giá test.
 - `s06`: train Logistic Regression, chọn threshold trên validation và đánh giá test.
-- `s07`: train XGBoost trên train đầy đủ, early stopping bằng validation, chọn threshold
-  trên validation và đánh giá test.
+- `s07`: train XGBoost trên train đầy đủ, early stopping và chọn threshold bằng validation,
+  rồi đánh giá test.
 - Ba bước model báo cáo PR-AUC, precision, recall, F1 lớp 1, TP/FP/FN/TN và confusion matrix.
 
 ## Đầu ra

@@ -1,9 +1,11 @@
 {
   "model": "XGBoost",
-  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+  "strategy": "full_data",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost_full_data.joblib",
+  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\07_xgboost_full_data_tuned_classification_report.txt",
   "training_summary": {
     "model": "XGBoost",
-    "strategy": "full_shared_train_class_weight",
+    "strategy": "full_data",
     "model_code_source": "user-provided 05_xgboost_ids.py",
     "training_rows": 1602561,
     "train_class_counts": {
@@ -93,14 +95,14 @@
       "Idle Min"
     ],
     "scale_pos_weight": 147.96458449525934,
-    "fit_seconds": 11.13,
-    "fit_time": "00:00:11",
+    "fit_seconds": 19.04,
+    "fit_time": "00:00:19",
     "best_iteration": 65,
     "early_stopping_split": "validation",
     "early_stopping_rounds": 15,
     "data_resplit_or_resampled": false,
     "test_used_for_training": false,
-    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost_full_data.joblib",
     "xgboost_version": "3.2.0",
     "data_files": {
       "train": {
@@ -112,96 +114,6 @@
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\validation.csv",
         "size_bytes": 146897573,
         "mtime_ns": 1793288922943692100
-      }
-    }
-  },
-  "threshold_0_5": {
-    "validation": {
-      "metrics": {
-        "threshold": 0.5,
-        "balanced_accuracy": 0.9997696126491565,
-        "precision": 0.9957026214009455,
-        "recall": 0.9995685936151855,
-        "f1": 0.9976318622174382,
-        "tp": 2317,
-        "fp": 10,
-        "fn": 1,
-        "tn": 340493,
-        "support_0": 340503,
-        "support_1": 2318,
-        "pr_auc": 0.9999545954135519,
-        "roc_auc": 0.9999996889593705
-      },
-      "classification_report": {
-        "Normal": {
-          "precision": 0.9999970630906859,
-          "recall": 0.9999706316831276,
-          "f1-score": 0.9999838472122491,
-          "support": 340503.0
-        },
-        "Attack": {
-          "precision": 0.9957026214009455,
-          "recall": 0.9995685936151855,
-          "f1-score": 0.9976318622174382,
-          "support": 2318.0
-        },
-        "accuracy": 0.999967913284192,
-        "macro avg": {
-          "precision": 0.9978498422458157,
-          "recall": 0.9997696126491565,
-          "f1-score": 0.9988078547148436,
-          "support": 342821.0
-        },
-        "weighted avg": {
-          "precision": 0.9999680260251712,
-          "recall": 0.999967913284192,
-          "f1-score": 0.9999679441572495,
-          "support": 342821.0
-        }
-      }
-    },
-    "test": {
-      "metrics": {
-        "threshold": 0.5,
-        "balanced_accuracy": 0.9990997813681495,
-        "precision": 0.9947229551451188,
-        "recall": 0.9982347749338041,
-        "f1": 0.9964757709251101,
-        "tp": 2262,
-        "fp": 12,
-        "fn": 4,
-        "tn": 340779,
-        "support_0": 340791,
-        "support_1": 2266,
-        "pr_auc": 0.9998539143655606,
-        "roc_auc": 0.9999988980001443
-      },
-      "classification_report": {
-        "Normal": {
-          "precision": 0.999988262325292,
-          "recall": 0.9999647878024948,
-          "f1-score": 0.9999765249261269,
-          "support": 340791.0
-        },
-        "Attack": {
-          "precision": 0.9947229551451188,
-          "recall": 0.9982347749338041,
-          "f1-score": 0.9964757709251101,
-          "support": 2266.0
-        },
-        "accuracy": 0.9999533605202634,
-        "macro avg": {
-          "precision": 0.9973556087352053,
-          "recall": 0.9990997813681495,
-          "f1-score": 0.9982261479256185,
-          "support": 343057.0
-        },
-        "weighted avg": {
-          "precision": 0.9999534833058571,
-          "recall": 0.9999533605202634,
-          "f1-score": 0.9999534013385997,
-          "support": 343057.0
-        }
       }
     }
   },
@@ -304,7 +216,7 @@
       }
     },
     "selected_model": {
-      "selected_model": "xgboost_full_train",
+      "selected_model": "xgboost_full_data",
       "threshold": 0.9990911483764648,
       "selection_metric": "validation_precision_with_minimum_recall",
       "minimum_recall_target": 0.8,
@@ -316,7 +228,7 @@
         "minimum_recall_target": 0.8,
         "pr_auc": 0.9999545954135519
       },
-      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost_full_data.joblib",
       "threshold_embedded_in_model": true
     }
   }

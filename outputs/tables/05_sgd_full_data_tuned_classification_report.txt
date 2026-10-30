@@ -1,0 +1,12 @@
+Classification report | SGDClassifier (full_data) | threshold=0.00000000
+              precision    recall  f1-score   support
+
+      Normal     0.9986    0.9891    0.9938    340791
+      Attack     0.3250    0.7926    0.4610      2266
+
+    accuracy                         0.9878    343057
+   macro avg     0.6618    0.8908    0.7274    343057
+weighted avg     0.9942    0.9878    0.9903    343057
+
+AUC-ROC: 0.9943
+PR-AUC: 0.4436

@@ -1,4 +1,4 @@
-Classification report | XGBoost | threshold=0.99909115
+Classification report | XGBoost (full_data) | threshold=0.99909115
               precision    recall  f1-score   support
 
       Normal     0.9992    1.0000    0.9996    340791

@@ -1,0 +1,61 @@
+{
+  "model": "SGDClassifier",
+  "strategy": "full_data",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_full_data.joblib",
+  "selection_rule": "maximize_validation_precision_subject_to_minimum_recall",
+  "minimum_recall_target": 0.8,
+  "validation_threshold": {
+    "threshold": 3.668303571116758e-12,
+    "precision": 0.33327344592166724,
+    "recall": 0.8002588438308887,
+    "f1": 0.47057331303906647,
+    "minimum_recall_target": 0.8,
+    "pr_auc": 0.45783054925532807
+  },
+  "test_at_validation_threshold": [
+    {
+      "model": "sgd_full_data",
+      "threshold": 3.668303571116758e-12,
+      "balanced_accuracy": 0.8908204649987196,
+      "precision": 0.32500904813608394,
+      "recall": 0.7925860547219771,
+      "f1": 0.46098562628336753,
+      "tp": 1796,
+      "fp": 3730,
+      "fn": 470,
+      "tn": 337061,
+      "support_0": 340791,
+      "support_1": 2266,
+      "pr_auc": 0.4436371311965791,
+      "roc_auc": 0.9943464519669485
+    }
+  ],
+  "test_classification_report": {
+    "Normal": {
+      "precision": 0.998607535307868,
+      "recall": 0.9890548752754621,
+      "f1-score": 0.993808250358974,
+      "support": 340791.0
+    },
+    "Attack": {
+      "precision": 0.32500904813608394,
+      "recall": 0.7925860547219771,
+      "f1-score": 0.46098562628336753,
+      "support": 2266.0
+    },
+    "accuracy": 0.9877571365691415,
+    "macro avg": {
+      "precision": 0.661808291721976,
+      "recall": 0.8908204649987196,
+      "f1-score": 0.7273969383211708,
+      "support": 343057.0
+    },
+    "weighted avg": {
+      "precision": 0.9941582042289767,
+      "recall": 0.9877571365691415,
+      "f1-score": 0.9902887883857295,
+      "support": 343057.0
+    }
+  },
+  "threshold_embedded_in_model": true
+}

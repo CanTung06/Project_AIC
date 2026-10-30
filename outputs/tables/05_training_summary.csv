@@ -1,2 +1,3 @@
 ﻿strategy,training_rows,feature_count,fit_seconds,fit_time,epochs_used,feature_transform,model_path
-random_undersampling_signed_log,43032,78,1.9,00:00:01,37,signed_log_then_standard_scaler,D:\Code\Python\Project_AIC\outputs\models\05_sgd_undersampling.joblib
+undersampling,43032,78,1.22,00:00:01,37,signed_log_then_standard_scaler,D:\Code\Python\Project_AIC\outputs\models\05_sgd_undersampling.joblib
+full_data,1602561,78,31.13,00:00:31,20,signed_log_then_standard_scaler,D:\Code\Python\Project_AIC\outputs\models\05_sgd_full_data.joblib

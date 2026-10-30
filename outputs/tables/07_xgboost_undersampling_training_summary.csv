@@ -1,0 +1,2 @@
+﻿model,training_rows,feature_count,scale_pos_weight,fit_seconds,best_iteration,model_path
+XGBoost,43032,78,3.0,9.81,110,D:\Code\Python\Project_AIC\outputs\models\07_xgboost.joblib

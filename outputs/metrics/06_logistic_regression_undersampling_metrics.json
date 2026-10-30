@@ -1,5 +1,6 @@
 {
   "model": "LogisticRegression",
+  "strategy": "undersampling",
   "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_logistic_regression.joblib",
   "training_rows": 43032,
   "training_support_0": 32274,
@@ -11,7 +12,7 @@
     "max_iter": 1000,
     "tol": 0.0001,
     "class_weight": null,
-    "training_data": "undersampled_train.csv, normal:attack = 3:1",
+    "training_data": "train_undersampled.csv",
     "feature_transform": "signed_log_then_standard_scaler"
   },
   "fit_time": "00:00:00",
@@ -21,6 +22,7 @@
     "recall": 0.8062985332182916,
     "f1": 0.8772588594226707,
     "threshold": 0.9882876292057099,
+    "minimum_recall_target": 0.8,
     "pr_auc": 0.9422942383706016
   },
   "test_metrics": {
@@ -65,5 +67,5 @@
       "support": 343057.0
     }
   },
-  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\06_logistic_regression_classification_report.txt"
+  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\06_logistic_regression_undersampling_classification_report.txt"
 }

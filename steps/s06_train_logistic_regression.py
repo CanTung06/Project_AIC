@@ -15,8 +15,15 @@ from sklearn.preprocessing import FunctionTransformer, StandardScaler
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from ids import config as C
-from ids.common import calculate_metrics, confusion_table, elapsed_text, load_xy, save_json
-from ids.common import signed_log_transform
+from ids.common import (
+    calculate_metrics,
+    confusion_table,
+    elapsed_text,
+    load_xy,
+    print_model_evaluation,
+    save_json,
+    signed_log_transform,
+)
 from ids.thresholded import ThresholdedClassifier
 
 
@@ -64,19 +71,10 @@ def choose_threshold(y_true, scores):
     }
 
 
-def main() -> int:
-    C.ensure_dirs()
-    required = [C.UNDERSAMPLED_TRAIN_DATA, C.VALIDATION_DATA, C.TEST_DATA]
-    missing = [path for path in required if not path.exists()]
-    if missing:
-        raise FileNotFoundError(
-            "Thiếu dữ liệu đầu vào; hãy chạy s03_split_data.py và s04_imbalance.py trước: "
-            + ", ".join(map(str, missing))
-        )
-
+def train_and_evaluate(strategy, train_path, model_path) -> dict:
     started = time.perf_counter()
-    print("Đang nạp tập train undersampling...")
-    X_train, y_train, feature_names = load_xy(C.UNDERSAMPLED_TRAIN_DATA)
+    print(f"\nĐang nạp tập train ({strategy}): {train_path}")
+    X_train, y_train, feature_names = load_xy(train_path)
     print(
         f"Train Logistic Regression: {len(y_train):,} dòng "
         f"(Normal={(y_train == 0).sum():,}, Attack={(y_train == 1).sum():,})"
@@ -99,10 +97,11 @@ def main() -> int:
     threshold, validation_threshold_metrics = choose_threshold(
         y_validation.to_numpy(), validation_scores
     )
-    validation_threshold_metrics["threshold"] = threshold
-    validation_threshold_metrics["pr_auc"] = float(
-        average_precision_score(y_validation, validation_scores)
-    )
+    validation_threshold_metrics.update({
+        "threshold": threshold,
+        "minimum_recall_target": MIN_RECALL_TARGET,
+        "pr_auc": float(average_precision_score(y_validation, validation_scores)),
+    })
     del X_validation, y_validation, validation_scores
     gc.collect()
 
@@ -120,7 +119,7 @@ def main() -> int:
         zero_division=0,
     )
     report_text = (
-        f"Classification report | Logistic Regression | threshold={threshold:.8f}\n"
+        f"Classification report | Logistic Regression ({strategy}) | threshold={threshold:.8f}\n"
         f"{classification_report(y_test, test_predictions, labels=[0, 1], target_names=['Normal', 'Attack'], digits=4, zero_division=0)}\n"
         f"AUC-ROC: {test_metrics['roc_auc']:.4f}\n"
         f"PR-AUC: {test_metrics['pr_auc']:.4f}\n"
@@ -129,19 +128,22 @@ def main() -> int:
     final_model = ThresholdedClassifier(
         estimator=model,
         threshold=threshold,
-        model_name="logistic_regression_undersampling",
+        model_name=f"logistic_regression_{strategy}",
     )
-    joblib.dump(final_model, C.LOGISTIC_REGRESSION_MODEL, compress=3)
-    report_path = C.TABLES_DIR / "06_logistic_regression_classification_report.txt"
+    joblib.dump(final_model, model_path, compress=3)
+    report_path = C.TABLES_DIR / f"06_logistic_regression_{strategy}_classification_report.txt"
     report_path.write_text(report_text, encoding="utf-8")
+    test_matrix = confusion_table(y_test, test_scores, threshold)
+    metrics_path = C.METRICS_DIR / f"06_logistic_regression_{strategy}_metrics.json"
     save_json(
-        C.METRICS_DIR / "06_logistic_regression_confusion_test.json",
-        confusion_table(y_test, test_scores, threshold).to_dict(orient="index"),
+        C.METRICS_DIR / f"06_logistic_regression_{strategy}_confusion_test.json",
+        test_matrix.to_dict(orient="index"),
     )
 
     result = {
         "model": "LogisticRegression",
-        "model_path": str(C.LOGISTIC_REGRESSION_MODEL),
+        "strategy": strategy,
+        "model_path": str(model_path),
         "training_rows": training_rows,
         "training_support_0": training_support_0,
         "training_support_1": training_support_1,
@@ -152,7 +154,7 @@ def main() -> int:
             "max_iter": 1000,
             "tol": 0.0001,
             "class_weight": None,
-            "training_data": "undersampled_train.csv, normal:attack = 3:1",
+            "training_data": train_path.name,
             "feature_transform": "signed_log_then_standard_scaler",
         },
         "fit_time": elapsed_text(fit_seconds),
@@ -162,12 +164,37 @@ def main() -> int:
         "test_classification_report": report_dict,
         "classification_report_path": str(report_path),
     }
-    save_json(C.METRICS_DIR / "06_logistic_regression_metrics.json", result)
+    save_json(metrics_path, result)
+    print_model_evaluation(
+        f"Logistic Regression ({strategy})",
+        validation_threshold_metrics,
+        report_text,
+        test_metrics,
+        test_matrix,
+        model_path,
+        metrics_path,
+        elapsed_text(time.perf_counter() - started),
+    )
+    del X_test, y_test, test_scores, model, final_model
+    gc.collect()
+    return result
 
-    print("\n" + report_text)
-    print(f"Đã lưu model: {C.LOGISTIC_REGRESSION_MODEL}")
-    print(f"Đã lưu metrics: {C.METRICS_DIR / '06_logistic_regression_metrics.json'}")
-    print(f"Tổng thời gian: {elapsed_text(time.perf_counter() - started)}")
+
+def main() -> int:
+    C.ensure_dirs()
+    train_sets = (
+        ("undersampling", C.UNDERSAMPLED_TRAIN_DATA, C.LOGISTIC_REGRESSION_MODEL),
+        ("full_data", C.TRAIN_DATA, C.FULL_LOGISTIC_REGRESSION_MODEL),
+    )
+    required = [path for _, path, _ in train_sets] + [C.VALIDATION_DATA, C.TEST_DATA]
+    missing = [path for path in required if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            "Thiếu dữ liệu đầu vào; hãy chạy s03 và s04 trước: "
+            + ", ".join(map(str, missing))
+        )
+    for strategy, train_path, model_path in train_sets:
+        train_and_evaluate(strategy, train_path, model_path)
     return 0
 
 

@@ -100,3 +100,36 @@ def save_json(path: Path, content: dict) -> None:
 def print_table(title: str, frame: pd.DataFrame, index: bool = False) -> None:
     print(f"\n{title}")
     print(frame.to_string(index=index, float_format=lambda value: f"{value:.4f}"))
+
+
+def print_model_evaluation(
+    model_name: str,
+    validation_metrics: dict,
+    report_text: str,
+    test_metrics: dict,
+    confusion: pd.DataFrame,
+    model_path: Path,
+    metrics_path: Path,
+    elapsed: str,
+) -> None:
+    """In kết quả cuối của các model theo cùng một bố cục."""
+    validation_columns = (
+        "threshold", "precision", "recall", "f1", "minimum_recall_target", "pr_auc"
+    )
+    validation_row = {
+        column: validation_metrics.get(column)
+        for column in validation_columns
+    }
+
+    print("\n" + "=" * 72)
+    print(f"KẾT QUẢ ĐÁNH GIÁ | {model_name}")
+    print_table("Threshold và chỉ số trên validation", pd.DataFrame([validation_row]))
+    print("\n" + report_text)
+    print(
+        f"TP={test_metrics['tp']:,} FP={test_metrics['fp']:,} "
+        f"FN={test_metrics['fn']:,} TN={test_metrics['tn']:,}"
+    )
+    print_table("Confusion matrix | test", confusion, index=True)
+    print(f"Đã lưu model: {model_path}")
+    print(f"Đã lưu metrics: {metrics_path}")
+    print(f"Tổng thời gian: {elapsed}")

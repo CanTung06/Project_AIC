@@ -1,5 +1,3 @@
-"""Bước 04 - Xử lý mất cân bằng bằng class weight và random undersampling"""
-
 import json
 import sys
 import time

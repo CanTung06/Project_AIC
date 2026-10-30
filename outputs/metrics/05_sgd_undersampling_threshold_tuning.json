@@ -1,28 +1,20 @@
 {
+  "model": "SGDClassifier",
+  "strategy": "undersampling",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_undersampling.joblib",
   "selection_rule": "maximize_validation_precision_subject_to_minimum_recall",
   "minimum_recall_target": 0.8,
-  "validation": {
-    "random_undersampling": {
-      "threshold": 0.010822810369652065,
-      "precision": 0.7503955696202531,
-      "recall": 0.8183779119930975,
-      "f1": 0.7829137432934378,
-      "minimum_recall_target": 0.8
-    }
+  "validation_threshold": {
+    "threshold": 0.010822810369652065,
+    "precision": 0.7503955696202531,
+    "recall": 0.8183779119930975,
+    "f1": 0.7829137432934378,
+    "minimum_recall_target": 0.8,
+    "pr_auc": 0.7097047856712737
   },
-  "validation_thresholds_by_model": [
-    {
-      "model": "random_undersampling",
-      "threshold": 0.010822810369652065,
-      "precision": 0.7503955696202531,
-      "recall": 0.8183779119930975,
-      "f1": 0.7829137432934378,
-      "minimum_recall_target": 0.8
-    }
-  ],
   "test_at_validation_threshold": [
     {
-      "model": "random_undersampling",
+      "model": "sgd_undersampling",
       "threshold": 0.010822810369652065,
       "balanced_accuracy": 0.9242786691601232,
       "precision": 0.754502740798747,
@@ -65,22 +57,5 @@
       "support": 343057.0
     }
   },
-  "selected_model": {
-    "selected_model": "random_undersampling",
-    "threshold": 0.010822810369652065,
-    "selection_metric": "validation_precision_with_minimum_recall",
-    "minimum_recall_target": 0.8,
-    "validation_metrics": {
-      "threshold": 0.010822810369652065,
-      "precision": 0.7503955696202531,
-      "recall": 0.8183779119930975,
-      "f1": 0.7829137432934378,
-      "minimum_recall_target": 0.8
-    },
-    "thresholds_by_model": {
-      "random_undersampling": 0.010822810369652065
-    },
-    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_sgd_undersampling.joblib",
-    "threshold_embedded_in_model": true
-  }
+  "threshold_embedded_in_model": true
 }

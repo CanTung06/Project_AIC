@@ -1,0 +1,235 @@
+{
+  "model": "XGBoost",
+  "strategy": "undersampling",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\07_xgboost_undersampling_tuned_classification_report.txt",
+  "training_summary": {
+    "model": "XGBoost",
+    "strategy": "undersampling",
+    "model_code_source": "user-provided 05_xgboost_ids.py",
+    "training_rows": 43032,
+    "train_class_counts": {
+      "0": 32274,
+      "1": 10758
+    },
+    "validation_rows": 342821,
+    "feature_count": 78,
+    "feature_columns": [
+      "Destination Port",
+      "Flow Duration",
+      "Total Fwd Packets",
+      "Total Backward Packets",
+      "Total Length of Fwd Packets",
+      "Total Length of Bwd Packets",
+      "Fwd Packet Length Max",
+      "Fwd Packet Length Min",
+      "Fwd Packet Length Mean",
+      "Fwd Packet Length Std",
+      "Bwd Packet Length Max",
+      "Bwd Packet Length Min",
+      "Bwd Packet Length Mean",
+      "Bwd Packet Length Std",
+      "Flow Bytes/s",
+      "Flow Packets/s",
+      "Flow IAT Mean",
+      "Flow IAT Std",
+      "Flow IAT Max",
+      "Flow IAT Min",
+      "Fwd IAT Total",
+      "Fwd IAT Mean",
+      "Fwd IAT Std",
+      "Fwd IAT Max",
+      "Fwd IAT Min",
+      "Bwd IAT Total",
+      "Bwd IAT Mean",
+      "Bwd IAT Std",
+      "Bwd IAT Max",
+      "Bwd IAT Min",
+      "Fwd PSH Flags",
+      "Bwd PSH Flags",
+      "Fwd URG Flags",
+      "Bwd URG Flags",
+      "Fwd Header Length",
+      "Bwd Header Length",
+      "Fwd Packets/s",
+      "Bwd Packets/s",
+      "Min Packet Length",
+      "Max Packet Length",
+      "Packet Length Mean",
+      "Packet Length Std",
+      "Packet Length Variance",
+      "FIN Flag Count",
+      "SYN Flag Count",
+      "RST Flag Count",
+      "PSH Flag Count",
+      "ACK Flag Count",
+      "URG Flag Count",
+      "CWE Flag Count",
+      "ECE Flag Count",
+      "Down/Up Ratio",
+      "Average Packet Size",
+      "Avg Fwd Segment Size",
+      "Avg Bwd Segment Size",
+      "Fwd Header Length.1",
+      "Fwd Avg Bytes/Bulk",
+      "Fwd Avg Packets/Bulk",
+      "Fwd Avg Bulk Rate",
+      "Bwd Avg Bytes/Bulk",
+      "Bwd Avg Packets/Bulk",
+      "Bwd Avg Bulk Rate",
+      "Subflow Fwd Packets",
+      "Subflow Fwd Bytes",
+      "Subflow Bwd Packets",
+      "Subflow Bwd Bytes",
+      "Init_Win_bytes_forward",
+      "Init_Win_bytes_backward",
+      "act_data_pkt_fwd",
+      "min_seg_size_forward",
+      "Active Mean",
+      "Active Std",
+      "Active Max",
+      "Active Min",
+      "Idle Mean",
+      "Idle Std",
+      "Idle Max",
+      "Idle Min"
+    ],
+    "scale_pos_weight": 3.0,
+    "fit_seconds": 9.81,
+    "fit_time": "00:00:09",
+    "best_iteration": 110,
+    "early_stopping_split": "validation",
+    "early_stopping_rounds": 15,
+    "data_resplit_or_resampled": false,
+    "test_used_for_training": false,
+    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+    "xgboost_version": "3.2.0",
+    "data_files": {
+      "train": {
+        "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\train_undersampled.csv",
+        "size_bytes": 18464580,
+        "mtime_ns": 1793290427272496000
+      },
+      "validation": {
+        "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\validation.csv",
+        "size_bytes": 146897573,
+        "mtime_ns": 1793288922943692100
+      }
+    }
+  },
+  "threshold_tuning": {
+    "rule": "maximize_validation_precision_subject_to_minimum_recall",
+    "validation": {
+      "metrics": {
+        "threshold": 0.9998816251754761,
+        "balanced_accuracy": 0.902502157031924,
+        "precision": 1.0,
+        "recall": 0.8050043140638481,
+        "f1": 0.8919694072657743,
+        "tp": 1866,
+        "fp": 0,
+        "fn": 452,
+        "tn": 340503,
+        "support_0": 340503,
+        "support_1": 2318,
+        "pr_auc": 0.9999051772112078,
+        "roc_auc": 0.9999993703169334
+      },
+      "classification_report": {
+        "Normal": {
+          "precision": 0.9986743118593363,
+          "recall": 1.0,
+          "f1-score": 0.9993367162759847,
+          "support": 340503.0
+        },
+        "Attack": {
+          "precision": 1.0,
+          "recall": 0.8050043140638481,
+          "f1-score": 0.8919694072657743,
+          "support": 2318.0
+        },
+        "accuracy": 0.9986815276777093,
+        "macro avg": {
+          "precision": 0.9993371559296682,
+          "recall": 0.902502157031924,
+          "f1-score": 0.9456530617708796,
+          "support": 342821.0
+        },
+        "weighted avg": {
+          "precision": 0.9986832755608309,
+          "recall": 0.9986815276777093,
+          "f1-score": 0.9986107472650849,
+          "support": 342821.0
+        }
+      },
+      "selected_threshold": {
+        "threshold": 0.9998816251754761,
+        "precision": 1.0,
+        "recall": 0.8050043140638481,
+        "f1": 0.8919694072657743,
+        "minimum_recall_target": 0.8,
+        "pr_auc": 0.9999051772112078
+      }
+    },
+    "test": {
+      "metrics": {
+        "threshold": 0.9998816251754761,
+        "balanced_accuracy": 0.9168137687555163,
+        "precision": 1.0,
+        "recall": 0.8336275375110327,
+        "f1": 0.909265944645006,
+        "tp": 1889,
+        "fp": 0,
+        "fn": 377,
+        "tn": 340791,
+        "support_0": 340791,
+        "support_1": 2266,
+        "pr_auc": 0.999883413332922,
+        "roc_auc": 0.9999991375653303
+      },
+      "classification_report": {
+        "Normal": {
+          "precision": 0.9988949725648361,
+          "recall": 1.0,
+          "f1-score": 0.99944718084225,
+          "support": 340791.0
+        },
+        "Attack": {
+          "precision": 1.0,
+          "recall": 0.8336275375110327,
+          "f1-score": 0.909265944645006,
+          "support": 2266.0
+        },
+        "accuracy": 0.9989010572587063,
+        "macro avg": {
+          "precision": 0.9994474862824181,
+          "recall": 0.9168137687555163,
+          "f1-score": 0.954356562743628,
+          "support": 343057.0
+        },
+        "weighted avg": {
+          "precision": 0.998902271620585,
+          "recall": 0.9989010572587063,
+          "f1-score": 0.9988515052512463,
+          "support": 343057.0
+        }
+      }
+    },
+    "selected_model": {
+      "selected_model": "xgboost_undersampling",
+      "threshold": 0.9998816251754761,
+      "selection_metric": "validation_precision_with_minimum_recall",
+      "minimum_recall_target": 0.8,
+      "validation_metrics": {
+        "threshold": 0.9998816251754761,
+        "precision": 1.0,
+        "recall": 0.8050043140638481,
+        "f1": 0.8919694072657743,
+        "minimum_recall_target": 0.8,
+        "pr_auc": 0.9999051772112078
+      },
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+      "threshold_embedded_in_model": true
+    }
+  }
+}

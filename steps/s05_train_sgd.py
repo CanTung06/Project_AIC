@@ -1,5 +1,3 @@
-"""Bước 05: Train, evaluate và tuning threshold cho SGDClassifier."""
-
 import gc
 import json
 import sys
@@ -31,104 +29,20 @@ from ids.common import (
     confusion_table,
     elapsed_text,
     load_xy,
-    print_table,
+    print_model_evaluation,
     save_json,
     signed_log_transform,
 )
 from ids.thresholded import ThresholdedClassifier
 
 
-def evaluate_model(model) -> None:
-    """Phần đánh giá của s05 trên validation và test với threshold 0.5."""
-    print("\n" + "=" * 72)
-    print("S05.2 - ĐÁNH GIÁ VALIDATION VÀ TEST VỚI THRESHOLD 0.5")
-    print("=" * 72)
-
-    model_name = "random_undersampling"
-    metrics_by_split = {}
-    reports_by_split = {}
-    metric_rows = []
-    report_rows = []
-
-    for split_name, split_path in (
-        ("validation", C.VALIDATION_DATA),
-        ("test", C.TEST_DATA),
-    ):
-        if not split_path.exists():
-            raise FileNotFoundError(f"Thiếu {split_path}; hãy chạy s03 trước.")
-
-        split_started = time.perf_counter()
-        X, y, _ = load_xy(split_path)
-        print(f"Đã nạp {split_name}: {len(y):,} dòng")
-
-        scores = model.predict_proba(X)[:, 1]
-        metrics = calculate_metrics(y, scores, threshold=0.5)
-        predictions = (scores >= 0.5).astype("int8")
-        report_dict = classification_report(
-            y,
-            predictions,
-            labels=[0, 1],
-            target_names=["Normal (0)", "Attack (1)"],
-            output_dict=True,
-            zero_division=0,
-        )
-        report_text = classification_report(
-            y,
-            predictions,
-            labels=[0, 1],
-            target_names=["Normal", "Attack"],
-            digits=4,
-            zero_division=0,
-        )
-
-        metrics_by_split[split_name] = metrics
-        reports_by_split[split_name] = report_dict
-        metric_rows.append({"model": model_name, "split": split_name, **metrics})
-        for class_name in ("Normal (0)", "Attack (1)", "macro avg", "weighted avg"):
-            values = report_dict[class_name]
-            report_rows.append({
-                "model": model_name,
-                "split": split_name,
-                "class": class_name,
-                "precision": values["precision"],
-                "recall": values["recall"],
-                "f1_score": values["f1-score"],
-                "support": int(values["support"]),
-            })
-
-        matrix = confusion_table(y, scores, 0.5)
-        save_json(
-            C.METRICS_DIR / f"05_confusion_sgd_{split_name}.json",
-            matrix.to_dict(orient="index"),
-        )
-        print(f"\nClassification report | SGDClassifier | {split_name} | threshold=0.5")
-        print(report_text)
-        if metrics["roc_auc"] is not None:
-            print(f"AUC-ROC: {metrics['roc_auc']:.4f}")
-        if metrics["pr_auc"] is not None:
-            print(f"PR-AUC: {metrics['pr_auc']:.4f}")
-        print_table(f"Confusion matrix | {model_name} | {split_name} | threshold=0.5", matrix, index=True)
-        print(f"Hoàn tất đánh giá {split_name} | {elapsed_text(time.perf_counter() - split_started)}")
-
-        del X, y, scores, predictions, matrix
-        gc.collect()
-
-    save_json(C.METRICS_DIR / "05_evaluation_metrics.json", {
-        "metrics": {model_name: metrics_by_split},
-        "classification_reports": {model_name: reports_by_split},
-    })
-    print_table("Chỉ số tổng hợp (Attack là trọng tâm)", pd.DataFrame(metric_rows))
-    print_table("Classification report tổng hợp", pd.DataFrame(report_rows))
-
-
-def tune_threshold(model) -> None:
+def tune_threshold(model, total_started: float, strategy: str, model_path: Path) -> None:
     """Chọn threshold trên validation rồi đánh giá trên test."""
-    started = time.perf_counter()
     print("\n" + "=" * 72)
-    print("S05.3 - TUNING THRESHOLD TRÊN VALIDATION")
+    print("S05.2 - TUNING THRESHOLD TRÊN VALIDATION")
     print("=" * 72)
 
-    model_name = "random_undersampling"
+    model_name = f"sgd_{strategy}"
     X_val, y_val, feature_names = load_xy(C.VALIDATION_DATA)
     validation_scores_raw = model.predict_proba(X_val)[:, 1]
     precision, recall, thresholds = precision_recall_curve(y_val, validation_scores_raw)
@@ -154,8 +68,8 @@ def tune_threshold(model) -> None:
             / max(precision[best_index] + recall[best_index], 1e-15)
         ),
         "minimum_recall_target": C.MIN_RECALL_TARGET,
+        "pr_auc": float(average_precision_score(y_val, validation_scores_raw)),
     }
-    threshold_table = pd.DataFrame([{"model": model_name, **validation_metrics}])
 
     figure, axis = plt.subplots(figsize=(8, 6))
     axis.plot(
@@ -169,7 +83,7 @@ def tune_threshold(model) -> None:
     axis.grid(alpha=0.25)
     axis.legend()
     figure.tight_layout()
-    figure.savefig(C.FIGURES_DIR / "05_sgd_validation_pr_curve.png", dpi=150)
+    figure.savefig(C.FIGURES_DIR / f"05_sgd_{strategy}_validation_pr_curve.png", dpi=150)
     plt.close(figure)
 
     del X_val, y_val, validation_scores_raw
@@ -196,18 +110,18 @@ def tune_threshold(model) -> None:
         zero_division=0,
     )
     report_text = (
-        f"Classification report | SGDClassifier | threshold={threshold:.8f}\n"
+        f"Classification report | SGDClassifier ({strategy}) | threshold={threshold:.8f}\n"
         f"{test_report_text}\n"
         f"AUC-ROC: {test_metrics['roc_auc']:.4f}\n"
         f"PR-AUC: {test_metrics['pr_auc']:.4f}\n"
     )
-    (C.TABLES_DIR / "05_sgd_tuned_classification_report.txt").write_text(report_text, encoding="utf-8")
+    report_path = C.TABLES_DIR / f"05_sgd_{strategy}_tuned_classification_report.txt"
+    report_path.write_text(report_text, encoding="utf-8")
 
     test_row = {"model": model_name, **test_metrics}
-    test_table = pd.DataFrame([test_row])
     matrix = confusion_table(y_test, test_scores, threshold)
     save_json(
-        C.METRICS_DIR / "05_confusion_sgd_test_tuned.json",
+        C.METRICS_DIR / f"05_confusion_sgd_{strategy}_test_tuned.json",
         matrix.to_dict(orient="index"),
     )
 
@@ -216,34 +130,30 @@ def tune_threshold(model) -> None:
         threshold=threshold,
         model_name=model_name,
     )
-    joblib.dump(thresholded_model, C.UNDERSAMPLED_MODEL, compress=3)
-    selected_info = {
-        "selected_model": model_name,
-        "threshold": threshold,
-        "selection_metric": "validation_precision_with_minimum_recall",
-        "minimum_recall_target": C.MIN_RECALL_TARGET,
-        "validation_metrics": validation_metrics,
-        "thresholds_by_model": {model_name: threshold},
-        "model_path": str(C.UNDERSAMPLED_MODEL),
-        "threshold_embedded_in_model": True,
-    }
-    save_json(C.SELECTED_MODEL_INFO, selected_info)
-    save_json(C.METRICS_DIR / "05_threshold_tuning.json", {
+    joblib.dump(thresholded_model, model_path, compress=3)
+    metrics_path = C.METRICS_DIR / f"05_sgd_{strategy}_threshold_tuning.json"
+    save_json(metrics_path, {
+        "model": "SGDClassifier",
+        "strategy": strategy,
+        "model_path": str(model_path),
         "selection_rule": "maximize_validation_precision_subject_to_minimum_recall",
         "minimum_recall_target": C.MIN_RECALL_TARGET,
-        "validation": {model_name: validation_metrics},
-        "validation_thresholds_by_model": [{"model": model_name, **validation_metrics}],
+        "validation_threshold": validation_metrics,
         "test_at_validation_threshold": [test_row],
         "test_classification_report": test_report_dict,
-        "selected_model": selected_info,
+        "threshold_embedded_in_model": True,
     })
 
-    print_table("Ngưỡng precision cao nhất trên validation", threshold_table)
-    print_table("Kết quả test của mô hình được chọn", test_table)
-    print("\n" + report_text)
-    print_table(f"Confusion matrix test | SGDClassifier | threshold={threshold:.6f}", matrix, index=True)
-    print(f"Ngưỡng lưu tại: {C.SELECTED_MODEL_INFO}")
-    print(f"Thời gian tuning và đánh giá: {elapsed_text(time.perf_counter() - started)}")
+    print_model_evaluation(
+        f"SGDClassifier ({strategy})",
+        validation_metrics,
+        report_text,
+        test_metrics,
+        matrix,
+        model_path,
+        metrics_path,
+        elapsed_text(time.perf_counter() - total_started),
+    )
 
 
 def build_pipeline():
@@ -271,39 +181,49 @@ def build_pipeline():
 
 def main() -> int:
     C.ensure_dirs()
-    if not C.TRAIN_DATA.exists() or not C.UNDERSAMPLED_TRAIN_DATA.exists():
+    train_sets = (
+        ("undersampling", C.UNDERSAMPLED_TRAIN_DATA, C.UNDERSAMPLED_MODEL),
+        ("full_data", C.TRAIN_DATA, C.FULL_SGD_MODEL),
+    )
+    missing = [str(path) for _, path, _ in train_sets if not path.exists()]
+    if missing or not C.VALIDATION_DATA.exists() or not C.TEST_DATA.exists():
         raise FileNotFoundError("Hãy chạy s03_split_data.py và s04_imbalance.py trước.")
     # BƯỚC S05 - HUẤN LUYỆN SGDClassifier
     print("\n" + "=" * 72)
     print("BƯỚC S05 - HUẤN LUYỆN SGDClassifier")
     print("=" * 72)
-    print("Đang đọc tập train undersampling...")
-    X_train, y_train, feature_names = load_xy(C.UNDERSAMPLED_TRAIN_DATA)
-    print(f"Train: {len(y_train):,} dòng, {len(feature_names):,} feature")
+    results = []
+    for strategy, train_path, model_path in train_sets:
+        print(f"\nĐang đọc tập train ({strategy}): {train_path}")
+        X_train, y_train, feature_names = load_xy(train_path)
+        print(f"Train: {len(y_train):,} dòng, {len(feature_names):,} feature")
 
-    model = build_pipeline()
-    started = time.perf_counter()
-    model.fit(X_train, y_train)
-    fit_seconds = time.perf_counter() - started
-    classifier = model.named_steps["classifier"]
-    joblib.dump(model, C.UNDERSAMPLED_MODEL, compress=3)
-    result = {
-        "strategy": "random_undersampling_signed_log",
-        "training_rows": int(len(y_train)),
-        "feature_count": len(feature_names),
-        "fit_seconds": round(fit_seconds, 2),
-        "fit_time": elapsed_text(fit_seconds),
-        "epochs_used": int(classifier.n_iter_),
-        "feature_transform": "signed_log_then_standard_scaler",
-        "model_path": str(C.UNDERSAMPLED_MODEL),
-    }
-    print(
-        f"Đã lưu model: {C.UNDERSAMPLED_MODEL.name} | {fit_seconds:.1f} giây | "
-        f"{classifier.n_iter_} epoch"
-    )
-    del X_train, y_train
-    gc.collect()
-    results = [result]
+        model = build_pipeline()
+        started = time.perf_counter()
+        model.fit(X_train, y_train)
+        fit_seconds = time.perf_counter() - started
+        classifier = model.named_steps["classifier"]
+        joblib.dump(model, model_path, compress=3)
+        result = {
+            "strategy": strategy,
+            "training_rows": int(len(y_train)),
+            "feature_count": len(feature_names),
+            "fit_seconds": round(fit_seconds, 2),
+            "fit_time": elapsed_text(fit_seconds),
+            "epochs_used": int(classifier.n_iter_),
+            "feature_transform": "signed_log_then_standard_scaler",
+            "model_path": str(model_path),
+        }
+        results.append(result)
+        print(
+            f"Đã lưu model: {model_path.name} | {fit_seconds:.1f} giây | "
+            f"{classifier.n_iter_} epoch"
+        )
+        del X_train, y_train
+        gc.collect()
+        tune_threshold(model, started, strategy, model_path)
+        del model
+        gc.collect()
 
     result_table = pd.DataFrame(results)
     result_table.to_csv(C.TABLES_DIR / "05_training_summary.csv", index=False, encoding="utf-8-sig")
@@ -313,12 +233,6 @@ def main() -> int:
     print("\nTóm tắt huấn luyện:")
     print(result_table.to_string(index=False))
 
-    # ĐÁNH GIÁ MODEL VỚI THRESHOLD 0.5
-    evaluate_model(model)
-    # TUNING THRESHOLD TRÊN VALIDATION, ĐÁNH GIÁ CUỐI TRÊN TEST
-    tune_threshold(model)
-    del model
-    print(f"\nTổng thời gian s05: {elapsed_text(time.perf_counter() - started)}")
     return 0
 
 

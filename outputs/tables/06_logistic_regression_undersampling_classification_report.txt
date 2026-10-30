@@ -1,4 +1,4 @@
-Classification report | Logistic Regression | threshold=0.98828763
+Classification report | Logistic Regression (undersampling) | threshold=0.98828763
               precision    recall  f1-score   support
 
       Normal     0.9988    0.9998    0.9993    340791
