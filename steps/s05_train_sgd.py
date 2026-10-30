@@ -122,7 +122,7 @@ def evaluate_model(model) -> None:
 
 
 def tune_threshold(model) -> None:
-    """Bước 07 (đã gộp): chọn threshold trên validation rồi đánh giá trên test."""
+    """Chọn threshold trên validation rồi đánh giá trên test."""
     started = time.perf_counter()
     print("\n" + "=" * 72)
     print("S05.3 - TUNING THRESHOLD TRÊN VALIDATION")
@@ -313,9 +313,9 @@ def main() -> int:
     print("\nTóm tắt huấn luyện:")
     print(result_table.to_string(index=False))
 
-    # S05.2 - ĐÁNH GIÁ MODEL VỚI THRESHOLD 0.5
+    # ĐÁNH GIÁ MODEL VỚI THRESHOLD 0.5
     evaluate_model(model)
-    # S05.3 - TUNING THRESHOLD TRÊN VALIDATION, ĐÁNH GIÁ CUỐI TRÊN TEST
+    # TUNING THRESHOLD TRÊN VALIDATION, ĐÁNH GIÁ CUỐI TRÊN TEST
     tune_threshold(model)
     del model
     print(f"\nTổng thời gian s05: {elapsed_text(time.perf_counter() - started)}")

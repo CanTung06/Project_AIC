@@ -45,7 +45,6 @@ def evaluate_predictions(y_true, scores, threshold):
 
 
 def load_split(path: Path, features: list[str]):
-    """Read prepared numeric features without cleaning, resampling, or splitting."""
     header = pd.read_csv(path, nrows=0, encoding="utf-8-sig").columns.tolist()
     actual_features = [column for column in header if column not in (C.TARGET_COLUMN, *C.METADATA_COLUMNS)]
     if C.TARGET_COLUMN not in header or actual_features != features:
@@ -87,7 +86,6 @@ def main() -> int:
     print(f"Train: {len(y_train):,}; validation: {len(y_validation):,}; features: {len(features)}")
     print(f"scale_pos_weight = {scale_pw:.2f}", flush=True)
 
-    # Hyperparameters from the user's uploaded 05_xgboost_ids.py.
     model = xgb.XGBClassifier(
         n_estimators=150,
         max_depth=6,
@@ -144,7 +142,7 @@ def main() -> int:
     print(f"Best iteration: {model.best_iteration}")
     print(f"Đã lưu model: {C.XGBOOST_MODEL} | {elapsed_text(fit_seconds)}")
 
-    # S07.2 - ĐÁNH GIÁ VALIDATION/TEST VỚI THRESHOLD CỐ ĐỊNH 0.5.
+    # ĐÁNH GIÁ VALIDATION/TEST VỚI THRESHOLD CỐ ĐỊNH 0.5.
     print("\nS07.2 - ĐÁNH GIÁ VỚI THRESHOLD 0.5")
     validation_scores = model.predict_proba(X_validation)[:, 1]
     validation_default, _, validation_default_report, validation_default_matrix = evaluate_predictions(
@@ -193,7 +191,7 @@ def main() -> int:
         test_default_matrix.to_dict(orient="index"),
     )
 
-    # S07.3 - CHỌN THRESHOLD TRÊN VALIDATION; KHÔNG DÙNG TEST ĐỂ CHỌN.
+    # CHỌN THRESHOLD TRÊN VALIDATION; KHÔNG DÙNG TEST ĐỂ CHỌN.
     precision, recall, thresholds = precision_recall_curve(y_validation, validation_scores)
     eligible = np.flatnonzero(recall[:-1] >= C.MIN_RECALL_TARGET)
     if eligible.size == 0:
