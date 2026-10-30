@@ -37,9 +37,11 @@ def main() -> int:
     metric_rows = []
     report_rows = []
     metrics_json = {}
+    reports_json = {}
     for model_name, model_path in MODELS.items():
         model = joblib.load(model_path)
         metrics_json[model_name] = {}
+        reports_json[model_name] = {}
         for split_name, (X, y) in splits.items():
             split_started = time.perf_counter()
             scores = model.predict_proba(X)[:, 1]
@@ -56,6 +58,7 @@ def main() -> int:
                 output_dict=True,
                 zero_division=0,
             )
+            reports_json[model_name][split_name] = report
             print(f"\nClassification report | {model_name} | {split_name} | threshold=0.5")
             print(classification_report(
                 y,
@@ -80,17 +83,16 @@ def main() -> int:
                 })
 
             matrix = confusion_table(y, scores, 0.5)
-            matrix_path = C.TABLES_DIR / f"06_confusion_{model_name}_{split_name}.csv"
-            matrix.to_csv(matrix_path, encoding="utf-8-sig")
+            matrix_path = C.METRICS_DIR / f"06_confusion_{model_name}_{split_name}.json"
+            with matrix_path.open("w", encoding="utf-8") as matrix_file:
+                json.dump(matrix.to_dict(orient="index"), matrix_file, ensure_ascii=False, indent=2)
             print_table(f"Confusion matrix | {model_name} | {split_name} | threshold=0.5", matrix, index=True)
             print(f"Hoàn tất {model_name}/{split_name} | {elapsed_text(time.perf_counter() - split_started)}")
 
     metrics_table = pd.DataFrame(metric_rows)
     report_table = pd.DataFrame(report_rows)
-    metrics_table.to_csv(C.TABLES_DIR / "06_metrics_comparison.csv", index=False, encoding="utf-8-sig")
-    report_table.to_csv(C.TABLES_DIR / "06_classification_report.csv", index=False, encoding="utf-8-sig")
     with (C.METRICS_DIR / "06_evaluation_metrics.json").open("w", encoding="utf-8") as output_file:
-        json.dump(metrics_json, output_file, ensure_ascii=False, indent=2)
+        json.dump({"metrics": metrics_json, "classification_reports": reports_json}, output_file, ensure_ascii=False, indent=2)
 
     print_table("Chỉ số tổng hợp (tập Attack (1) là trọng tâm)", metrics_table)
     print_table("Classification report", report_table)

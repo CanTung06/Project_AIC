@@ -26,7 +26,6 @@ MODELS = {
     "random_undersampling": C.UNDERSAMPLED_MODEL,
 }
 
-
 def main() -> int:
     C.ensure_dirs()
     started = time.perf_counter()
@@ -86,7 +85,6 @@ def main() -> int:
     plt.close(figure)
 
     threshold_table = pd.DataFrame(threshold_rows)
-    threshold_table.to_csv(C.TABLES_DIR / "07_validation_thresholds.csv", index=False, encoding="utf-8-sig")
 
     selected_name = max(
         validation_scores,
@@ -123,27 +121,34 @@ def main() -> int:
         digits=4,
         zero_division=0,
     )
-    tuned_report_text = (
-        f"Classification report | {selected_name} | tuned threshold={selected_threshold:.8f}\n"
+    report_text = (
+        f"Classification report | SGDClassifier | threshold={selected_threshold:.8f}\n"
         f"{tuned_report}\n"
         f"AUC-ROC: {test_metrics['roc_auc']:.4f}\n"
         f"PR-AUC: {test_metrics['pr_auc']:.4f}\n"
     )
     (C.TABLES_DIR / "07_tuned_classification_report.txt").write_text(
-        tuned_report_text,
+        report_text,
         encoding="utf-8",
     )
     test_row = {"model": selected_name, **test_metrics}
     test_table = pd.DataFrame([test_row])
-    test_table.to_csv(C.TABLES_DIR / "07_tuned_test_metrics.csv", index=False, encoding="utf-8-sig")
+    test_report_dict = classification_report(
+        y_test,
+        predictions_test,
+        labels=[0, 1],
+        target_names=["Normal", "Attack"],
+        output_dict=True,
+        zero_division=0,
+    )
     matrix = confusion_table(y_test, scores_test, selected_threshold)
     for model_name in MODELS:
         if model_name != selected_name:
-            stale_matrix_path = C.TABLES_DIR / f"07_confusion_{model_name}_test_tuned.csv"
+            stale_matrix_path = C.METRICS_DIR / f"07_confusion_{model_name}_test_tuned.json"
             stale_matrix_path.unlink(missing_ok=True)
-    matrix.to_csv(
-        C.TABLES_DIR / f"07_confusion_{selected_name}_test_tuned.csv",
-        encoding="utf-8-sig",
+    save_json(
+        C.METRICS_DIR / f"07_confusion_{selected_name}_test_tuned.json",
+        matrix.to_dict(orient="index"),
     )
 
     final_model = ThresholdedClassifier(
@@ -160,17 +165,16 @@ def main() -> int:
         "selection_rule": "maximize_validation_precision_subject_to_minimum_recall",
         "minimum_recall_target": C.MIN_RECALL_TARGET,
         "validation": validation_scores,
+        "validation_thresholds_by_model": threshold_rows,
         "test_at_validation_threshold": [test_row],
+        "test_classification_report": test_report_dict,
         "selected_model": selected_info,
     })
 
-    print_table(
-        f"Ngưỡng precision cao nhất trên validation",
-        threshold_table,
-    )
+    print_table("Ngưỡng precision cao nhất trên validation", threshold_table)
     print_table("Kết quả test của mô hình được chọn", test_table)
-    print("\n" + tuned_report_text)
-    print_table(f"Confusion matrix test | {selected_name} | threshold={selected_threshold:.6f}", matrix, index=True)
+    print("\n" + report_text)
+    print_table(f"Confusion matrix test | SGDClassifier | threshold={selected_threshold:.6f}", matrix, index=True)
     print(f"\nModel được chọn theo precision validation với recall tối thiểu: {selected_name}")
     print(f"Ngưỡng lưu tại: {C.SELECTED_MODEL_INFO}")
     print(f"Thời gian tuning và đánh giá: {elapsed_text(time.perf_counter() - started)}")

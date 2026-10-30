@@ -1,2 +1,0 @@
-﻿model,threshold,precision,recall,f1,minimum_recall_target
-random_undersampling,0.010822810369652065,0.7503955696202531,0.8183779119930975,0.7829137432934378,0.8

@@ -22,11 +22,12 @@ STEPS = [
     ("s07", "steps.s07_tuning"),
     ("s08", "steps.s08_explain"),
     ("s09", "steps.s09_drift"),
+    ("s10", "steps.s10_train_logistic_regression"),
 ]
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Pipeline CIC-IDS2017 dùng SGDClassifier")
+    parser = argparse.ArgumentParser(description="Pipeline CIC-IDS2017 dùng SGDClassifier và Logistic Regression")
     parser.add_argument("--only", default="", help="Chỉ chạy các bước, ví dụ: s05,s06")
     parser.add_argument("--from", dest="start", default="", help="Chạy từ bước, ví dụ: s07")
     args = parser.parse_args(argv)

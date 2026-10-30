@@ -1,0 +1,69 @@
+{
+  "model": "LogisticRegression",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\10_logistic_regression.joblib",
+  "training_rows": 43032,
+  "training_support_0": 32274,
+  "training_support_1": 10758,
+  "feature_count": 78,
+  "parameters": {
+    "C": 1.0,
+    "solver": "lbfgs",
+    "max_iter": 1000,
+    "tol": 0.0001,
+    "class_weight": null,
+    "training_data": "undersampled_train.csv, normal:attack = 3:1",
+    "feature_transform": "signed_log_then_standard_scaler"
+  },
+  "fit_time": "00:00:00",
+  "minimum_recall_target": 0.8,
+  "validation_at_selected_threshold": {
+    "precision": 0.961914565105507,
+    "recall": 0.8062985332182916,
+    "f1": 0.8772588594226707,
+    "threshold": 0.9882876292057099,
+    "pr_auc": 0.9422942383706016
+  },
+  "test_metrics": {
+    "threshold": 0.9882876292057099,
+    "balanced_accuracy": 0.9105122383325623,
+    "precision": 0.9568123393316196,
+    "recall": 0.821270962047661,
+    "f1": 0.8838755639990501,
+    "tp": 1861,
+    "fp": 84,
+    "fn": 405,
+    "tn": 340707,
+    "support_0": 340791,
+    "support_1": 2266,
+    "pr_auc": 0.9396865795460373,
+    "roc_auc": 0.9996480165842717
+  },
+  "test_classification_report": {
+    "Normal": {
+      "precision": 0.9988127066769859,
+      "recall": 0.9997535146174635,
+      "f1-score": 0.9992828892085824,
+      "support": 340791.0
+    },
+    "Attack": {
+      "precision": 0.9568123393316196,
+      "recall": 0.821270962047661,
+      "f1-score": 0.8838755639990501,
+      "support": 2266.0
+    },
+    "accuracy": 0.9985745809005501,
+    "macro avg": {
+      "precision": 0.9778125230043027,
+      "recall": 0.9105122383325623,
+      "f1-score": 0.9415792266038163,
+      "support": 343057.0
+    },
+    "weighted avg": {
+      "precision": 0.9985352809652103,
+      "recall": 0.9985745809005501,
+      "f1-score": 0.9985205873201942,
+      "support": 343057.0
+    }
+  },
+  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\10_logistic_regression_classification_report.txt"
+}

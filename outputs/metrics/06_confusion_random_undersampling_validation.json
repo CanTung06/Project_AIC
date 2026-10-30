@@ -1,0 +1,10 @@
+{
+  "Actual_0_Normal": {
+    "Predicted_0_Normal": 340340,
+    "Predicted_1_Attack": 163
+  },
+  "Actual_1_Attack": {
+    "Predicted_0_Normal": 1444,
+    "Predicted_1_Attack": 874
+  }
+}
