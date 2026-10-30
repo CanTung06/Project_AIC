@@ -24,8 +24,7 @@ python run_all.py --from s07
 
 - `s04`: tạo trọng số lớp cho toàn bộ train và tạo thêm tập train random undersampling
   với đúng 3 mẫu bình thường cho mỗi mẫu tấn công.
-- `s05`: huấn luyện hai biến thể `SGDClassifier`, một biến thể dùng `class_weight`,
-  một biến thể dùng tập undersampling. Validation và test giữ nguyên phân phối tự nhiên.
+- `s05`: huấn luyện `SGDClassifier` dùng tập undersampling. Validation và test giữ nguyên phân phối tự nhiên.
 - `s06` và `s07`: báo cáo PR-AUC, precision, recall, F1 lớp 1, TP/FP/FN/TN và
   confusion matrix. Ngưỡng được chọn trên validation; test chỉ đánh giá cuối.
 
