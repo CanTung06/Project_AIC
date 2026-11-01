@@ -1,8 +1,9 @@
 {
   "model": "XGBoost",
   "strategy": "undersampling",
-  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
-  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\07_xgboost_undersampling_tuned_classification_report.txt",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost.joblib",
+  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\06_xgboost_undersampling_tuned_classification_report.txt",
+  "confusion_matrix_figure": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\06_confusion_xgboost_undersampling_test.png",
   "training_summary": {
     "model": "XGBoost",
     "strategy": "undersampling",
@@ -95,25 +96,25 @@
       "Idle Min"
     ],
     "scale_pos_weight": 3.0,
-    "fit_seconds": 9.81,
-    "fit_time": "00:00:09",
+    "fit_seconds": 6.45,
+    "fit_time": "00:00:06",
     "best_iteration": 110,
     "early_stopping_split": "validation",
     "early_stopping_rounds": 15,
     "data_resplit_or_resampled": false,
     "test_used_for_training": false,
-    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost.joblib",
     "xgboost_version": "3.2.0",
     "data_files": {
       "train": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\train_undersampled.csv",
         "size_bytes": 18464580,
-        "mtime_ns": 1793290427272496000
+        "mtime_ns": 1793546313270769700
       },
       "validation": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\validation.csv",
         "size_bytes": 146897573,
-        "mtime_ns": 1793288922943692100
+        "mtime_ns": 1793546291002656200
       }
     }
   },
@@ -228,7 +229,7 @@
         "minimum_recall_target": 0.8,
         "pr_auc": 0.9999051772112078
       },
-      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost.joblib",
       "threshold_embedded_in_model": true
     }
   }

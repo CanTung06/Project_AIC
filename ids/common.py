@@ -102,6 +102,48 @@ def print_table(title: str, frame: pd.DataFrame, index: bool = False) -> None:
     print(frame.to_string(index=index, float_format=lambda value: f"{value:.4f}"))
 
 
+def save_confusion_matrix_figure(
+    matrix: pd.DataFrame,
+    output_path: Path,
+    title: str,
+) -> None:
+    """Lưu heatmap confusion matrix với số lượng từng ô."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    values = matrix.to_numpy(dtype=np.int64)
+    figure, axis = plt.subplots(figsize=(6.5, 5.5))
+    image = axis.imshow(values, cmap="Blues")
+    axis.set_xticks([0, 1])
+    axis.set_xticklabels(["Normal (0)", "Attack (1)"])
+    axis.set_yticks([0, 1])
+    axis.set_yticklabels(["Normal (0)", "Attack (1)"])
+    axis.set_xlabel("Nhãn dự đoán")
+    axis.set_ylabel("Nhãn thực tế")
+    axis.set_title(title)
+
+    midpoint = values.max() / 2 if values.size else 0
+    for row in range(values.shape[0]):
+        for column in range(values.shape[1]):
+            axis.text(
+                column,
+                row,
+                f"{values[row, column]:,}",
+                ha="center",
+                va="center",
+                color="white" if values[row, column] > midpoint else "black",
+                fontsize=11,
+            )
+
+    figure.colorbar(image, ax=axis, label="Số mẫu")
+    figure.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=160, bbox_inches="tight")
+    plt.close(figure)
+
+
 def print_model_evaluation(
     model_name: str,
     validation_metrics: dict,

@@ -1,7 +1,7 @@
 {
   "model": "LogisticRegression",
   "strategy": "full_data",
-  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_logistic_regression_full_data.joblib",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_logistic_regression_full_data.joblib",
   "training_rows": 1602561,
   "training_support_0": 1591803,
   "training_support_1": 10758,
@@ -15,7 +15,7 @@
     "training_data": "train.csv",
     "feature_transform": "signed_log_then_standard_scaler"
   },
-  "fit_time": "00:00:29",
+  "fit_time": "00:00:19",
   "minimum_recall_target": 0.8,
   "validation_at_selected_threshold": {
     "precision": 0.9890167364016736,
@@ -67,5 +67,6 @@
       "support": 343057.0
     }
   },
-  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\06_logistic_regression_full_data_classification_report.txt"
+  "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\05_logistic_regression_full_data_classification_report.txt",
+  "confusion_matrix_figure": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\05_confusion_logistic_regression_full_data_test.png"
 }

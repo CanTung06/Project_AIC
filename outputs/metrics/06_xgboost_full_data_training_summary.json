@@ -1,11 +1,11 @@
 [
   {
     "model": "XGBoost",
-    "strategy": "undersampling",
+    "strategy": "full_data",
     "model_code_source": "user-provided 05_xgboost_ids.py",
-    "training_rows": 43032,
+    "training_rows": 1602561,
     "train_class_counts": {
-      "0": 32274,
+      "0": 1591803,
       "1": 10758
     },
     "validation_rows": 342821,
@@ -90,26 +90,26 @@
       "Idle Max",
       "Idle Min"
     ],
-    "scale_pos_weight": 3.0,
-    "fit_seconds": 9.81,
-    "fit_time": "00:00:09",
-    "best_iteration": 110,
+    "scale_pos_weight": 147.96458449525934,
+    "fit_seconds": 11.12,
+    "fit_time": "00:00:11",
+    "best_iteration": 65,
     "early_stopping_split": "validation",
     "early_stopping_rounds": 15,
     "data_resplit_or_resampled": false,
     "test_used_for_training": false,
-    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+    "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost_full_data.joblib",
     "xgboost_version": "3.2.0",
     "data_files": {
       "train": {
-        "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\train_undersampled.csv",
-        "size_bytes": 18464580,
-        "mtime_ns": 1793290427272496000
+        "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\train.csv",
+        "size_bytes": 686706719,
+        "mtime_ns": 1793546289240519800
       },
       "validation": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\validation.csv",
         "size_bytes": 146897573,
-        "mtime_ns": 1793288922943692100
+        "mtime_ns": 1793546291002656200
       }
     }
   }

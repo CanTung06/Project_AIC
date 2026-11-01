@@ -22,6 +22,7 @@ from ids.common import (
     elapsed_text,
     load_feature_names,
     print_model_evaluation,
+    save_confusion_matrix_figure,
     save_json,
 )
 from ids.thresholded import ThresholdedClassifier
@@ -100,7 +101,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     features = load_feature_names(train_path)
     if not features:
         raise ValueError("Tệp train không có cột đặc trưng để huấn luyện.")
-    print("BƯỚC S07 - TRAIN XGBOOST", flush=True)
+    print("BƯỚC S06 - TRAIN XGBOOST", flush=True)
     print(f"Đọc tập train ({strategy}): {train_path}", flush=True)
     X_train, y_train = load_split(train_path, features)
     X_validation, y_validation = load_split(C.VALIDATION_DATA, features)
@@ -162,17 +163,17 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
             )
         },
     }
-    save_json(C.METRICS_DIR / f"07_xgboost_{strategy}_training_summary.json", [result])
+    save_json(C.METRICS_DIR / f"06_xgboost_{strategy}_training_summary.json", [result])
     table_keys = ("model", "training_rows", "feature_count", "scale_pos_weight",
                   "fit_seconds", "best_iteration", "model_path")
     pd.DataFrame([{key: result[key] for key in table_keys}]).to_csv(
-        C.TABLES_DIR / f"07_xgboost_{strategy}_training_summary.csv", index=False, encoding="utf-8-sig"
+        C.TABLES_DIR / f"06_xgboost_{strategy}_training_summary.csv", index=False, encoding="utf-8-sig"
     )
     print(f"Best iteration: {model.best_iteration}")
     print(f"Đã lưu model: {model_path} | {elapsed_text(fit_seconds)}")
 
     # CHỌN THRESHOLD TRÊN VALIDATION; KHÔNG DÙNG TEST ĐỂ CHỌN.
-    print("\nS07.2 - TUNING THRESHOLD TRÊN VALIDATION")
+    print("\nS06.2 - TUNING THRESHOLD TRÊN VALIDATION")
     del X_train, y_train
     gc.collect()
     validation_scores = model.predict_proba(X_validation)[:, 1]
@@ -212,7 +213,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     axis.grid(alpha=0.25)
     axis.legend()
     figure.tight_layout()
-    figure.savefig(C.FIGURES_DIR / f"07_xgboost_{strategy}_validation_pr_curve.png", dpi=150)
+    figure.savefig(C.FIGURES_DIR / f"06_xgboost_{strategy}_validation_pr_curve.png", dpi=150)
     plt.close(figure)
 
     del X_validation, y_validation, validation_scores
@@ -229,14 +230,20 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         f"AUC-ROC: {test_tuned['roc_auc']:.4f}\n"
         f"PR-AUC: {test_tuned['pr_auc']:.4f}\n"
     )
-    report_path = C.TABLES_DIR / f"07_xgboost_{strategy}_tuned_classification_report.txt"
+    report_path = C.TABLES_DIR / f"06_xgboost_{strategy}_tuned_classification_report.txt"
     report_path.write_text(
         tuned_report_text,
         encoding="utf-8",
     )
     save_json(
-        C.METRICS_DIR / f"07_confusion_xgboost_{strategy}_test_tuned.json",
+        C.METRICS_DIR / f"06_confusion_xgboost_{strategy}_test_tuned.json",
         test_tuned_matrix.to_dict(orient="index"),
+    )
+    confusion_figure_path = C.FIGURES_DIR / f"06_confusion_xgboost_{strategy}_test.png"
+    save_confusion_matrix_figure(
+        test_tuned_matrix,
+        confusion_figure_path,
+        f"Confusion Matrix - XGBoost ({strategy})",
     )
 
     selected_model = ThresholdedClassifier(
@@ -254,13 +261,14 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         "model_path": str(model_path),
         "threshold_embedded_in_model": True,
     }
-    metrics_path = C.METRICS_DIR / f"07_xgboost_{strategy}_metrics.json"
-    save_json(C.METRICS_DIR / f"07_xgboost_{strategy}_selected_model.json", selected_info)
+    metrics_path = C.METRICS_DIR / f"06_xgboost_{strategy}_metrics.json"
+    save_json(C.METRICS_DIR / f"06_xgboost_{strategy}_selected_model.json", selected_info)
     save_json(metrics_path, {
         "model": "XGBoost",
         "strategy": strategy,
         "model_path": str(model_path),
         "classification_report_path": str(report_path),
+        "confusion_matrix_figure": str(confusion_figure_path),
         "training_summary": result,
         "threshold_tuning": {
             "rule": "maximize_validation_precision_subject_to_minimum_recall",

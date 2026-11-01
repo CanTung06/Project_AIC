@@ -11,6 +11,6 @@
     "minimum_recall_target": 0.8,
     "pr_auc": 0.9999051772112078
   },
-  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_xgboost.joblib",
+  "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost.joblib",
   "threshold_embedded_in_model": true
 }

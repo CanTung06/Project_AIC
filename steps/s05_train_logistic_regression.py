@@ -1,4 +1,4 @@
-"""Bước 06: Huấn luyện, chọn threshold và đánh giá Logistic Regression."""
+"""Bước 05: Huấn luyện, chọn threshold và đánh giá Logistic Regression."""
 
 import gc
 import sys
@@ -21,6 +21,7 @@ from ids.common import (
     elapsed_text,
     load_xy,
     print_model_evaluation,
+    save_confusion_matrix_figure,
     save_json,
     signed_log_transform,
 )
@@ -131,12 +132,18 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
         model_name=f"logistic_regression_{strategy}",
     )
     joblib.dump(final_model, model_path, compress=3)
-    report_path = C.TABLES_DIR / f"06_logistic_regression_{strategy}_classification_report.txt"
+    report_path = C.TABLES_DIR / f"05_logistic_regression_{strategy}_classification_report.txt"
     report_path.write_text(report_text, encoding="utf-8")
     test_matrix = confusion_table(y_test, test_scores, threshold)
-    metrics_path = C.METRICS_DIR / f"06_logistic_regression_{strategy}_metrics.json"
+    confusion_figure_path = C.FIGURES_DIR / f"05_confusion_logistic_regression_{strategy}_test.png"
+    save_confusion_matrix_figure(
+        test_matrix,
+        confusion_figure_path,
+        f"Confusion Matrix - Logistic Regression ({strategy})",
+    )
+    metrics_path = C.METRICS_DIR / f"05_logistic_regression_{strategy}_metrics.json"
     save_json(
-        C.METRICS_DIR / f"06_logistic_regression_{strategy}_confusion_test.json",
+        C.METRICS_DIR / f"05_logistic_regression_{strategy}_confusion_test.json",
         test_matrix.to_dict(orient="index"),
     )
 
@@ -163,6 +170,7 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
         "test_metrics": test_metrics,
         "test_classification_report": report_dict,
         "classification_report_path": str(report_path),
+        "confusion_matrix_figure": str(confusion_figure_path),
     }
     save_json(metrics_path, result)
     print_model_evaluation(

@@ -53,6 +53,31 @@ def save_label_plot(label_df: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+def save_attribute_count_plot(file_df: pd.DataFrame) -> None:
+    """Lưu biểu đồ số cột thuộc tính trong từng file CSV nguồn."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    if file_df.empty:
+        return
+
+    plot_df = file_df.sort_values("column_count", ascending=True)
+    height = max(5, min(12, 0.45 * len(plot_df)))
+    figure, axis = plt.subplots(figsize=(11, height))
+    axis.barh(plot_df["file_name"], plot_df["column_count"], color="#4c956c")
+    axis.set_title("Số lượng thuộc tính (cột) theo file CSV")
+    axis.set_xlabel("Số thuộc tính")
+    axis.set_ylabel("File CSV")
+    axis.grid(axis="x", alpha=0.25)
+    for index, count in enumerate(plot_df["column_count"]):
+        axis.text(count, index, f" {count:,}", va="center")
+    figure.tight_layout()
+    figure.savefig(C.FIGURES_DIR / "01_attribute_count_by_file.png", dpi=150)
+    plt.close(figure)
+
+
 def main() -> int:
     files = sorted(C.RAW_DIR.glob("*.csv"))
     if not files:
@@ -83,6 +108,7 @@ def main() -> int:
     for file_index, file_path in enumerate(files, start=1):
         file_started = time.perf_counter()
         file_row_count = 0
+        file_column_count = 0
         current_file_labels: Counter[str] = Counter()
         file_bytes = file_path.stat().st_size
         print(f"\n[{file_index}/{len(files)}] Đang đọc: {file_path.name}")
@@ -101,6 +127,8 @@ def main() -> int:
             for chunk in chunks:
                 chunk.columns = [str(column).strip().lstrip("\ufeff") for column in chunk.columns]
                 schema = list(chunk.columns)
+                if file_column_count == 0:
+                    file_column_count = len(schema)
                 if reference_schema is None:
                     reference_schema = schema
                 elif schema != reference_schema and not any(item["file"] == file_path.name for item in schema_mismatches):
@@ -170,7 +198,7 @@ def main() -> int:
         file_rows.append({
             "file_name": file_path.name,
             "row_count": file_row_count,
-            "column_count": len(reference_schema or []),
+            "column_count": file_column_count,
             "size_mb": round(file_bytes / (1024 * 1024), 2),
         })
         for label, count in current_file_labels.items():
@@ -218,6 +246,7 @@ def main() -> int:
     missing_df.to_csv(C.TABLES_DIR / "01_missing_values.csv", index=False, encoding="utf-8-sig")
     numeric_df.to_csv(C.TABLES_DIR / "01_numeric_summary.csv", index=False, encoding="utf-8-sig")
     save_label_plot(label_df)
+    save_attribute_count_plot(file_df)
 
     summary = {
         "raw_directory": str(C.RAW_DIR),

@@ -38,6 +38,6 @@
   },
   "output_file": "D:\\Code\\Python\\Project_AIC\\data\\processed\\password_attack_dataset.csv",
   "chunk_size": 500000,
-  "processing_time_seconds": 87.96,
-  "processing_time": "00:01:27"
+  "processing_time_seconds": 86.13,
+  "processing_time": "00:01:26"
 }
