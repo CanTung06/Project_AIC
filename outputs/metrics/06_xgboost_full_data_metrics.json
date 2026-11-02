@@ -96,8 +96,8 @@
       "Idle Min"
     ],
     "scale_pos_weight": 147.96458449525934,
-    "fit_seconds": 11.12,
-    "fit_time": "00:00:11",
+    "fit_seconds": 18.18,
+    "fit_time": "00:00:18",
     "best_iteration": 65,
     "early_stopping_split": "validation",
     "early_stopping_rounds": 15,
@@ -109,12 +109,12 @@
       "train": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\train.csv",
         "size_bytes": 686706719,
-        "mtime_ns": 1793546289240519800
+        "mtime_ns": 1793608520753931000
       },
       "validation": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\validation.csv",
         "size_bytes": 146897573,
-        "mtime_ns": 1793546291002656200
+        "mtime_ns": 1793608522505652300
       }
     }
   },

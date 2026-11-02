@@ -15,7 +15,7 @@
     "training_data": "train.csv",
     "feature_transform": "signed_log_then_standard_scaler"
   },
-  "fit_time": "00:00:19",
+  "fit_time": "00:00:28",
   "minimum_recall_target": 0.8,
   "validation_at_selected_threshold": {
     "precision": 0.9890167364016736,
