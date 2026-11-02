@@ -96,8 +96,8 @@
       "Idle Min"
     ],
     "scale_pos_weight": 147.96458449525934,
-    "fit_seconds": 18.18,
-    "fit_time": "00:00:18",
+    "fit_seconds": 9.97,
+    "fit_time": "00:00:09",
     "best_iteration": 65,
     "early_stopping_split": "validation",
     "early_stopping_rounds": 15,

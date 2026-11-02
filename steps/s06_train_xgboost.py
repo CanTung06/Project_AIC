@@ -163,12 +163,6 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
             )
         },
     }
-    save_json(C.METRICS_DIR / f"06_xgboost_{strategy}_training_summary.json", [result])
-    table_keys = ("model", "training_rows", "feature_count", "scale_pos_weight",
-                  "fit_seconds", "best_iteration", "model_path")
-    pd.DataFrame([{key: result[key] for key in table_keys}]).to_csv(
-        C.TABLES_DIR / f"06_xgboost_{strategy}_training_summary.csv", index=False, encoding="utf-8-sig"
-    )
     print(f"Best iteration: {model.best_iteration}")
     print(f"Đã lưu model: {model_path} | {elapsed_text(fit_seconds)}")
 
@@ -236,7 +230,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         encoding="utf-8",
     )
     save_json(
-        C.METRICS_DIR / f"06_confusion_xgboost_{strategy}_test_tuned.json",
+        C.METRICS_DIR / f"06_xgboost_{strategy}_confusion_test.json",
         test_tuned_matrix.to_dict(orient="index"),
     )
     confusion_figure_path = C.FIGURES_DIR / f"06_confusion_xgboost_{strategy}_test.png"
@@ -262,7 +256,6 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         "threshold_embedded_in_model": True,
     }
     metrics_path = C.METRICS_DIR / f"06_xgboost_{strategy}_metrics.json"
-    save_json(C.METRICS_DIR / f"06_xgboost_{strategy}_selected_model.json", selected_info)
     save_json(metrics_path, {
         "model": "XGBoost",
         "strategy": strategy,
