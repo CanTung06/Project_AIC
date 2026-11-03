@@ -1,219 +1,215 @@
-import json
+﻿import json
 import re
 import sys
 import time
-import unicodedata
-from collections import Counter
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from ids import config as C
 
-KEEP_LABELS = {
-    "benign": "BENIGN",
-    "ftp patator": "FTP-Patator",
-    "ssh patator": "SSH-Patator",
-    "web attack brute force": "Web Attack - Brute Force",
-}
+CATEGORICAL_COLUMNS = ["Login Status", "IP Address", "Device Type", "Location"]
+NUMERIC_COLUMNS = ["Failed Attempts"]
+REQUIRED_COLUMNS = ["User ID", "Timestamp", *CATEGORICAL_COLUMNS, *NUMERIC_COLUMNS, C.SOURCE_LABEL_COLUMN]
+OTHER = "__OTHER__"
+MISSING = "__MISSING__"
+UNKNOWN_VALUES = {"unknown", "unk", "n/a", "na", "none", "null"}
 
 
-def normalize_label(value: object) -> str:
-    """Chuẩn hóa nhãn để so khớp ổn định giữa các encoding/dấu gạch ngang."""
-    text = str(value).replace("\u00ef\u00bf\u00bd", " ").replace("\ufffd", " ")
-    text = unicodedata.normalize("NFKC", text).casefold()
-    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+def normalize_header(value):
+    return re.sub(r"[^a-z0-9]+", "", str(value).strip().casefold())
 
 
-def format_elapsed_time(seconds: float) -> str:
-    seconds = int(seconds)
-    hours, seconds = divmod(seconds, 3600)
-    minutes, seconds = divmod(seconds, 60)
-    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+def canonicalize_columns(frame):
+    expected = {normalize_header(name): name for name in REQUIRED_COLUMNS}
+    frame = frame.rename(columns={c: expected[normalize_header(c)] for c in frame.columns
+                                  if normalize_header(c) in expected})
+    duplicates = frame.columns[frame.columns.duplicated()].tolist()
+    if duplicates:
+        raise ValueError(f"Các cột bị trùng sau khi chuẩn hóa: {duplicates}")
+    return frame
+
+
+def build_category_vocabulary(frame):
+    result = {}
+    for column in CATEGORICAL_COLUMNS:
+        values = frame[column].astype("string").str.strip()
+        valid = values.dropna().loc[lambda x: x.ne("")]
+        valid = valid.loc[~valid.str.casefold().isin(UNKNOWN_VALUES)]
+        observed = sorted(valid.unique().tolist())
+        result[column] = [*observed, MISSING, OTHER]
+    return result
+
+
+def engineer_auth_features(frame, category_vocabulary):
+    data = frame.copy()
+    # CSV có thể trộn timestamp có/không có phần micro giây; format="mixed"
+    # tránh pandas suy định dạng từ dòng đầu rồi đánh dấu các định dạng khác là lỗi.
+    data["_event_time"] = pd.to_datetime(
+        data["Timestamp"], format="mixed", errors="coerce", utc=True
+    )
+    if data["_event_time"].isna().any():
+        raise ValueError(f"Có {int(data['_event_time'].isna().sum()):,} Timestamp không hợp lệ.")
+
+    for column in CATEGORICAL_COLUMNS:
+        values = data[column].astype("string").str.strip()
+        values = values.mask(
+            values.isna() | values.eq("") | values.str.casefold().isin(UNKNOWN_VALUES),
+            MISSING,
+        )
+        canonical_values = {
+            str(category).casefold(): category
+            for category in category_vocabulary[column]
+            if category not in (MISSING, OTHER)
+        }
+        values = values.map(lambda value: canonical_values.get(str(value).casefold(), value))
+        data[column] = values.where(values.isin(category_vocabulary[column]), OTHER)
+    for column in NUMERIC_COLUMNS:
+        values = pd.to_numeric(data[column], errors="coerce").replace([np.inf, -np.inf], np.nan)
+        data[column] = values.fillna(0).astype(np.float32)
+
+    data = data.sort_values("_event_time", kind="stable").reset_index(drop=True)
+    timestamp = data["_event_time"]
+    hour = timestamp.dt.hour + timestamp.dt.minute / 60 + timestamp.dt.second / 3600
+    weekday = timestamp.dt.dayofweek
+    data["login_hour_sin"] = np.sin(2 * np.pi * hour / 24).astype(np.float32)
+    data["login_hour_cos"] = np.cos(2 * np.pi * hour / 24).astype(np.float32)
+    data["login_weekday_sin"] = np.sin(2 * np.pi * weekday / 7).astype(np.float32)
+    data["login_weekday_cos"] = np.cos(2 * np.pi * weekday / 7).astype(np.float32)
+
+    # Tạo ma trận one-hot riêng rồi ghép một lần. Chèn từng cột vào DataFrame
+    # tạo fragmentation và làm chậm đáng kể khi IP có nhiều giá trị duy nhất.
+    one_hot_frames = []
+    for column in CATEGORICAL_COLUMNS:
+        categories = [
+            category for category in category_vocabulary[column]
+            if category not in (MISSING, OTHER)
+        ]
+        encoded = pd.get_dummies(
+            pd.Categorical(data[column], categories=categories),
+            dtype=np.int8,
+        )
+        encoded.columns = [f"{column}__{category}" for category in categories]
+        one_hot_frames.append(encoded)
+    if one_hot_frames:
+        data = pd.concat([data, *one_hot_frames], axis=1, copy=False)
+
+    return data.drop(columns=["_event_time"])
 
 
 def main() -> int:
+    C.ensure_dirs()
     files = sorted(C.RAW_DIR.glob("*.csv"))
     if not files:
-        print(f"Không tìm thấy CSV nào trong: {C.RAW_DIR}")
-        return 1
-
-    C.ensure_dirs()
-
-    output_path = C.FILTERED_DATA
-    temporary_path = output_path.with_name(output_path.stem + ".tmp.csv")
-    temporary_path.unlink(missing_ok=True)
-
-    kept_label_counts: Counter[str] = Counter()
-    dropped_label_counts: Counter[str] = Counter()
-    file_summary: list[dict] = []
-    total_rows = 0
-    kept_rows = 0
-    wrote_header = False
+        raise FileNotFoundError(f"Không tìm thấy CSV trong {C.RAW_DIR}")
     started = time.perf_counter()
+    frames = []
+    total_rows = 0
+    for index, path in enumerate(files, 1):
+        print(f"[{index}/{len(files)}] Đang đọc {path.name}", flush=True)
+        frame = pd.read_csv(path, encoding="utf-8-sig", low_memory=False)
+        frame.columns = [str(c).strip().lstrip("\ufeff") for c in frame.columns]
+        frame = canonicalize_columns(frame)
+        missing = [c for c in REQUIRED_COLUMNS if c not in frame.columns]
+        if missing:
+            raise ValueError(f"{path.name} không đúng log xác thực; thiếu cột: {missing}")
+        frame = frame[REQUIRED_COLUMNS].copy()
+        total_rows += len(frame)
+        frames.append(frame)
+    raw = pd.concat(frames, ignore_index=True)
+    labels = pd.to_numeric(raw[C.SOURCE_LABEL_COLUMN], errors="coerce")
+    valid = labels.isin([0, 1])
+    dropped_labels = int((~valid).sum())
+    raw = raw.loc[valid].copy()
+    raw[C.TARGET_COLUMN] = labels.loc[valid].astype(np.int8)
+    raw.drop(columns=C.SOURCE_LABEL_COLUMN, inplace=True)
+    # Các nguồn có thể dùng định dạng timestamp khác nhau (ISO-8601 của KREONET
+    # và dạng có dấu cách của synthetic); parse từng giá trị để không loại nhầm dòng.
+    timestamps = pd.to_datetime(
+        raw["Timestamp"], format="mixed", errors="coerce", utc=True
+    )
+    invalid_times = int(timestamps.isna().sum())
+    raw = raw.loc[timestamps.notna()].copy()
 
-    print(f"Bước 02 - Tiền xử lý | {len(files)} file CSV")
-    print("Giữ lại: BENIGN, FTP-Patator, SSH-Patator, Web Attack - Brute Force")
-    print(f"Chunk: {C.CHUNK_SIZE:,} dòng")
-
-    for file_index, file_path in enumerate(files, start=1):
-        file_started = time.perf_counter()
-        file_total = 0
-        file_kept = 0
-        print(f"\n[{file_index}/{len(files)}] Đang xử lý: {file_path.name}")
-
-        chunks = pd.read_csv(
-            file_path,
-            chunksize=C.CHUNK_SIZE,
-            encoding="cp1252",
-            encoding_errors="replace",
-            skipinitialspace=True,
-            low_memory=False,
-        )
-
-        for chunk in chunks:
-            chunk.columns = [str(column).strip().lstrip("\ufeff") for column in chunk.columns]
-            label_columns = [
-                column for column in chunk.columns
-                if column.strip().casefold() == "label"
-            ]
-            if len(label_columns) != 1:
-                raise ValueError(
-                    f"{file_path.name}: cần đúng một cột Label, tìm thấy {len(label_columns)}"
-                )
-
-            label_column = label_columns[0]
-            raw_labels = chunk[label_column].astype("string").str.strip()
-            normalized_labels = raw_labels.map(normalize_label)
-            counts = raw_labels.fillna("(THIẾU NHÃN)").value_counts(dropna=False)
-            for raw_label, count in counts.items():
-                display_label = (
-                    str(raw_label)
-                    .replace("\u00ef\u00bf\u00bd", "-")
-                    .replace("\ufffd", "-")
-                )
-                normalized = normalize_label(display_label)
-                if normalized in KEEP_LABELS:
-                    kept_label_counts[KEEP_LABELS[normalized]] += int(count)
-                else:
-                    dropped_label_counts[display_label] += int(count)
-
-            keep_mask = normalized_labels.isin(KEEP_LABELS)
-            selected = chunk.loc[keep_mask].copy()
-            rows_in_chunk = len(chunk)
-            selected_count = len(selected)
-            file_total += rows_in_chunk
-            total_rows += rows_in_chunk
-            file_kept += selected_count
-            kept_rows += selected_count
-
-            if selected_count:
-                selected_labels = normalized_labels.loc[keep_mask]
-                selected["attack_type"] = selected_labels.map(KEEP_LABELS).to_numpy()
-                selected["is_attack"] = selected_labels.ne("benign").astype("int8").to_numpy()
-                selected.drop(columns=[label_column], inplace=True)
-                selected.to_csv(
-                    temporary_path,
-                    index=False,
-                    mode="a" if wrote_header else "w",
-                    header=not wrote_header,
-                    encoding="utf-8-sig" if not wrote_header else "utf-8",
-                )
-                wrote_header = True
-
-            print(
-                f"  Đã đọc {file_total:,} dòng trong file, giữ {file_kept:,} | "
-                f"tổng đã đọc {total_rows:,}, giữ {kept_rows:,} | "
-                f"{format_elapsed_time(time.perf_counter() - started)}",
-                end="\r",
-                flush=True,
-            )
-
-        print(
-            "\r\033[K"
-            f"  Hoàn tất: {file_total:,} dòng, giữ {file_kept:,} | "
-            f"{format_elapsed_time(time.perf_counter() - file_started)} | "
-            f"tổng đã đọc {total_rows:,}, giữ {kept_rows:,} | "
-            f"{format_elapsed_time(time.perf_counter() - started)}"
-        )
-        file_summary.append({
-            "file_name": file_path.name,
-            "total_rows": file_total,
-            "retained_rows": file_kept,
-            "dropped_rows": file_total - file_kept,
-        })
-
-    if not wrote_header:
-        temporary_path.unlink(missing_ok=True)
-        raise RuntimeError("Không có dòng nào khớp các nhãn được giữ lại; chưa tạo dataset đầu ra.")
-
-    temporary_path.replace(output_path)
-    elapsed = time.perf_counter() - started
-    benign_count = kept_label_counts.get("BENIGN", 0)
-    attack_count = kept_rows - benign_count
-
-    attack_summary_rows = [
-        {
-            "original_label": label,
-            "decision": "GIỮ",
-            "sample_count": int(count),
-            "reason": "Dữ liệu bình thường" if label == "BENIGN" else "Tấn công brute-force mật khẩu",
-        }
-        for label, count in kept_label_counts.items()
+    categories = build_category_vocabulary(raw)
+    processed = engineer_auth_features(raw, categories)
+    # Dữ liệu đã xử lý chỉ giữ feature số và nhãn. Thứ tự thời gian đã được
+    # sắp xếp trong engineer_auth_features trước khi loại ID/thời gian.
+    processed.drop(
+        columns=[*CATEGORICAL_COLUMNS, *C.SOURCE_METADATA_COLUMNS],
+        inplace=True,
+    )
+    processed[C.TARGET_COLUMN] = pd.to_numeric(
+        processed[C.TARGET_COLUMN], errors="raise"
+    ).astype(np.int8)
+    temp_path = C.FILTERED_DATA.with_name(C.FILTERED_DATA.stem + ".tmp.csv")
+    processed.to_csv(temp_path, index=False, encoding="utf-8-sig")
+    temp_path.replace(C.FILTERED_DATA)
+    features = [c for c in processed.columns if c != C.TARGET_COLUMN]
+    non_numeric_features = [
+        column for column in features
+        if not pd.api.types.is_numeric_dtype(processed[column].dtype)
     ]
-    attack_summary_rows.extend(
-        {
-            "original_label": label,
-            "decision": "LOẠI",
-            "sample_count": int(count),
-            "reason": "Không thuộc nhóm brute-force mật khẩu được chọn",
-        }
-        for label, count in dropped_label_counts.items()
-    )
-    pd.DataFrame(attack_summary_rows).sort_values(
-        ["decision", "sample_count"], ascending=[True, False]
-    ).to_csv(C.TABLES_DIR / "02_attack_filter_summary.csv", index=False, encoding="utf-8-sig")
-    pd.DataFrame(file_summary).to_csv(
-        C.TABLES_DIR / "02_file_summary.csv", index=False, encoding="utf-8-sig"
-    )
-
-    summary = {
-        "task": "Binary classification of BENIGN and password brute-force traffic",
-        "source_directory": str(C.RAW_DIR),
-        "source_file_count": len(files),
-        "source_row_count": total_rows,
-        "retained_row_count": kept_rows,
-        "dropped_row_count": total_rows - kept_rows,
-        "retained_label_counts": dict(kept_label_counts),
-        "dropped_label_counts": dict(dropped_label_counts),
-        "benign_sample_count": benign_count,
-        "attack_sample_count": attack_count,
-        "attack_rate_percent": round(100 * attack_count / max(kept_rows, 1), 6),
+    if not pd.api.types.is_numeric_dtype(processed[C.TARGET_COLUMN].dtype):
+        non_numeric_features.append(C.TARGET_COLUMN)
+    if non_numeric_features:
+        raise TypeError(f"Feature chưa được mã hóa thành số: {non_numeric_features[:10]}")
+    schema = {
+        "task": "user authentication anomaly detection",
         "target_column": C.TARGET_COLUMN,
-        "label_mapping": {"0": "BENIGN", "1": ["FTP-Patator", "SSH-Patator", "Web Attack - Brute Force"]},
-        "output_file": str(output_path),
-        "chunk_size": C.CHUNK_SIZE,
-        "processing_time_seconds": round(elapsed, 2),
-        "processing_time": format_elapsed_time(elapsed),
+        "source_label_column": C.SOURCE_LABEL_COLUMN,
+        "metadata_columns": [],
+        "categorical_columns": CATEGORICAL_COLUMNS,
+        "categorical_encoding": "one_hot",
+        "excluded_source_columns": ["Session Duration", "Behavioral Score"],
+        "unknown_category_handling": "missing or unknown values produce all-zero one-hot columns",
+        "source_attribute_representation": {
+            "User ID": [],
+            "Timestamp": [
+                "login_hour_sin",
+                "login_hour_cos",
+                "login_weekday_sin",
+                "login_weekday_cos",
+            ],
+            "Login Status": [column for column in features if column.startswith("Login Status__")],
+            "IP Address": [column for column in features if column.startswith("IP Address__")],
+            "Device Type": [column for column in features if column.startswith("Device Type__")],
+            "Location": [column for column in features if column.startswith("Location__")],
+            "numeric_source_attributes": NUMERIC_COLUMNS,
+        },
+        "category_vocabulary": categories,
+        "feature_columns": features,
+        "history_features": False,
     }
-    with (C.METRICS_DIR / "02_preprocess_summary.json").open("w", encoding="utf-8") as output_file:
-        json.dump(summary, output_file, ensure_ascii=False, indent=2)
-
-    print("\n" + "=" * 72)
-    print("HOÀN TẤT TIỀN XỬ LÝ")
-    print(f"Tổng dòng nguồn : {total_rows:,}")
-    print(f"Dòng giữ lại    : {kept_rows:,}")
-    print(f"Dòng loại bỏ    : {total_rows - kept_rows:,}")
-    print(f"BENIGN (0)      : {benign_count:,}")
-    print(f"Brute-force (1) : {attack_count:,}")
-    print(f"Tỷ lệ tấn công  : {summary['attack_rate_percent']:.4f}%")
-    print(f"Thời gian       : {format_elapsed_time(elapsed)}")
-    print(f"Dataset         : {output_path}")
-    print(f"Bảng thống kê   : {C.TABLES_DIR / '02_attack_filter_summary.csv'}")
+    C.AUTH_FEATURE_SCHEMA.write_text(json.dumps(schema, ensure_ascii=False, indent=2), encoding="utf-8")
+    counts = processed[C.TARGET_COLUMN].value_counts().sort_index()
+    summary = {
+        "source_files": [p.name for p in files],
+        "source_rows": total_rows,
+        "processed_rows": len(processed),
+        "dropped_invalid_labels": dropped_labels,
+        "dropped_invalid_timestamps": invalid_times,
+        "excluded_source_columns": ["Session Duration", "Behavioral Score"],
+        "unknown_category_handling": "unknown and missing values create no one-hot feature",
+        "class_counts": {str(k): int(v) for k, v in counts.items()},
+        "feature_count": len(features),
+        "feature_columns": features,
+        "target_column": C.TARGET_COLUMN,
+        "output_file": str(C.FILTERED_DATA),
+        "elapsed_seconds": round(time.perf_counter() - started, 2),
+    }
+    (C.METRICS_DIR / "02_preprocess_summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    print(f"Hoàn tất: đã đọc {total_rows:,}, giữ {len(processed):,} dòng.")
+    print(f"Bình thường (0): {int(counts.get(0, 0)):,} | Bất thường (1): {int(counts.get(1, 0)):,}")
+    print(f"Feature: {len(features)} | Thời gian: {time.perf_counter() - started:.1f} giây")
+    print("Đã loại khỏi feature: Session Duration, Behavioral Score và các giá trị Unknown.")
+    print(f"Dataset: {C.FILTERED_DATA}")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

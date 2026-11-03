@@ -1,10 +1,10 @@
 {
-  "Actual_0_Normal": {
-    "Predicted_0_Normal": 340769,
-    "Predicted_1_Attack": 22
+  "0": {
+    "0": 1728,
+    "1": 863
   },
-  "Actual_1_Attack": {
-    "Predicted_0_Normal": 378,
-    "Predicted_1_Attack": 1888
+  "1": {
+    "0": 318,
+    "1": 2004
   }
 }

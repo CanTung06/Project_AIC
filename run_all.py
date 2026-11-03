@@ -1,8 +1,8 @@
-"""Chạy tuần tự pipeline phát hiện brute-force trên CIC-IDS2017.
+"""Chạy tuần tự pipeline phát hiện bất thường đăng nhập.
 
     python run_all.py
-    python run_all.py --only s05,s06
-    python run_all.py --from s07
+    python run_all.py --only s05,s06,s07
+    python run_all.py --from s05
 """
 
 import argparse
@@ -19,14 +19,14 @@ STEPS = [
     ("s04", "steps.s04_imbalance"),
     ("s05", "steps.s05_train_logistic_regression"),
     ("s06", "steps.s06_train_xgboost"),
-    ("s07", "steps.s07_drift"),
+    ("s07", "steps.s07_train_random_forest"),
 ]
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Pipeline CIC-IDS2017 dùng Logistic Regression và XGBoost")
-    parser.add_argument("--only", default="", help="Chỉ chạy các bước, ví dụ: s05,s06")
-    parser.add_argument("--from", dest="start", default="", help="Chạy từ bước, ví dụ: s07")
+    parser = argparse.ArgumentParser(description="Pipeline log xác thực dùng Logistic Regression và XGBoost")
+    parser.add_argument("--only", default="", help="Chỉ chạy các bước, ví dụ: s05,s06,s07")
+    parser.add_argument("--from", dest="start", default="", help="Chạy từ bước, ví dụ: s05")
     args = parser.parse_args(argv)
 
     step_ids = [step_id for step_id, _ in STEPS]

@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 import joblib
+import numpy as np
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, classification_report, precision_recall_curve
@@ -26,9 +27,6 @@ from ids.common import (
     signed_log_transform,
 )
 from ids.thresholded import ThresholdedClassifier
-
-
-MIN_RECALL_TARGET = C.MIN_RECALL_TARGET
 
 
 def build_model():
@@ -53,15 +51,14 @@ def build_model():
 
 def choose_threshold(y_true, scores):
     precision, recall, thresholds = precision_recall_curve(y_true, scores)
-    eligible = (recall[:-1] >= MIN_RECALL_TARGET).nonzero()[0]
+    eligible = np.flatnonzero(recall[:-1] >= C.MIN_RECALL_TARGET)
     if eligible.size == 0:
         raise ValueError(
-            f"Không có threshold nào đạt recall tối thiểu {MIN_RECALL_TARGET:.0%} trên validation."
+            f"Không có threshold nào đạt recall tối thiểu {C.MIN_RECALL_TARGET:.0%} trên validation."
         )
-    eligible_precision = precision[:-1][eligible]
-    best_precision = eligible_precision.max()
-    candidates = eligible[eligible_precision == best_precision]
-    best_index = int(candidates[thresholds[candidates].argmax()])
+    best_precision = precision[:-1][eligible].max()
+    candidates = eligible[np.isclose(precision[:-1][eligible], best_precision)]
+    best_index = int(candidates[np.argmax(thresholds[candidates])])
     return float(thresholds[best_index]), {
         "precision": float(precision[best_index]),
         "recall": float(recall[best_index]),
@@ -69,6 +66,8 @@ def choose_threshold(y_true, scores):
             2 * precision[best_index] * recall[best_index]
             / max(precision[best_index] + recall[best_index], 1e-15)
         ),
+        "threshold_selection_metric": "max_precision_with_minimum_recall",
+        "minimum_recall_target": C.MIN_RECALL_TARGET,
     }
 
 
@@ -76,9 +75,11 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
     started = time.perf_counter()
     print(f"\nĐang nạp tập train ({strategy}): {train_path}")
     X_train, y_train, feature_names = load_xy(train_path)
+    if not np.isfinite(X_train.to_numpy()).all():
+        raise ValueError("Feature train có NaN hoặc vô hạn; hãy chạy lại s02.")
     print(
         f"Train Logistic Regression: {len(y_train):,} dòng "
-        f"(Normal={(y_train == 0).sum():,}, Attack={(y_train == 1).sum():,})"
+        f"(Normal={(y_train == 0).sum():,}, Anomaly={(y_train == 1).sum():,})"
     )
     training_rows = int(len(y_train))
     training_support_0 = int((y_train == 0).sum())
@@ -94,13 +95,14 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
 
     print("Đang chọn threshold trên validation...")
     X_validation, y_validation, _ = load_xy(C.VALIDATION_DATA, feature_names)
+    if not np.isfinite(X_validation.to_numpy()).all():
+        raise ValueError("Feature validation có NaN hoặc vô hạn; hãy chạy lại s02/s03.")
     validation_scores = model.predict_proba(X_validation)[:, 1]
     threshold, validation_threshold_metrics = choose_threshold(
         y_validation.to_numpy(), validation_scores
     )
     validation_threshold_metrics.update({
         "threshold": threshold,
-        "minimum_recall_target": MIN_RECALL_TARGET,
         "pr_auc": float(average_precision_score(y_validation, validation_scores)),
     })
     del X_validation, y_validation, validation_scores
@@ -108,6 +110,8 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
 
     print("Đang đánh giá trên test...")
     X_test, y_test, _ = load_xy(C.TEST_DATA, feature_names)
+    if not np.isfinite(X_test.to_numpy()).all():
+        raise ValueError("Feature test có NaN hoặc vô hạn; hãy chạy lại s02/s03.")
     test_scores = model.predict_proba(X_test)[:, 1]
     test_metrics = calculate_metrics(y_test, test_scores, threshold)
     test_predictions = (test_scores >= threshold).astype("int8")
@@ -115,13 +119,13 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
         y_test,
         test_predictions,
         labels=[0, 1],
-        target_names=["Normal", "Attack"],
+        target_names=["Normal", "Anomaly"],
         output_dict=True,
         zero_division=0,
     )
     report_text = (
         f"Classification report | Logistic Regression ({strategy}) | threshold={threshold:.8f}\n"
-        f"{classification_report(y_test, test_predictions, labels=[0, 1], target_names=['Normal', 'Attack'], digits=4, zero_division=0)}\n"
+        f"{classification_report(y_test, test_predictions, labels=[0, 1], target_names=['Normal', 'Anomaly'], digits=4, zero_division=0)}\n"
         f"AUC-ROC: {test_metrics['roc_auc']:.4f}\n"
         f"PR-AUC: {test_metrics['pr_auc']:.4f}\n"
     )
@@ -165,7 +169,8 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
             "feature_transform": "signed_log_then_standard_scaler",
         },
         "fit_time": elapsed_text(fit_seconds),
-        "minimum_recall_target": MIN_RECALL_TARGET,
+        "threshold_selection_metric": "max_precision_with_minimum_recall",
+        "minimum_recall_target": C.MIN_RECALL_TARGET,
         "validation_at_selected_threshold": validation_threshold_metrics,
         "test_metrics": test_metrics,
         "test_classification_report": report_dict,

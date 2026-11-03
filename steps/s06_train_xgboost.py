@@ -35,7 +35,7 @@ def evaluate_predictions(y_true, scores, threshold):
         y_true,
         predictions,
         labels=[0, 1],
-        target_names=["Normal", "Attack"],
+        target_names=["Normal", "Anomaly"],
         output_dict=True,
         zero_division=0,
     )
@@ -51,6 +51,8 @@ def load_split(path: Path, features: list[str]):
             f"Cấu trúc đặc trưng hoặc cột nhãn trong {path} không khớp. "
             "Hãy dùng các tập dữ liệu đã chia chung ở bước s03."
         )
+    if any(column in header for column in C.METADATA_COLUMNS):
+        raise ValueError(f"{path}: dataset train phải chỉ gồm feature số và nhãn is_anomaly.")
     frame = pd.read_csv(
         path,
         usecols=features + [C.TARGET_COLUMN],
@@ -61,7 +63,7 @@ def load_split(path: Path, features: list[str]):
     labels = frame[C.TARGET_COLUMN]
     if labels.isna().any() or not labels.isin([0, 1]).all() or labels.nunique() != 2:
         raise ValueError(
-            f"{path}: cột nhãn is_attack phải có đủ hai giá trị 0 và 1, "
+            f"{path}: cột nhãn is_anomaly phải có đủ hai giá trị 0 và 1, "
             "không được chứa giá trị thiếu."
         )
     X = frame[features]
@@ -106,10 +108,10 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     X_train, y_train = load_split(train_path, features)
     X_validation, y_validation = load_split(C.VALIDATION_DATA, features)
     n_normal = int((y_train == 0).sum())
-    n_attack = int((y_train == 1).sum())
-    if n_normal == 0 or n_attack == 0:
-        raise ValueError("Tập train cần có cả lớp bình thường (0) và lớp tấn công (1).")
-    scale_pw = n_normal / n_attack
+    n_anomaly = int((y_train == 1).sum())
+    if n_normal == 0 or n_anomaly == 0:
+        raise ValueError("Tập train cần có cả lớp bình thường (0) và lớp bất thường (1).")
+    scale_pw = n_normal / n_anomaly
     print(f"Train: {len(y_train):,}; validation: {len(y_validation):,}; features: {len(features)}")
     print(f"scale_pos_weight = {scale_pw:.2f}", flush=True)
 
@@ -139,9 +141,9 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     result = {
         "model": "XGBoost",
         "strategy": strategy,
-        "model_code_source": "user-provided 05_xgboost_ids.py",
+        "model_code_source": "Project_AIC authentication anomaly pipeline",
         "training_rows": int(len(y_train)),
-        "train_class_counts": {"0": n_normal, "1": n_attack},
+        "train_class_counts": {"0": n_normal, "1": n_anomaly},
         "validation_rows": int(len(y_validation)),
         "feature_count": len(features),
         "feature_columns": features,
@@ -166,7 +168,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     print(f"Best iteration: {model.best_iteration}")
     print(f"Đã lưu model: {model_path} | {elapsed_text(fit_seconds)}")
 
-    # CHỌN THRESHOLD TRÊN VALIDATION; KHÔNG DÙNG TEST ĐỂ CHỌN.
+    # Chọn precision cao nhất với recall tối thiểu trên validation; không dùng test để chọn.
     print("\nS06.2 - TUNING THRESHOLD TRÊN VALIDATION")
     del X_train, y_train
     gc.collect()
@@ -178,7 +180,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
             f"Không có threshold đạt recall tối thiểu {C.MIN_RECALL_TARGET:.0%} trên validation."
         )
     best_precision = precision[:-1][eligible].max()
-    candidates = eligible[precision[:-1][eligible] == best_precision]
+    candidates = eligible[np.isclose(precision[:-1][eligible], best_precision)]
     best_index = int(candidates[np.argmax(thresholds[candidates])])
     selected_threshold = float(thresholds[best_index])
     validation_tuned, _, validation_tuned_report, _ = evaluate_predictions(
@@ -192,6 +194,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
             2 * precision[best_index] * recall[best_index]
             / max(precision[best_index] + recall[best_index], 1e-15)
         ),
+        "threshold_selection_metric": "max_precision_with_minimum_recall",
         "minimum_recall_target": C.MIN_RECALL_TARGET,
         "pr_auc": validation_tuned["pr_auc"],
     }
@@ -220,7 +223,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     )
     tuned_report_text = (
         f"Classification report | XGBoost ({strategy}) | threshold={selected_threshold:.8f}\n"
-        f"{classification_report(y_test, test_tuned_predictions, labels=[0, 1], target_names=['Normal', 'Attack'], digits=4, zero_division=0)}\n"
+        f"{classification_report(y_test, test_tuned_predictions, labels=[0, 1], target_names=['Normal', 'Anomaly'], digits=4, zero_division=0)}\n"
         f"AUC-ROC: {test_tuned['roc_auc']:.4f}\n"
         f"PR-AUC: {test_tuned['pr_auc']:.4f}\n"
     )
@@ -265,6 +268,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         "training_summary": result,
         "threshold_tuning": {
             "rule": "maximize_validation_precision_subject_to_minimum_recall",
+            "minimum_recall_target": C.MIN_RECALL_TARGET,
             "validation": {
                 "metrics": validation_tuned,
                 "classification_report": validation_tuned_report,

@@ -16,7 +16,4 @@ ENV/
 
 # Dữ liệu đầu vào và dữ liệu đã xử lý
 /data
-
-steps/s08_test_external_data.py
-outputs/metrics/08*
-outputs/figures/08*
+/outputs/predictions/

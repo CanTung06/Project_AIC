@@ -1,157 +1,127 @@
-"""Bước 03 - Làm sạch số và chia train/validation/test theo từng chunk"""
-
-import json
+﻿import json
 import sys
 import time
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from ids import config as C
-from ids.common import elapsed_text
 
 
 def main() -> int:
     C.ensure_dirs()
-    if not C.FILTERED_DATA.exists():
-        raise FileNotFoundError(f"Chưa có {C.FILTERED_DATA}; hãy chạy s02_preprocess.py trước.")
-
-    split_paths = {
-        "train": C.TRAIN_DATA,
-        "validation": C.VALIDATION_DATA,
-        "test": C.TEST_DATA,
-    }
-    temp_paths = {name: path.with_suffix(".tmp.csv") for name, path in split_paths.items()}
-    for path in temp_paths.values():
-        path.unlink(missing_ok=True)
-    wrote_header = {name: False for name in split_paths}
-    split_counts = {name: {0: 0, 1: 0} for name in split_paths}
-    attack_type_counts: dict[tuple[str, str], int] = {}
-    feature_columns: list[str] | None = None
-    rng = np.random.default_rng(C.SEED)
-    rows_read = 0
+    if not C.FILTERED_DATA.is_file():
+        raise FileNotFoundError(f"Chưa có {C.FILTERED_DATA}; hãy chạy s02 trước.")
     started = time.perf_counter()
+    frame = pd.read_csv(C.FILTERED_DATA, encoding="utf-8-sig", low_memory=False)
+    frame.columns = [str(c).strip() for c in frame.columns]
+    if C.TARGET_COLUMN not in frame:
+        raise ValueError(f"Thiếu cột nhãn {C.TARGET_COLUMN}.")
+    frame = frame.reset_index(drop=True)
 
-    print("Bước 03 - Chia dữ liệu 70% / 15% / 15%")
-    for chunk in pd.read_csv(
-        C.FILTERED_DATA,
-        chunksize=C.CHUNK_SIZE,
-        encoding="utf-8-sig",
-        low_memory=False,
-    ):
-        chunk.columns = [str(column).strip() for column in chunk.columns]
-        required = {C.TARGET_COLUMN, "attack_type"}
-        if not required.issubset(chunk.columns):
-            raise ValueError(f"Thiếu cột bắt buộc: {sorted(required - set(chunk.columns))}")
-
-        feature_columns = [
-            column for column in chunk.columns
-            if column != C.TARGET_COLUMN and column not in C.METADATA_COLUMNS
-        ]
-        for column in feature_columns:
-            values = pd.to_numeric(chunk[column], errors="coerce")
-            chunk[column] = values.replace([np.inf, -np.inf], np.nan).fillna(0).astype(np.float32)
-        chunk[C.TARGET_COLUMN] = chunk[C.TARGET_COLUMN].astype(np.int8)
-        chunk["attack_type"] = chunk["attack_type"].astype("string").fillna("UNKNOWN")
-
-        random_values = rng.random(len(chunk))
-        train_mask = random_values < C.TRAIN_FRACTION
-        validation_mask = (random_values >= C.TRAIN_FRACTION) & (
-            random_values < C.TRAIN_FRACTION + C.VALIDATION_FRACTION
-        )
-        masks = {"train": train_mask, "validation": validation_mask, "test": ~(
-            train_mask | validation_mask
-        )}
-
-        for split_name, mask in masks.items():
-            subset = chunk.loc[mask]
-            if subset.empty:
-                continue
-            for class_id, count in subset[C.TARGET_COLUMN].value_counts().items():
-                split_counts[split_name][int(class_id)] += int(count)
-            for (attack_type, class_id), count in subset.groupby(
-                ["attack_type", C.TARGET_COLUMN], observed=True
-            ).size().items():
-                key = (split_name, str(attack_type))
-                attack_type_counts[key] = attack_type_counts.get(key, 0) + int(count)
-
-            subset.to_csv(
-                temp_paths[split_name],
-                index=False,
-                mode="a" if wrote_header[split_name] else "w",
-                header=not wrote_header[split_name],
-                encoding="utf-8" if wrote_header[split_name] else "utf-8-sig",
-            )
-            wrote_header[split_name] = True
-
-        rows_read += len(chunk)
-        print(
-            f"Đã chia {rows_read:,} dòng | "
-            f"{elapsed_text(time.perf_counter() - started)}",
-            end="\r",
-            flush=True,
-        )
-
+    feature_columns = [
+        c for c in frame.columns if c != C.TARGET_COLUMN and c not in C.METADATA_COLUMNS
+    ]
     if not feature_columns:
-        raise ValueError("Dataset tiền xử lý không có dòng hoặc không có feature.")
-    if not all(wrote_header.values()):
-        raise RuntimeError("Có tập split không có dữ liệu; không thay thế các file split cũ.")
-    for split_name, path in split_paths.items():
-        temp_paths[split_name].replace(path)
+        raise ValueError("Không tìm thấy feature.")
+    non_numeric = [
+        column for column in feature_columns
+        if not pd.api.types.is_numeric_dtype(frame[column].dtype)
+    ]
+    if non_numeric:
+        raise TypeError(f"s02 phải xuất feature dạng số; gặp cột chưa mã hóa: {non_numeric[:10]}")
+    for column in feature_columns:
+        values = pd.to_numeric(frame[column], errors="coerce").replace([np.inf, -np.inf], np.nan)
+        frame[column] = values.fillna(0).astype(np.float32)
+    frame[C.TARGET_COLUMN] = pd.to_numeric(frame[C.TARGET_COLUMN], errors="raise").astype(np.int8)
+    if not frame[C.TARGET_COLUMN].isin([0, 1]).all():
+        raise ValueError("Nhãn is_anomaly chỉ được chứa 0 hoặc 1.")
 
-    split_rows = []
-    type_rows = []
-    for split_name, counts in split_counts.items():
-        total = counts[0] + counts[1]
-        split_rows.append({
+    row_count = len(frame)
+    # Chia ngẫu nhiên có phân tầng theo nhãn để mỗi tập có cùng tỷ lệ lớp.
+    # Vì các nguồn có mốc thời gian rất khác nhau (synthetic 2023, KREONET 2026),
+    # chia theo thời gian sẽ đẩy gần như toàn bộ KREONET sang validation/test.
+    labels = frame[C.TARGET_COLUMN]
+    train_frame, remaining_frame = train_test_split(
+        frame,
+        test_size=C.VALIDATION_FRACTION + C.TEST_FRACTION,
+        random_state=C.SEED,
+        stratify=labels,
+    )
+    remaining_labels = remaining_frame[C.TARGET_COLUMN]
+    validation_relative_fraction = C.VALIDATION_FRACTION / (
+        C.VALIDATION_FRACTION + C.TEST_FRACTION
+    )
+    validation_frame, test_frame = train_test_split(
+        remaining_frame,
+        test_size=1.0 - validation_relative_fraction,
+        random_state=C.SEED,
+        stratify=remaining_labels,
+    )
+    splits = {
+        "train": (train_frame, C.TRAIN_DATA),
+        "validation": (validation_frame, C.VALIDATION_DATA),
+        "test": (test_frame, C.TEST_DATA),
+    }
+    summary_rows = []
+    class_counts = {}
+    for split_name, (part, output_path) in splits.items():
+        if part.empty:
+            raise ValueError(f"Tập {split_name} rỗng.")
+        temp_path = output_path.with_name(output_path.stem + ".tmp.csv")
+        part.to_csv(temp_path, index=False, encoding="utf-8-sig")
+        temp_path.replace(output_path)
+        counts = part[C.TARGET_COLUMN].value_counts().to_dict()
+        normal_count, anomaly_count = int(counts.get(0, 0)), int(counts.get(1, 0))
+        class_counts[split_name] = {"0": normal_count, "1": anomaly_count}
+        summary_rows.append({
             "split": split_name,
-            "row_count": total,
-            "normal_count": counts[0],
-            "attack_count": counts[1],
-            "attack_percentage": 100 * counts[1] / max(total, 1),
+            "rows": len(part),
+            "normal_count": normal_count,
+            "anomaly_count": anomaly_count,
+            "anomaly_percent": 100 * anomaly_count / len(part),
         })
-        for (which_split, attack_type), count in attack_type_counts.items():
-            if which_split == split_name:
-                type_rows.append({"split": split_name, "attack_type": attack_type, "sample_count": count})
 
-    split_df = pd.DataFrame(split_rows)
-    type_df = pd.DataFrame(type_rows).sort_values(["split", "sample_count"], ascending=[True, False])
-    split_df.to_csv(C.TABLES_DIR / "03_split_summary.csv", index=False, encoding="utf-8-sig")
-    type_df.to_csv(C.TABLES_DIR / "03_attack_type_by_split.csv", index=False, encoding="utf-8-sig")
-
+    summary_frame = pd.DataFrame(summary_rows)
+    summary_frame.to_csv(C.TABLES_DIR / "03_split_summary.csv", index=False, encoding="utf-8-sig")
     schema = {
         "feature_columns": feature_columns,
         "metadata_columns": C.METADATA_COLUMNS,
         "target_column": C.TARGET_COLUMN,
+        "split_strategy": "stratified_random_split_by_target",
+        "random_seed": C.SEED,
         "split_fractions": {
             "train": C.TRAIN_FRACTION,
             "validation": C.VALIDATION_FRACTION,
             "test": C.TEST_FRACTION,
         },
-        "random_seed": C.SEED,
     }
-    with (C.TABLES_DIR / "03_feature_schema.json").open("w", encoding="utf-8") as output_file:
-        json.dump(schema, output_file, ensure_ascii=False, indent=2)
-
-    print("\n\nPhân bố các tập:")
-    print(split_df.to_string(index=False, float_format=lambda value: f"{value:.4f}"))
-    with (C.METRICS_DIR / "03_split_summary.json").open("w", encoding="utf-8") as output_file:
-        json.dump({
-            "input_rows": rows_read,
-            "split_counts": split_counts,
-            "split_fractions": schema["split_fractions"],
-            "feature_count": len(feature_columns),
-            "feature_columns": feature_columns,
-            "metadata_columns": C.METADATA_COLUMNS,
-            "target_column": C.TARGET_COLUMN,
-            "random_seed": C.SEED,
-        }, output_file, ensure_ascii=False, indent=2)
-    print(f"\nĐã lưu train, validation, test trong: {C.PROCESSED_DIR}")
+    (C.TABLES_DIR / "03_feature_schema.json").write_text(
+        json.dumps(schema, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    metrics = {
+        "input_rows": row_count,
+        "split_counts": class_counts,
+        "split_strategy": "stratified_random_split_by_target",
+        "random_seed": C.SEED,
+        "split_fractions": schema["split_fractions"],
+        "feature_count": len(feature_columns),
+        "feature_columns": feature_columns,
+        "target_column": C.TARGET_COLUMN,
+        "elapsed_seconds": round(time.perf_counter() - started, 2),
+    }
+    (C.METRICS_DIR / "03_split_summary.json").write_text(
+        json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    print("Chia dữ liệu ngẫu nhiên có phân tầng theo nhãn (70%/15%/15%):")
+    print(summary_frame.to_string(index=False, float_format=lambda value: f"{value:.2f}"))
+    print(f"Đã lưu train/validation/test trong {C.PROCESSED_DIR}")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

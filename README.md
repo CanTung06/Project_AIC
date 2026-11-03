@@ -1,8 +1,11 @@
-# CIC-IDS2017 Password Brute-Force Detection
+﻿# Phát hiện bất thường đăng nhập
 
-Pipeline phân loại có giám sát với `Logistic Regression` và `XGBoost`. Nhãn `is_attack=1` gồm
-`FTP-Patator`, `SSH-Patator` và `Web Attack - Brute Force`; `BENIGN` là lớp 0.
-Cột `attack_type` chỉ dùng để phân tích lỗi và bị loại khỏi feature khi train.
+Pipeline học có giám sát dùng Logistic Regression, XGBoost và Random Forest trên log xác thực đặt trong `data/raw/`.
+Dataset hiện tại dùng cột `Anomaly`: `0` là bình thường, `1` là bất thường.
+
+Tiền xử lý tạo đặc trưng giờ/ngày, khoảng cách đến lần đăng nhập trước, số lần đăng nhập trước
+và tần suất xuất hiện trước đó của IP, thiết bị, vị trí theo từng user. Các thuộc tính phân loại
+được one-hot encode. User ID không được dùng làm định danh trực tiếp trong model.
 
 ## Chạy pipeline
 
@@ -13,34 +16,36 @@ pip install -r requirements.txt
 python run_all.py
 ```
 
-Các bước model: s05 là Logistic Regression, s06 là XGBoost.
-Mỗi bước train cả tập undersampling và full train, chọn threshold bằng validation,
-rồi đánh giá trên test. Có thể chạy riêng:
+Các bước:
+- `s01`: EDA và phân bố nhãn.
+- `s02`: tiền xử lý, feature engineering và one-hot encoding.
+- `s03`: chia train/validation/test ngẫu nhiên có phân tầng theo nhãn (70%/15%/15%) để mỗi tập phản ánh hỗn hợp các nguồn dữ liệu.
+- `s04`: tạo tập train undersampling với tối đa 3 mẫu bình thường cho mỗi mẫu bất thường.
+- `s05`: train và đánh giá Logistic Regression trên full train và undersampling.
+- `s06`: train và đánh giá XGBoost trên full train và undersampling; threshold được chọn trên validation.
+- `s07`: train và đánh giá Random Forest trên full train và undersampling; threshold được chọn trên validation.
+
+Model và dữ liệu được đặt tên riêng cho pipeline xác thực để tránh dùng nhầm model CIC cũ.
+Mỗi model lưu threshold đã chọn trong validation. Các bước đánh giá báo cáo precision, recall,
+F1, PR-AUC và confusion matrix.
+
+## Dự đoán file ngoài bằng XGBoost
+
+Sau khi chạy s02 và s06, chạy:
 
 ```powershell
-python run_all.py --only s05,s06
-python run_all.py --from s07
+python predict_external_xgboost.py
 ```
 
-## Xử lý mất cân bằng
+Nhập model cần dùng và đường dẫn CSV log xác thực. File ngoài phải có cùng các trường đầu vào
+như dataset, nhưng có thể không có cột nhãn. Kết quả được lưu ở `outputs/predictions/`.
+Đặc trưng lịch sử được tính theo thứ tự Timestamp và chỉ dựa trên các sự kiện đứng trước mỗi dòng.
 
-- `s04`: tạo trọng số lớp cho toàn bộ train và tạo thêm tập train random undersampling
-  với đúng 3 mẫu bình thường cho mỗi mẫu tấn công.
-- `s05`: train Logistic Regression trên tập undersampling và full train, chọn threshold
-  trên validation và đánh giá test.
-- `s06`: train XGBoost trên tập undersampling và full train, dùng early stopping và chọn
-  threshold bằng validation, rồi đánh giá test.
-- `s07`: so sánh phân phối đặc trưng giữa train và test.
-- Hai bước model báo cáo PR-AUC, precision, recall, F1 lớp 1, TP/FP/FN/TN và confusion matrix.
-- `s08_test_external_data.py`: đánh giá các model đã train trên CSV ngoài đặt trong `data/test/`.
-  Chạy riêng bằng `python -m steps.s08_test_external_data` sau khi train xong s05 và s06.
+## Thư mục đầu ra
 
-## Đầu ra
-
-- Dữ liệu chia tập: `data/processed/`
-- Bảng CSV: `outputs/tables/`
+- Dữ liệu train, validation, test: `data/processed/`
+- Bảng: `outputs/tables/`
 - Metrics JSON: `outputs/metrics/`
 - Biểu đồ: `outputs/figures/`
 - Model joblib: `outputs/models/`
 
-Các bước chưa được chạy; hãy chạy `run_all.py` sau khi đặt CSV trong `data/raw/`.

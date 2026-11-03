@@ -33,11 +33,6 @@ def main() -> int:
     if positive_count == 0 or negative_count == 0:
         raise ValueError(f"Train phải có cả hai lớp; số lượng hiện tại: {class_counts}")
 
-    total = positive_count + negative_count
-    weights = {
-        "0": total / (2 * negative_count),
-        "1": total / (2 * positive_count),
-    }
     requested_negative_count = min(
         negative_count,
         positive_count * C.UNDERSAMPLE_NEGATIVE_PER_POSITIVE,
@@ -100,30 +95,17 @@ def main() -> int:
         )
     temporary_path.replace(C.UNDERSAMPLED_TRAIN_DATA)
 
-    strategy_table = pd.DataFrame([
-        {
-            "strategy": "class_weight_balanced",
-            "normal_count": negative_count,
-            "attack_count": positive_count,
-            "attack_to_normal_ratio": positive_count / negative_count,
-            "normal_class_weight": weights["0"],
-            "attack_class_weight": weights["1"],
-        },
-        {
-            "strategy": "random_undersampling_3_to_1",
-            "normal_count": sampled_counts[0],
-            "attack_count": sampled_counts[1],
-            "attack_to_normal_ratio": sampled_counts[1] / max(sampled_counts[0], 1),
-            "normal_class_weight": 1.0,
-            "attack_class_weight": 1.0,
-        },
-    ])
+    strategy_table = pd.DataFrame([{
+        "strategy": "random_undersampling_3_to_1",
+        "normal_count": sampled_counts[0],
+        "anomaly_count": sampled_counts[1],
+        "anomaly_to_normal_ratio": sampled_counts[1] / max(sampled_counts[0], 1),
+    }])
     strategy_table.to_csv(
         C.TABLES_DIR / "04_imbalance_strategies.csv", index=False, encoding="utf-8-sig"
     )
     summary = {
         "class_counts_full_train": {str(key): value for key, value in class_counts.items()},
-        "balanced_class_weight": weights,
         "undersampling_negative_per_positive_target": C.UNDERSAMPLE_NEGATIVE_PER_POSITIVE,
         "undersampled_counts": {str(key): value for key, value in sampled_counts.items()},
         "undersampled_train_path": str(C.UNDERSAMPLED_TRAIN_DATA),
@@ -132,7 +114,7 @@ def main() -> int:
     with (C.METRICS_DIR / "04_imbalance_summary.json").open("w", encoding="utf-8") as output_file:
         json.dump(summary, output_file, ensure_ascii=False, indent=2)
 
-    print("\n\nCác chiến lược mất cân bằng:")
+    print("\n\nCác chiến lược xử lý mất cân bằng:")
     print(strategy_table.to_string(index=False, float_format=lambda value: f"{value:.5f}"))
     print(f"\nĐã lưu tập train undersampled: {C.UNDERSAMPLED_TRAIN_DATA}")
     return 0

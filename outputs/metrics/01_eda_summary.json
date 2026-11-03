@@ -1,32 +1,31 @@
 {
+  "dataset_type": "synthetic web authentication logs",
   "raw_directory": "D:\\Code\\Python\\Project_AIC\\data\\raw",
-  "csv_file_count": 8,
-  "total_rows": 2830743,
-  "column_count": 79,
-  "schemas_match": true,
-  "schema_mismatches": [],
-  "duplicated_header_columns": [
-    "Fwd Header Length"
+  "files": [
+    {
+      "file_name": "synthetic_web_auth_logs.csv",
+      "rows": 10000,
+      "columns": 10,
+      "size_mb": 1.001
+    }
   ],
+  "total_rows": 10000,
   "label_distribution": {
-    "DDoS": 128027,
-    "BENIGN": 2273097,
-    "PortScan": 158930,
-    "Bot": 1966,
-    "Infiltration": 36,
-    "Web Attack - Brute Force": 1507,
-    "Web Attack - XSS": 652,
-    "Web Attack - Sql Injection": 21,
-    "FTP-Patator": 7938,
-    "SSH-Patator": 5897,
-    "DoS Hulk": 231073,
-    "DoS slowloris": 5796,
-    "DoS Slowhttptest": 5499,
-    "DoS GoldenEye": 10293,
-    "Heartbleed": 11
+    "0": 8185,
+    "1": 1815
   },
-  "total_missing_values": 1358,
-  "total_infinite_values": 4376,
-  "processing_time_seconds": 34.88,
-  "processing_time": "00:00:34"
+  "schemas_match": true,
+  "columns": [
+    "User ID",
+    "Timestamp",
+    "Login Status",
+    "IP Address",
+    "Device Type",
+    "Location",
+    "Session Duration",
+    "Failed Attempts",
+    "Behavioral Score",
+    "Anomaly"
+  ],
+  "elapsed_seconds": 1.64
 }

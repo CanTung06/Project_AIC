@@ -86,8 +86,8 @@ def confusion_table(y_true, scores, threshold: float) -> pd.DataFrame:
     matrix = confusion_matrix(y_true, predictions, labels=[0, 1])
     return pd.DataFrame(
         matrix,
-        index=pd.Index(["Actual_0_Normal", "Actual_1_Attack"], name="actual"),
-        columns=pd.Index(["Predicted_0_Normal", "Predicted_1_Attack"], name="predicted"),
+        index=pd.Index(["0", "1"]),
+        columns=pd.Index(["0", "1"]),
     )
 
 
@@ -117,9 +117,9 @@ def save_confusion_matrix_figure(
     figure, axis = plt.subplots(figsize=(6.5, 5.5))
     image = axis.imshow(values, cmap="Blues")
     axis.set_xticks([0, 1])
-    axis.set_xticklabels(["Normal (0)", "Attack (1)"])
+    axis.set_xticklabels(["Normal (0)", "Anomaly (1)"])
     axis.set_yticks([0, 1])
-    axis.set_yticklabels(["Normal (0)", "Attack (1)"])
+    axis.set_yticklabels(["Normal (0)", "Anomaly (1)"])
     axis.set_xlabel("Nhãn dự đoán")
     axis.set_ylabel("Nhãn thực tế")
     axis.set_title(title)
@@ -156,7 +156,8 @@ def print_model_evaluation(
 ) -> None:
     """In kết quả cuối của các model theo cùng một bố cục."""
     validation_columns = (
-        "threshold", "precision", "recall", "f1", "minimum_recall_target", "pr_auc"
+        "threshold", "precision", "recall", "f1", "threshold_selection_metric",
+        "minimum_recall_target", "pr_auc"
     )
     validation_row = {
         column: validation_metrics.get(column)
