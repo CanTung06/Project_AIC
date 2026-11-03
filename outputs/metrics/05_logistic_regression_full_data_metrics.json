@@ -2,10 +2,10 @@
   "model": "LogisticRegression",
   "strategy": "full_data",
   "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_logistic_regression_auth_full_data.joblib",
-  "training_rows": 22925,
-  "training_support_0": 12091,
-  "training_support_1": 10834,
-  "feature_count": 4603,
+  "training_rows": 7000,
+  "training_support_0": 5729,
+  "training_support_1": 1271,
+  "feature_count": 30,
   "parameters": {
     "C": 1.0,
     "solver": "lbfgs",
@@ -15,56 +15,56 @@
     "training_data": "auth_train.csv",
     "feature_transform": "signed_log_then_standard_scaler"
   },
-  "fit_time": "00:00:10",
-  "threshold_selection_metric": "f1",
+  "fit_time": "00:00:00",
+  "threshold_selection_metric": "maximum_validation_f1",
   "validation_at_selected_threshold": {
-    "precision": 0.6986159169550173,
-    "recall": 0.8698836708315382,
-    "f1": 0.7748992515831894,
-    "threshold_selection_metric": "f1",
-    "threshold": 0.2467625005835931,
-    "pr_auc": 0.8144604240804434
+    "precision": 0.9209302325581395,
+    "recall": 0.7279411764705882,
+    "f1": 0.813141683778234,
+    "threshold_selection_metric": "maximum_validation_f1",
+    "threshold": 0.13392208317008567,
+    "pr_auc": 0.8600429342968453
   },
   "test_metrics": {
-    "threshold": 0.2467625005835931,
-    "balanced_accuracy": 0.76498653159366,
-    "precision": 0.6989884897104988,
-    "recall": 0.8630490956072352,
-    "f1": 0.7724031605318944,
-    "tp": 2004,
-    "fp": 863,
-    "fn": 318,
-    "tn": 1728,
-    "support_0": 2591,
-    "support_1": 2322,
-    "pr_auc": 0.8164737207668559,
-    "roc_auc": 0.8281570639239852
+    "threshold": 0.13392208317008567,
+    "balanced_accuracy": 0.8476599923356964,
+    "precision": 0.8981481481481481,
+    "recall": 0.7132352941176471,
+    "f1": 0.7950819672131147,
+    "tp": 194,
+    "fp": 22,
+    "fn": 78,
+    "tn": 1206,
+    "support_0": 1228,
+    "support_1": 272,
+    "pr_auc": 0.8728460550400823,
+    "roc_auc": 0.9082528980647636
   },
   "test_classification_report": {
     "Normal": {
-      "precision": 0.844574780058651,
-      "recall": 0.6669239675800849,
-      "f1-score": 0.7453094673280138,
-      "support": 2591.0
+      "precision": 0.9392523364485982,
+      "recall": 0.9820846905537459,
+      "f1-score": 0.9601910828025477,
+      "support": 1228.0
     },
     "Anomaly": {
-      "precision": 0.6989884897104988,
-      "recall": 0.8630490956072352,
-      "f1-score": 0.7724031605318944,
-      "support": 2322.0
+      "precision": 0.8981481481481481,
+      "recall": 0.7132352941176471,
+      "f1-score": 0.7950819672131147,
+      "support": 272.0
     },
-    "accuracy": 0.7596173417463872,
+    "accuracy": 0.9333333333333333,
     "macro avg": {
-      "precision": 0.771781634884575,
-      "recall": 0.76498653159366,
-      "f1-score": 0.7588563139299541,
-      "support": 4913.0
+      "precision": 0.9187002422983732,
+      "recall": 0.8476599923356964,
+      "f1-score": 0.8776365250078313,
+      "support": 1500.0
     },
     "weighted avg": {
-      "precision": 0.7757672559006195,
-      "recall": 0.7596173417463872,
-      "f1-score": 0.758114587543648,
-      "support": 4913.0
+      "precision": 0.9317987769701166,
+      "recall": 0.9333333333333333,
+      "f1-score": 0.9302512965089973,
+      "support": 1500.0
     }
   },
   "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\05_logistic_regression_full_data_classification_report.txt",

@@ -1,12 +1,12 @@
-Classification report | XGBoost (undersampling) | threshold=0.37695530
+Classification report | XGBoost (undersampling) | threshold=0.84848619
               precision    recall  f1-score   support
 
-      Normal     0.8344    0.6785    0.7484      2591
-     Anomaly     0.7031    0.8497    0.7695      2322
+      Normal     0.9984    1.0000    0.9992      1228
+     Anomaly     1.0000    0.9926    0.9963       272
 
-    accuracy                         0.7594      4913
-   macro avg     0.7687    0.7641    0.7590      4913
-weighted avg     0.7723    0.7594    0.7584      4913
+    accuracy                         0.9987      1500
+   macro avg     0.9992    0.9963    0.9977      1500
+weighted avg     0.9987    0.9987    0.9987      1500
 
-AUC-ROC: 0.8615
-PR-AUC: 0.8610
+AUC-ROC: 1.0000
+PR-AUC: 1.0000

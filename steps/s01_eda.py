@@ -12,9 +12,9 @@ from ids import config as C
 
 def main() -> int:
     C.ensure_dirs()
-    files = sorted(C.RAW_DIR.glob("*.csv"))
-    if not files:
-        raise FileNotFoundError(f"Không tìm thấy CSV trong {C.RAW_DIR}")
+    files = [C.AUTH_SOURCE_FILE]
+    if not C.AUTH_SOURCE_FILE.is_file():
+        raise FileNotFoundError(f"Không tìm thấy dataset: {C.AUTH_SOURCE_FILE}")
     started = time.perf_counter()
     file_rows, label_rows, missing_rows, numeric_rows = [], [], [], []
     all_label_counts = {}

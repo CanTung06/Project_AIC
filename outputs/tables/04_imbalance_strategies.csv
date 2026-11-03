@@ -1,2 +1,2 @@
 ﻿strategy,normal_count,anomaly_count,anomaly_to_normal_ratio
-random_undersampling_3_to_1,12091,10834,0.896038375651311
+random_undersampling_3_to_1,3813,1271,0.3333333333333333

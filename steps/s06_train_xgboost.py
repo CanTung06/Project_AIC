@@ -168,19 +168,18 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     print(f"Best iteration: {model.best_iteration}")
     print(f"Đã lưu model: {model_path} | {elapsed_text(fit_seconds)}")
 
-    # Chọn precision cao nhất với recall tối thiểu trên validation; không dùng test để chọn.
+    # Chọn threshold có F1 lớp 1 cao nhất trên validation; không dùng test để chọn.
     print("\nS06.2 - TUNING THRESHOLD TRÊN VALIDATION")
     del X_train, y_train
     gc.collect()
     validation_scores = model.predict_proba(X_validation)[:, 1]
     precision, recall, thresholds = precision_recall_curve(y_validation, validation_scores)
-    eligible = np.flatnonzero(recall[:-1] >= C.MIN_RECALL_TARGET)
-    if eligible.size == 0:
-        raise ValueError(
-            f"Không có threshold đạt recall tối thiểu {C.MIN_RECALL_TARGET:.0%} trên validation."
-        )
-    best_precision = precision[:-1][eligible].max()
-    candidates = eligible[np.isclose(precision[:-1][eligible], best_precision)]
+    f1_scores = (
+        2 * precision[:-1] * recall[:-1]
+        / np.maximum(precision[:-1] + recall[:-1], 1e-15)
+    )
+    best_f1 = f1_scores.max()
+    candidates = np.flatnonzero(np.isclose(f1_scores, best_f1))
     best_index = int(candidates[np.argmax(thresholds[candidates])])
     selected_threshold = float(thresholds[best_index])
     validation_tuned, _, validation_tuned_report, _ = evaluate_predictions(
@@ -190,12 +189,8 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         "threshold": selected_threshold,
         "precision": float(precision[best_index]),
         "recall": float(recall[best_index]),
-        "f1": float(
-            2 * precision[best_index] * recall[best_index]
-            / max(precision[best_index] + recall[best_index], 1e-15)
-        ),
-        "threshold_selection_metric": "max_precision_with_minimum_recall",
-        "minimum_recall_target": C.MIN_RECALL_TARGET,
+        "f1": float(f1_scores[best_index]),
+        "threshold_selection_metric": "maximum_validation_f1",
         "pr_auc": validation_tuned["pr_auc"],
     }
     figure, axis = plt.subplots(figsize=(8, 6))
@@ -252,8 +247,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     selected_info = {
         "selected_model": f"xgboost_{strategy}",
         "threshold": selected_threshold,
-        "selection_metric": "validation_precision_with_minimum_recall",
-        "minimum_recall_target": C.MIN_RECALL_TARGET,
+        "selection_metric": "validation_f1",
         "validation_metrics": validation_threshold_info,
         "model_path": str(model_path),
         "threshold_embedded_in_model": True,
@@ -267,8 +261,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         "confusion_matrix_figure": str(confusion_figure_path),
         "training_summary": result,
         "threshold_tuning": {
-            "rule": "maximize_validation_precision_subject_to_minimum_recall",
-            "minimum_recall_target": C.MIN_RECALL_TARGET,
+            "rule": "maximize_validation_f1",
             "validation": {
                 "metrics": validation_tuned,
                 "classification_report": validation_tuned_report,

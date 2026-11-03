@@ -1,0 +1,11 @@
+﻿file_name,column,missing_count,missing_percentage,data_type,unique_values
+synthetic_web_auth_logs.csv,User ID,0,0.0,int64,1000
+synthetic_web_auth_logs.csv,Timestamp,0,0.0,str,10000
+synthetic_web_auth_logs.csv,Login Status,0,0.0,str,2
+synthetic_web_auth_logs.csv,IP Address,0,0.0,str,12
+synthetic_web_auth_logs.csv,Device Type,0,0.0,str,3
+synthetic_web_auth_logs.csv,Location,0,0.0,str,6
+synthetic_web_auth_logs.csv,Session Duration,0,0.0,float64,9520
+synthetic_web_auth_logs.csv,Failed Attempts,0,0.0,int64,9
+synthetic_web_auth_logs.csv,Behavioral Score,0,0.0,float64,10000
+synthetic_web_auth_logs.csv,Anomaly,0,0.0,int64,2

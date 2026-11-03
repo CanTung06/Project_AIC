@@ -156,8 +156,7 @@ def print_model_evaluation(
 ) -> None:
     """In kết quả cuối của các model theo cùng một bố cục."""
     validation_columns = (
-        "threshold", "precision", "recall", "f1", "threshold_selection_metric",
-        "minimum_recall_target", "pr_auc"
+        "threshold", "precision", "recall", "f1", "threshold_selection_metric", "pr_auc"
     )
     validation_row = {
         column: validation_metrics.get(column)

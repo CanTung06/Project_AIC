@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from ids import config as C
 
 CATEGORICAL_COLUMNS = ["Login Status", "IP Address", "Device Type", "Location"]
-NUMERIC_COLUMNS = ["Failed Attempts"]
+NUMERIC_COLUMNS = ["Session Duration", "Failed Attempts", "Behavioral Score"]
 REQUIRED_COLUMNS = ["User ID", "Timestamp", *CATEGORICAL_COLUMNS, *NUMERIC_COLUMNS, C.SOURCE_LABEL_COLUMN]
 OTHER = "__OTHER__"
 MISSING = "__MISSING__"
@@ -101,24 +101,20 @@ def engineer_auth_features(frame, category_vocabulary):
 
 def main() -> int:
     C.ensure_dirs()
-    files = sorted(C.RAW_DIR.glob("*.csv"))
-    if not files:
-        raise FileNotFoundError(f"Không tìm thấy CSV trong {C.RAW_DIR}")
+    files = [C.AUTH_SOURCE_FILE]
+    if not C.AUTH_SOURCE_FILE.is_file():
+        raise FileNotFoundError(f"Không tìm thấy dataset: {C.AUTH_SOURCE_FILE}")
     started = time.perf_counter()
-    frames = []
-    total_rows = 0
-    for index, path in enumerate(files, 1):
-        print(f"[{index}/{len(files)}] Đang đọc {path.name}", flush=True)
-        frame = pd.read_csv(path, encoding="utf-8-sig", low_memory=False)
-        frame.columns = [str(c).strip().lstrip("\ufeff") for c in frame.columns]
-        frame = canonicalize_columns(frame)
-        missing = [c for c in REQUIRED_COLUMNS if c not in frame.columns]
-        if missing:
-            raise ValueError(f"{path.name} không đúng log xác thực; thiếu cột: {missing}")
-        frame = frame[REQUIRED_COLUMNS].copy()
-        total_rows += len(frame)
-        frames.append(frame)
-    raw = pd.concat(frames, ignore_index=True)
+    source_path = C.AUTH_SOURCE_FILE
+    print(f"Đang đọc {source_path.name}", flush=True)
+    raw = pd.read_csv(source_path, encoding="utf-8-sig", low_memory=False)
+    raw.columns = [str(c).strip().lstrip("\ufeff") for c in raw.columns]
+    raw = canonicalize_columns(raw)
+    missing = [c for c in REQUIRED_COLUMNS if c not in raw.columns]
+    if missing:
+        raise ValueError(f"{source_path.name} không đúng log xác thực; thiếu cột: {missing}")
+    raw = raw[REQUIRED_COLUMNS].copy()
+    total_rows = len(raw)
     labels = pd.to_numeric(raw[C.SOURCE_LABEL_COLUMN], errors="coerce")
     valid = labels.isin([0, 1])
     dropped_labels = int((~valid).sum())
@@ -163,7 +159,7 @@ def main() -> int:
         "metadata_columns": [],
         "categorical_columns": CATEGORICAL_COLUMNS,
         "categorical_encoding": "one_hot",
-        "excluded_source_columns": ["Session Duration", "Behavioral Score"],
+        "excluded_source_columns": [],
         "unknown_category_handling": "missing or unknown values produce all-zero one-hot columns",
         "source_attribute_representation": {
             "User ID": [],
@@ -191,7 +187,7 @@ def main() -> int:
         "processed_rows": len(processed),
         "dropped_invalid_labels": dropped_labels,
         "dropped_invalid_timestamps": invalid_times,
-        "excluded_source_columns": ["Session Duration", "Behavioral Score"],
+        "excluded_source_columns": [],
         "unknown_category_handling": "unknown and missing values create no one-hot feature",
         "class_counts": {str(k): int(v) for k, v in counts.items()},
         "feature_count": len(features),
@@ -206,7 +202,7 @@ def main() -> int:
     print(f"Hoàn tất: đã đọc {total_rows:,}, giữ {len(processed):,} dòng.")
     print(f"Bình thường (0): {int(counts.get(0, 0)):,} | Bất thường (1): {int(counts.get(1, 0)):,}")
     print(f"Feature: {len(features)} | Thời gian: {time.perf_counter() - started:.1f} giây")
-    print("Đã loại khỏi feature: Session Duration, Behavioral Score và các giá trị Unknown.")
+    print("Đã giữ các feature số Session Duration, Failed Attempts, Behavioral Score; Unknown được xử lý thành giá trị thiếu.")
     print(f"Dataset: {C.FILTERED_DATA}")
     return 0
 

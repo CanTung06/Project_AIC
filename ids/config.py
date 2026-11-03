@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
+AUTH_SOURCE_FILE = RAW_DIR / "synthetic_web_auth_logs.csv"
 PROCESSED_DIR = DATA_DIR / "processed"
 OUTPUTS_DIR = ROOT / "outputs"
 TABLES_DIR = OUTPUTS_DIR / "tables"
@@ -40,7 +41,6 @@ VALIDATION_FRACTION = 0.15
 TEST_FRACTION = 0.15
 UNDERSAMPLE_NEGATIVE_PER_POSITIVE = 3
 MAX_ERROR_EXAMPLES_PER_TYPE = 1_000
-MIN_RECALL_TARGET = 0.80
 
 
 def ensure_dirs() -> None:

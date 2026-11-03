@@ -51,13 +51,12 @@ def build_model():
 
 def choose_threshold(y_true, scores):
     precision, recall, thresholds = precision_recall_curve(y_true, scores)
-    eligible = np.flatnonzero(recall[:-1] >= C.MIN_RECALL_TARGET)
-    if eligible.size == 0:
-        raise ValueError(
-            f"Không có threshold nào đạt recall tối thiểu {C.MIN_RECALL_TARGET:.0%} trên validation."
-        )
-    best_precision = precision[:-1][eligible].max()
-    candidates = eligible[np.isclose(precision[:-1][eligible], best_precision)]
+    f1_scores = (
+        2 * precision[:-1] * recall[:-1]
+        / np.maximum(precision[:-1] + recall[:-1], 1e-15)
+    )
+    best_f1 = f1_scores.max()
+    candidates = np.flatnonzero(np.isclose(f1_scores, best_f1))
     best_index = int(candidates[np.argmax(thresholds[candidates])])
     return float(thresholds[best_index]), {
         "precision": float(precision[best_index]),
@@ -66,8 +65,7 @@ def choose_threshold(y_true, scores):
             2 * precision[best_index] * recall[best_index]
             / max(precision[best_index] + recall[best_index], 1e-15)
         ),
-        "threshold_selection_metric": "max_precision_with_minimum_recall",
-        "minimum_recall_target": C.MIN_RECALL_TARGET,
+        "threshold_selection_metric": "maximum_validation_f1",
     }
 
 
@@ -169,8 +167,7 @@ def train_and_evaluate(strategy, train_path, model_path) -> dict:
             "feature_transform": "signed_log_then_standard_scaler",
         },
         "fit_time": elapsed_text(fit_seconds),
-        "threshold_selection_metric": "max_precision_with_minimum_recall",
-        "minimum_recall_target": C.MIN_RECALL_TARGET,
+        "threshold_selection_metric": "maximum_validation_f1",
         "validation_at_selected_threshold": validation_threshold_metrics,
         "test_metrics": test_metrics,
         "test_classification_report": report_dict,

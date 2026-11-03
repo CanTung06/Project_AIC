@@ -138,17 +138,16 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     gc.collect()
     print(f"Huấn luyện xong | {elapsed_text(fit_seconds)}")
 
-    # Chọn precision cao nhất với recall tối thiểu trên validation.
+    # Chọn threshold có F1 lớp 1 cao nhất trên validation.
     print("\nS07.2 - CHỌN THRESHOLD TRÊN VALIDATION", flush=True)
     validation_scores = model.predict_proba(X_validation)[:, 1]
     precision, recall, thresholds = precision_recall_curve(y_validation, validation_scores)
-    eligible = np.flatnonzero(recall[:-1] >= C.MIN_RECALL_TARGET)
-    if eligible.size == 0:
-        raise ValueError(
-            f"Không có threshold đạt recall tối thiểu {C.MIN_RECALL_TARGET:.0%} trên validation."
-        )
-    best_precision = precision[:-1][eligible].max()
-    candidates = eligible[np.isclose(precision[:-1][eligible], best_precision)]
+    f1_scores = (
+        2 * precision[:-1] * recall[:-1]
+        / np.maximum(precision[:-1] + recall[:-1], 1e-15)
+    )
+    best_f1 = f1_scores.max()
+    candidates = np.flatnonzero(np.isclose(f1_scores, best_f1))
     best_index = int(candidates[np.argmax(thresholds[candidates])])
     threshold = float(thresholds[best_index])
     validation_metrics = calculate_metrics(y_validation, validation_scores, threshold)
@@ -156,12 +155,8 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
         "threshold": threshold,
         "precision": float(precision[best_index]),
         "recall": float(recall[best_index]),
-        "f1": float(
-            2 * precision[best_index] * recall[best_index]
-            / max(precision[best_index] + recall[best_index], 1e-15)
-        ),
-        "threshold_selection_metric": "max_precision_with_minimum_recall",
-        "minimum_recall_target": C.MIN_RECALL_TARGET,
+        "f1": float(f1_scores[best_index]),
+        "threshold_selection_metric": "maximum_validation_f1",
         "pr_auc": validation_metrics["pr_auc"],
     }
 
@@ -243,8 +238,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
             "test_used_for_training": False,
         },
         "threshold_tuning": {
-            "rule": "maximize_validation_precision_subject_to_minimum_recall",
-            "minimum_recall_target": C.MIN_RECALL_TARGET,
+            "rule": "maximize_validation_f1",
             "validation": {
                 "selected_threshold": validation_threshold,
             },
