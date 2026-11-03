@@ -1,5 +1,3 @@
-"""Bước 05: Huấn luyện, chọn threshold và đánh giá Logistic Regression."""
-
 import gc
 import sys
 import time

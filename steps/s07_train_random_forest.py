@@ -1,5 +1,3 @@
-"""Bước 07: Huấn luyện, chọn threshold và đánh giá Random Forest."""
-
 import gc
 import sys
 import time

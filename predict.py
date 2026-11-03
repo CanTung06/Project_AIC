@@ -1,5 +1,3 @@
-"""Dự đoán CSV log đăng nhập bằng Random Forest full data."""
-
 import json
 import re
 import sys
@@ -93,10 +91,8 @@ def prepare_chunk(frame, features, vocabulary):
     )
     labels = [c for c in LABEL_COLUMNS if c in frame]
     if is_processed:
-        # Extra columns are discarded. Missing model features are later filled with zero.
         return frame[[c for c in features if c in frame] + labels].copy(), True, [], labels
 
-    # Keep only recognized source columns; add absent source fields with safe defaults.
     kept = [c for c in source_columns if c in RAW_COLUMNS]
     if "Login Successful" in source_columns and "Login Status" in frame:
         kept.append("Login Status")
@@ -197,7 +193,6 @@ def predict(input_path):
     temp_path = output_path.with_name(output_path.stem + ".tmp.csv")
     temp_path.unlink(missing_ok=True)
 
-    # Header pass tells us whether the input is raw or already preprocessed.
     header = pd.read_csv(input_path, nrows=0, encoding="utf-8-sig")
     _, is_processed, defaults, output_columns = prepare_chunk(header, features, vocabulary)
     total_rows, positives = 0, 0

@@ -45,8 +45,6 @@ def build_category_vocabulary(frame):
 
 def engineer_auth_features(frame, category_vocabulary):
     data = frame.copy()
-    # CSV có thể trộn timestamp có/không có phần micro giây; format="mixed"
-    # tránh pandas suy định dạng từ dòng đầu rồi đánh dấu các định dạng khác là lỗi.
     data["_event_time"] = pd.to_datetime(
         data["Timestamp"], format="mixed", errors="coerce", utc=True
     )
@@ -79,8 +77,6 @@ def engineer_auth_features(frame, category_vocabulary):
     data["login_weekday_sin"] = np.sin(2 * np.pi * weekday / 7).astype(np.float32)
     data["login_weekday_cos"] = np.cos(2 * np.pi * weekday / 7).astype(np.float32)
 
-    # Tạo ma trận one-hot riêng rồi ghép một lần. Chèn từng cột vào DataFrame
-    # tạo fragmentation và làm chậm đáng kể khi IP có nhiều giá trị duy nhất.
     one_hot_frames = []
     for column in CATEGORICAL_COLUMNS:
         categories = [
@@ -121,8 +117,7 @@ def main() -> int:
     raw = raw.loc[valid].copy()
     raw[C.TARGET_COLUMN] = labels.loc[valid].astype(np.int8)
     raw.drop(columns=C.SOURCE_LABEL_COLUMN, inplace=True)
-    # Các nguồn có thể dùng định dạng timestamp khác nhau (ISO-8601 của KREONET
-    # và dạng có dấu cách của synthetic); parse từng giá trị để không loại nhầm dòng.
+    
     timestamps = pd.to_datetime(
         raw["Timestamp"], format="mixed", errors="coerce", utc=True
     )
@@ -131,8 +126,7 @@ def main() -> int:
 
     categories = build_category_vocabulary(raw)
     processed = engineer_auth_features(raw, categories)
-    # Dữ liệu đã xử lý chỉ giữ feature số và nhãn. Thứ tự thời gian đã được
-    # sắp xếp trong engineer_auth_features trước khi loại ID/thời gian.
+    
     processed.drop(
         columns=[*CATEGORICAL_COLUMNS, *C.SOURCE_METADATA_COLUMNS],
         inplace=True,

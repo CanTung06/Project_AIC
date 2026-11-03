@@ -41,9 +41,6 @@ def main() -> int:
         raise ValueError("Nhãn is_anomaly chỉ được chứa 0 hoặc 1.")
 
     row_count = len(frame)
-    # Chia ngẫu nhiên có phân tầng theo nhãn để mỗi tập có cùng tỷ lệ lớp.
-    # Vì các nguồn có mốc thời gian rất khác nhau (synthetic 2023, KREONET 2026),
-    # chia theo thời gian sẽ đẩy gần như toàn bộ KREONET sang validation/test.
     labels = frame[C.TARGET_COLUMN]
     train_frame, remaining_frame = train_test_split(
         frame,

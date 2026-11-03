@@ -168,7 +168,7 @@ def main(train_path: Path | None = None, model_path: Path | None = None, strateg
     print(f"Best iteration: {model.best_iteration}")
     print(f"Đã lưu model: {model_path} | {elapsed_text(fit_seconds)}")
 
-    # Chọn threshold có F1 lớp 1 cao nhất trên validation; không dùng test để chọn.
+    # Chọn threshold có F1 lớp 1 cao nhất trên validation
     print("\nS06.2 - TUNING THRESHOLD TRÊN VALIDATION")
     del X_train, y_train
     gc.collect()
