@@ -25,16 +25,12 @@ Các bước:
 - `s06`: train và đánh giá XGBoost trên full train và undersampling; threshold được chọn trên validation.
 - `s07`: train và đánh giá Random Forest trên full train và undersampling; threshold được chọn trên validation.
 
-Model và dữ liệu được đặt tên riêng cho pipeline xác thực để tránh dùng nhầm model CIC cũ.
-Mỗi model lưu threshold đã chọn trong validation. Các bước đánh giá báo cáo precision, recall,
-F1, PR-AUC và confusion matrix.
+## Dự đoán file ngoài
 
-## Dự đoán file ngoài bằng XGBoost
-
-Sau khi chạy s02 và s06, chạy:
+Sau khi chạy s02, s05, s06, và s07 chạy:
 
 ```powershell
-python predict_external_xgboost.py
+python predict.py
 ```
 
 Nhập model cần dùng và đường dẫn CSV log xác thực. File ngoài phải có cùng các trường đầu vào
