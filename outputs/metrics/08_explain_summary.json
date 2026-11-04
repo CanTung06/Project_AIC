@@ -1,0 +1,123 @@
+{
+  "purpose": "Global feature explanation; permutation importance computed on validation",
+  "permutation_scoring": "average_precision",
+  "validation_sample_rows": 1000,
+  "feature_count": 30,
+  "models": {
+    "Logistic Regression": {
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_logistic_regression_auth_full_data.joblib",
+      "top_permutation_features": {
+        "Session Duration": 0.10211776524102992,
+        "Location__Mars": 0.07376567570395916,
+        "Location__Antarctica": 0.041021031256377995,
+        "Login Status__Fail": 0.0408737689828224,
+        "Login Status__Success": 0.0408737689828224,
+        "IP Address__10.10.10.5": 0.0397392182807218,
+        "Location__Canada": 0.03683740171524759,
+        "Location__Japan": 0.03495138327503664,
+        "IP Address__10.10.10.8": 0.0348755838104821,
+        "Location__USA": 0.03404086495782945,
+        "IP Address__10.10.10.4": 0.02803659732376924,
+        "Failed Attempts": 0.027948358679333964,
+        "Location__Germany": 0.02386499612496773,
+        "IP Address__192.168.1.14": 0.016769639614788834,
+        "IP Address__192.168.1.95": 0.01185871122024984
+      },
+      "top_native_features": {
+        "Location__Mars": 1.2735347098946532,
+        "Location__Antarctica": 1.257329306130377,
+        "Login Status__Fail": 1.040473513224027,
+        "Login Status__Success": 1.0404735132240264,
+        "IP Address__10.10.10.8": 0.903011442983089,
+        "IP Address__10.10.10.4": 0.8639471958530066,
+        "IP Address__10.10.10.5": 0.7942350086042469,
+        "Failed Attempts": 0.6081159028648656,
+        "Session Duration": 0.5553060421720755,
+        "Location__Germany": 0.2666395006525976,
+        "Location__Japan": 0.25325597062936644,
+        "Location__USA": 0.20211140053164778,
+        "IP Address__192.168.1.27": 0.14718470349079532,
+        "Location__Canada": 0.13217219182702966,
+        "IP Address__192.168.1.36": 0.10356583750378284
+      }
+    },
+    "XGBoost": {
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost_auth_full_data.joblib",
+      "top_permutation_features": {
+        "Session Duration": 0.5098642949050849,
+        "Location__Antarctica": 0.0831880876685849,
+        "Location__Mars": 0.04331748950542824,
+        "IP Address__10.10.10.5": 0.037216976450716754,
+        "IP Address__10.10.10.4": 0.027277946235464933,
+        "IP Address__10.10.10.8": 0.0266058352536922,
+        "Behavioral Score": 0.0018389905592981037,
+        "Location__Japan": 0.0011492869819268003,
+        "Login Status__Fail": 0.0008952393827252215,
+        "Failed Attempts": 0.00018950290408430436,
+        "IP Address__192.168.1.14": 5.453752181461269e-06,
+        "Location__USA": 5.453752181394656e-06,
+        "login_weekday_sin": 0.0,
+        "login_weekday_cos": 0.0,
+        "Device Type__Tablet": 0.0
+      },
+      "top_native_features": {
+        "Session Duration": 0.18467070162296295,
+        "Location__Mars": 0.16564705967903137,
+        "Location__Antarctica": 0.13220752775669098,
+        "Login Status__Fail": 0.12094566971063614,
+        "IP Address__10.10.10.8": 0.10125819593667984,
+        "IP Address__10.10.10.4": 0.0883817970752716,
+        "IP Address__10.10.10.5": 0.0814635381102562,
+        "Failed Attempts": 0.053448814898729324,
+        "Location__Japan": 0.025104375556111336,
+        "Location__Germany": 0.0113233532756567,
+        "Login Status__Success": 0.009965705685317516,
+        "Location__Canada": 0.005259480327367783,
+        "IP Address__192.168.1.14": 0.003945250529795885,
+        "Location__USA": 0.002395350020378828,
+        "Device Type__Mobile": 0.001907266560010612
+      }
+    },
+    "Random Forest": {
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_random_forest_auth_full_data.joblib",
+      "top_permutation_features": {
+        "Session Duration": 0.4084945679672261,
+        "IP Address__10.10.10.5": 0.026132000582142247,
+        "IP Address__10.10.10.8": 0.026122301781170053,
+        "IP Address__10.10.10.4": 0.018757903527028618,
+        "Location__Mars": 0.015435157152804923,
+        "Location__Antarctica": 0.006018579553995829,
+        "Behavioral Score": 0.0024993741450102026,
+        "Location__Japan": 0.0024078028430412957,
+        "Location__Germany": 0.0023215622536023827,
+        "Location__USA": 0.00209168487585516,
+        "Login Status__Success": 0.0008746701559988246,
+        "Login Status__Fail": 0.0008746701559988246,
+        "Failed Attempts": 0.0008145016141670513,
+        "Location__Canada": 0.0004502771504066638,
+        "login_hour_sin": 4.785521264341064e-05
+      },
+      "top_native_features": {
+        "Session Duration": 0.4350822025633358,
+        "Location__Mars": 0.09560664532896082,
+        "Location__Antarctica": 0.09061227980851581,
+        "IP Address__10.10.10.8": 0.04887607422020953,
+        "IP Address__10.10.10.4": 0.041548909479710176,
+        "Login Status__Fail": 0.04043263442056932,
+        "IP Address__10.10.10.5": 0.0390692302600517,
+        "Behavioral Score": 0.034397034587337706,
+        "Login Status__Success": 0.03391758490632342,
+        "Failed Attempts": 0.02580586228696651,
+        "login_hour_cos": 0.01947523520565399,
+        "login_hour_sin": 0.01887334625503301,
+        "Location__USA": 0.01306399826646263,
+        "Location__Germany": 0.011957117746093864,
+        "Location__Japan": 0.010072102435410594
+      }
+    }
+  },
+  "feature_table": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\08_feature_importance.csv",
+  "importance_figure": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\08_random_forest_feature_importance.png",
+  "readable_tree_rules": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\08_readable_rules.txt",
+  "elapsed_seconds": 9.71
+}

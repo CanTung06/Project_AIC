@@ -5,7 +5,7 @@
   "training_rows": 5084,
   "training_support_0": 3813,
   "training_support_1": 1271,
-  "feature_count": 17,
+  "feature_count": 30,
   "parameters": {
     "C": 1.0,
     "solver": "lbfgs",
@@ -18,53 +18,53 @@
   "fit_time": "00:00:00",
   "threshold_selection_metric": "maximum_validation_f1",
   "validation_at_selected_threshold": {
-    "precision": 0.5145631067961165,
-    "recall": 0.3897058823529412,
-    "f1": 0.4435146443514644,
+    "precision": 0.8986784140969163,
+    "recall": 0.75,
+    "f1": 0.8176352705410822,
     "threshold_selection_metric": "maximum_validation_f1",
-    "threshold": 0.2896162962061001,
-    "pr_auc": 0.5165717171325229
+    "threshold": 0.17636801628665016,
+    "pr_auc": 0.8587293253281088
   },
   "test_metrics": {
-    "threshold": 0.2896162962061001,
-    "balanced_accuracy": 0.6683076279292205,
-    "precision": 0.5203619909502263,
-    "recall": 0.4227941176470588,
-    "f1": 0.4665314401622718,
-    "tp": 115,
-    "fp": 106,
-    "fn": 157,
-    "tn": 1124,
-    "support_0": 1230,
+    "threshold": 0.17636801628665016,
+    "balanced_accuracy": 0.857270310404292,
+    "precision": 0.8701298701298701,
+    "recall": 0.7389705882352942,
+    "f1": 0.7992047713717694,
+    "tp": 201,
+    "fp": 30,
+    "fn": 71,
+    "tn": 1198,
+    "support_0": 1228,
     "support_1": 272,
-    "pr_auc": 0.5514644558937319,
-    "roc_auc": 0.7209020803443329
+    "pr_auc": 0.8682985286986399,
+    "roc_auc": 0.9054925512550296
   },
   "test_classification_report": {
     "Normal": {
-      "precision": 0.87743950039032,
-      "recall": 0.9138211382113821,
-      "f1-score": 0.8952608522500995,
-      "support": 1230.0
+      "precision": 0.9440504334121356,
+      "recall": 0.9755700325732899,
+      "f1-score": 0.9595514617541049,
+      "support": 1228.0
     },
     "Anomaly": {
-      "precision": 0.5203619909502263,
-      "recall": 0.4227941176470588,
-      "f1-score": 0.4665314401622718,
+      "precision": 0.8701298701298701,
+      "recall": 0.7389705882352942,
+      "f1-score": 0.7992047713717694,
       "support": 272.0
     },
-    "accuracy": 0.8249001331557922,
+    "accuracy": 0.9326666666666666,
     "macro avg": {
-      "precision": 0.6989007456702732,
-      "recall": 0.6683076279292205,
-      "f1-score": 0.6808961462061857,
-      "support": 1502.0
+      "precision": 0.9070901517710028,
+      "recall": 0.857270310404292,
+      "f1-score": 0.8793781165629371,
+      "support": 1500.0
     },
     "weighted avg": {
-      "precision": 0.8127756637939783,
-      "recall": 0.8249001331557922,
-      "f1-score": 0.8176214380770708,
-      "support": 1502.0
+      "precision": 0.9306461712702847,
+      "recall": 0.9326666666666666,
+      "f1-score": 0.930475261898108,
+      "support": 1500.0
     }
   },
   "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\05_logistic_regression_undersampling_classification_report.txt",

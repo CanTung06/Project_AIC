@@ -24,6 +24,9 @@ Các bước:
 - `s05`: train và đánh giá Logistic Regression trên full train và undersampling.
 - `s06`: train và đánh giá XGBoost trên full train và undersampling; threshold được chọn trên validation.
 - `s07`: train và đánh giá Random Forest trên full train và undersampling; threshold được chọn trên validation.
+- `s08`: giải thích feature bằng importance của model và permutation importance trên validation.
+- `s09`: phân tích false positive/false negative trên tập test.
+- `s10`: đo drift feature và phân phối score giữa các tập.
 
 ## Dự đoán file ngoài
 

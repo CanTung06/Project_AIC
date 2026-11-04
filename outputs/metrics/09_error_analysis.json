@@ -1,0 +1,62 @@
+{
+  "evaluation_split": "D:\\Code\\Python\\Project_AIC\\data\\processed\\auth_test.csv",
+  "feature_count": 30,
+  "error_examples_saved_per_model": 1000,
+  "models": [
+    {
+      "model": "Logistic Regression",
+      "threshold": 0.13392208317008567,
+      "balanced_accuracy": 0.8476599923356964,
+      "precision": 0.8981481481481481,
+      "recall": 0.7132352941176471,
+      "f1": 0.7950819672131147,
+      "tp": 194,
+      "fp": 22,
+      "fn": 78,
+      "tn": 1206,
+      "support_0": 1228,
+      "support_1": 272,
+      "pr_auc": 0.8728460550400823,
+      "roc_auc": 0.9082528980647636,
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_logistic_regression_auth_full_data.joblib"
+    },
+    {
+      "model": "XGBoost",
+      "threshold": 0.8037830591201782,
+      "balanced_accuracy": 0.9944852941176471,
+      "precision": 1.0,
+      "recall": 0.9889705882352942,
+      "f1": 0.9944547134935305,
+      "tp": 269,
+      "fp": 0,
+      "fn": 3,
+      "tn": 1228,
+      "support_0": 1228,
+      "support_1": 272,
+      "pr_auc": 0.9999999999999999,
+      "roc_auc": 1.0,
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost_auth_full_data.joblib"
+    },
+    {
+      "model": "Random Forest",
+      "threshold": 0.6996592366803911,
+      "balanced_accuracy": 0.9963235294117647,
+      "precision": 1.0,
+      "recall": 0.9926470588235294,
+      "f1": 0.996309963099631,
+      "tp": 270,
+      "fp": 0,
+      "fn": 2,
+      "tn": 1228,
+      "support_0": 1228,
+      "support_1": 272,
+      "pr_auc": 1.0,
+      "roc_auc": 1.0,
+      "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\07_random_forest_auth_full_data.joblib"
+    }
+  ],
+  "summary_table": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\09_error_summary.csv",
+  "error_examples": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\09_error_examples.csv",
+  "error_figure": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\09_test_errors_by_model.png",
+  "elapsed_seconds": 0.38
+}

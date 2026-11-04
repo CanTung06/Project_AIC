@@ -20,6 +20,9 @@ STEPS = [
     ("s05", "steps.s05_train_logistic_regression"),
     ("s06", "steps.s06_train_xgboost"),
     ("s07", "steps.s07_train_random_forest"),
+    ("s08", "steps.s08_explain"),
+    ("s09", "steps.s09_error_analysis"),
+    ("s10", "steps.s10_drift"),
 ]
 
 

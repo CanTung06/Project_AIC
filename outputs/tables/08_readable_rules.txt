@@ -1,0 +1,15 @@
+Cây quyết định nông để tham khảo; đây không phải model production.
+
+|--- Session Duration <= 4.9907
+|   |--- class: 1
+|--- Session Duration >  4.9907
+|   |--- Session Duration <= 860.1897
+|   |   |--- Location__Mars <= 0.5000
+|   |   |   |--- class: 0
+|   |   |--- Location__Mars >  0.5000
+|   |   |   |--- class: 1
+|   |--- Session Duration >  860.1897
+|   |   |--- IP Address__192.168.1.25 <= 0.5000
+|   |   |   |--- class: 1
+|   |   |--- IP Address__192.168.1.25 >  0.5000
+|   |   |   |--- class: 1

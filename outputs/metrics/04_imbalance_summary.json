@@ -1,6 +1,6 @@
 {
   "class_counts_full_train": {
-    "0": 5730,
+    "0": 5729,
     "1": 1271
   },
   "undersampling_negative_per_positive_target": 3,

@@ -2,10 +2,10 @@
   "model": "LogisticRegression",
   "strategy": "full_data",
   "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\05_logistic_regression_auth_full_data.joblib",
-  "training_rows": 7001,
-  "training_support_0": 5730,
+  "training_rows": 7000,
+  "training_support_0": 5729,
   "training_support_1": 1271,
-  "feature_count": 17,
+  "feature_count": 30,
   "parameters": {
     "C": 1.0,
     "solver": "lbfgs",
@@ -18,53 +18,53 @@
   "fit_time": "00:00:00",
   "threshold_selection_metric": "maximum_validation_f1",
   "validation_at_selected_threshold": {
-    "precision": 0.5482233502538071,
-    "recall": 0.39705882352941174,
-    "f1": 0.46055437100213215,
+    "precision": 0.9209302325581395,
+    "recall": 0.7279411764705882,
+    "f1": 0.813141683778234,
     "threshold_selection_metric": "maximum_validation_f1",
-    "threshold": 0.21835196121424139,
-    "pr_auc": 0.5185391764541176
+    "threshold": 0.13392208317008567,
+    "pr_auc": 0.8600429342968453
   },
   "test_metrics": {
-    "threshold": 0.21835196121424139,
-    "balanced_accuracy": 0.6787003825920612,
-    "precision": 0.5566037735849056,
-    "recall": 0.4338235294117647,
-    "f1": 0.48760330578512395,
-    "tp": 118,
-    "fp": 94,
-    "fn": 154,
-    "tn": 1136,
-    "support_0": 1230,
+    "threshold": 0.13392208317008567,
+    "balanced_accuracy": 0.8476599923356964,
+    "precision": 0.8981481481481481,
+    "recall": 0.7132352941176471,
+    "f1": 0.7950819672131147,
+    "tp": 194,
+    "fp": 22,
+    "fn": 78,
+    "tn": 1206,
+    "support_0": 1228,
     "support_1": 272,
-    "pr_auc": 0.5534260170669425,
-    "roc_auc": 0.7206061692969871
+    "pr_auc": 0.8728460550400823,
+    "roc_auc": 0.9082528980647636
   },
   "test_classification_report": {
     "Normal": {
-      "precision": 0.8806201550387597,
-      "recall": 0.9235772357723577,
-      "f1-score": 0.9015873015873016,
-      "support": 1230.0
+      "precision": 0.9392523364485982,
+      "recall": 0.9820846905537459,
+      "f1-score": 0.9601910828025477,
+      "support": 1228.0
     },
     "Anomaly": {
-      "precision": 0.5566037735849056,
-      "recall": 0.4338235294117647,
-      "f1-score": 0.48760330578512395,
+      "precision": 0.8981481481481481,
+      "recall": 0.7132352941176471,
+      "f1-score": 0.7950819672131147,
       "support": 272.0
     },
-    "accuracy": 0.8348868175765646,
+    "accuracy": 0.9333333333333333,
     "macro avg": {
-      "precision": 0.7186119643118327,
-      "recall": 0.6787003825920612,
-      "f1-score": 0.6945953036862128,
-      "support": 1502.0
+      "precision": 0.9187002422983732,
+      "recall": 0.8476599923356964,
+      "f1-score": 0.8776365250078313,
+      "support": 1500.0
     },
     "weighted avg": {
-      "precision": 0.8219434201816037,
-      "recall": 0.8348868175765646,
-      "f1-score": 0.8266181625339112,
-      "support": 1502.0
+      "precision": 0.9317987769701166,
+      "recall": 0.9333333333333333,
+      "f1-score": 0.9302512965089973,
+      "support": 1500.0
     }
   },
   "classification_report_path": "D:\\Code\\Python\\Project_AIC\\outputs\\tables\\05_logistic_regression_full_data_classification_report.txt",

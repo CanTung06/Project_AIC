@@ -2,52 +2,59 @@
   "task": "user authentication anomaly detection",
   "target_column": "is_anomaly",
   "source_label_column": "Anomaly",
-  "metadata_columns": [
-    "event_timestamp",
-    "User ID"
-  ],
+  "metadata_columns": [],
   "categorical_columns": [
-    "Login Status"
-  ],
-  "categorical_encoding": "one-hot Login Status; IP, Location and Device Type are represented by per-user history features",
-  "excluded_source_columns": [
-    "User ID",
+    "Login Status",
     "IP Address",
-    "Location",
-    "Device Type"
+    "Device Type",
+    "Location"
   ],
-  "excluded_from_model_features": [
-    "User ID",
-    "raw IP Address",
-    "raw Location",
-    "raw Device Type"
-  ],
-  "unknown_category_handling": "Unseen IP, Location and Device Type values are retained for per-user history features; unseen Login Status values map to OTHER.",
+  "categorical_encoding": "one_hot",
+  "excluded_source_columns": [],
+  "unknown_category_handling": "missing or unknown values produce all-zero one-hot columns",
   "source_attribute_representation": {
+    "User ID": [],
     "Timestamp": [
       "login_hour_sin",
       "login_hour_cos",
       "login_weekday_sin",
       "login_weekday_cos"
     ],
-    "IP Address": [
-      "user_ip_seen_before",
-      "user_ip_logins_before",
-      "user_distinct_ips_before"
-    ],
-    "Location": [
-      "user_location_seen_before",
-      "user_location_logins_before",
-      "user_distinct_locations_before"
-    ],
-    "Device Type": [
-      "user_device_seen_before",
-      "user_device_logins_before",
-      "user_distinct_devices_before"
-    ],
     "Login Status": [
       "Login Status__Fail",
       "Login Status__Success"
+    ],
+    "IP Address": [
+      "IP Address__10.10.10.4",
+      "IP Address__10.10.10.5",
+      "IP Address__10.10.10.8",
+      "IP Address__192.168.1.14",
+      "IP Address__192.168.1.16",
+      "IP Address__192.168.1.20",
+      "IP Address__192.168.1.25",
+      "IP Address__192.168.1.27",
+      "IP Address__192.168.1.36",
+      "IP Address__192.168.1.54",
+      "IP Address__192.168.1.65",
+      "IP Address__192.168.1.95"
+    ],
+    "Device Type": [
+      "Device Type__Desktop",
+      "Device Type__Mobile",
+      "Device Type__Tablet"
+    ],
+    "Location": [
+      "Location__Antarctica",
+      "Location__Canada",
+      "Location__Germany",
+      "Location__Japan",
+      "Location__Mars",
+      "Location__USA"
+    ],
+    "numeric_source_attributes": [
+      "Session Duration",
+      "Failed Attempts",
+      "Behavioral Score"
     ]
   },
   "category_vocabulary": {
@@ -56,28 +63,72 @@
       "Success",
       "__MISSING__",
       "__OTHER__"
+    ],
+    "IP Address": [
+      "10.10.10.4",
+      "10.10.10.5",
+      "10.10.10.8",
+      "192.168.1.14",
+      "192.168.1.16",
+      "192.168.1.20",
+      "192.168.1.25",
+      "192.168.1.27",
+      "192.168.1.36",
+      "192.168.1.54",
+      "192.168.1.65",
+      "192.168.1.95",
+      "__MISSING__",
+      "__OTHER__"
+    ],
+    "Device Type": [
+      "Desktop",
+      "Mobile",
+      "Tablet",
+      "__MISSING__",
+      "__OTHER__"
+    ],
+    "Location": [
+      "Antarctica",
+      "Canada",
+      "Germany",
+      "Japan",
+      "Mars",
+      "USA",
+      "__MISSING__",
+      "__OTHER__"
     ]
   },
   "feature_columns": [
+    "Session Duration",
+    "Failed Attempts",
+    "Behavioral Score",
     "login_hour_sin",
     "login_hour_cos",
     "login_weekday_sin",
     "login_weekday_cos",
-    "user_logins_before",
-    "seconds_since_previous_login",
-    "user_ip_seen_before",
-    "user_ip_logins_before",
-    "user_distinct_ips_before",
-    "user_location_seen_before",
-    "user_location_logins_before",
-    "user_distinct_locations_before",
-    "user_device_seen_before",
-    "user_device_logins_before",
-    "user_distinct_devices_before",
     "Login Status__Fail",
-    "Login Status__Success"
+    "Login Status__Success",
+    "IP Address__10.10.10.4",
+    "IP Address__10.10.10.5",
+    "IP Address__10.10.10.8",
+    "IP Address__192.168.1.14",
+    "IP Address__192.168.1.16",
+    "IP Address__192.168.1.20",
+    "IP Address__192.168.1.25",
+    "IP Address__192.168.1.27",
+    "IP Address__192.168.1.36",
+    "IP Address__192.168.1.54",
+    "IP Address__192.168.1.65",
+    "IP Address__192.168.1.95",
+    "Device Type__Desktop",
+    "Device Type__Mobile",
+    "Device Type__Tablet",
+    "Location__Antarctica",
+    "Location__Canada",
+    "Location__Germany",
+    "Location__Japan",
+    "Location__Mars",
+    "Location__USA"
   ],
-  "history_features": true,
-  "history_features_are_past_only": true,
-  "feature_design": "Cyclical timestamp, per-user prior login/IP/location/device history, and one-hot Login Status; raw User ID/IP/Location/Device values excluded"
+  "history_features": false
 }
