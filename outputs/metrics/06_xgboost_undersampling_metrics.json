@@ -13,44 +13,31 @@
       "0": 3813,
       "1": 1271
     },
-    "validation_rows": 1500,
-    "feature_count": 30,
+    "validation_rows": 1497,
+    "feature_count": 17,
     "feature_columns": [
-      "Session Duration",
-      "Failed Attempts",
-      "Behavioral Score",
       "login_hour_sin",
       "login_hour_cos",
       "login_weekday_sin",
       "login_weekday_cos",
+      "user_logins_before",
+      "seconds_since_previous_login",
+      "user_ip_seen_before",
+      "user_ip_logins_before",
+      "user_distinct_ips_before",
+      "user_location_seen_before",
+      "user_location_logins_before",
+      "user_distinct_locations_before",
+      "user_device_seen_before",
+      "user_device_logins_before",
+      "user_distinct_devices_before",
       "Login Status__Fail",
-      "Login Status__Success",
-      "IP Address__10.10.10.4",
-      "IP Address__10.10.10.5",
-      "IP Address__10.10.10.8",
-      "IP Address__192.168.1.14",
-      "IP Address__192.168.1.16",
-      "IP Address__192.168.1.20",
-      "IP Address__192.168.1.25",
-      "IP Address__192.168.1.27",
-      "IP Address__192.168.1.36",
-      "IP Address__192.168.1.54",
-      "IP Address__192.168.1.65",
-      "IP Address__192.168.1.95",
-      "Device Type__Desktop",
-      "Device Type__Mobile",
-      "Device Type__Tablet",
-      "Location__Antarctica",
-      "Location__Canada",
-      "Location__Germany",
-      "Location__Japan",
-      "Location__Mars",
-      "Location__USA"
+      "Login Status__Success"
     ],
     "scale_pos_weight": 3.0,
-    "fit_seconds": 0.21,
+    "fit_seconds": 0.31,
     "fit_time": "00:00:00",
-    "best_iteration": 27,
+    "best_iteration": 9,
     "early_stopping_split": "validation",
     "early_stopping_rounds": 15,
     "data_resplit_or_resampled": false,
@@ -60,13 +47,13 @@
     "data_files": {
       "train": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\auth_train_undersampled.csv",
-        "size_bytes": 812117,
-        "mtime_ns": 1793723278618942100
+        "size_bytes": 521008,
+        "mtime_ns": 1793764238694596600
       },
       "validation": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\auth_validation.csv",
-        "size_bytes": 240480,
-        "mtime_ns": 1793723278468865700
+        "size_bytes": 153814,
+        "mtime_ns": 1793764238591560200
       }
     }
   },
@@ -74,111 +61,111 @@
     "rule": "maximize_validation_f1",
     "validation": {
       "metrics": {
-        "threshold": 0.8484861850738525,
-        "balanced_accuracy": 0.9981617647058824,
-        "precision": 1.0,
-        "recall": 0.9963235294117647,
-        "f1": 0.998158379373849,
-        "tp": 271,
-        "fp": 0,
-        "fn": 1,
-        "tn": 1228,
-        "support_0": 1228,
+        "threshold": 0.5129303336143494,
+        "balanced_accuracy": 0.6675180072028811,
+        "precision": 0.5253456221198156,
+        "recall": 0.41911764705882354,
+        "f1": 0.4662576687116564,
+        "tp": 114,
+        "fp": 103,
+        "fn": 158,
+        "tn": 1122,
+        "support_0": 1225,
         "support_1": 272,
-        "pr_auc": 0.9999598930481283,
-        "roc_auc": 0.999992515328607
+        "pr_auc": 0.5241341432525523,
+        "roc_auc": 0.71234393757503
       },
       "classification_report": {
         "Normal": {
-          "precision": 0.9991863303498779,
-          "recall": 1.0,
-          "f1-score": 0.9995929995929996,
-          "support": 1228.0
+          "precision": 0.8765625,
+          "recall": 0.9159183673469388,
+          "f1-score": 0.895808383233533,
+          "support": 1225.0
         },
         "Anomaly": {
-          "precision": 1.0,
-          "recall": 0.9963235294117647,
-          "f1-score": 0.998158379373849,
+          "precision": 0.5253456221198156,
+          "recall": 0.41911764705882354,
+          "f1-score": 0.4662576687116564,
           "support": 272.0
         },
-        "accuracy": 0.9993333333333333,
+        "accuracy": 0.8256513026052105,
         "macro avg": {
-          "precision": 0.999593165174939,
-          "recall": 0.9981617647058824,
-          "f1-score": 0.9988756894834243,
-          "support": 1500.0
+          "precision": 0.7009540610599079,
+          "recall": 0.6675180072028811,
+          "f1-score": 0.6810330259725947,
+          "support": 1497.0
         },
         "weighted avg": {
-          "precision": 0.9993338757797667,
-          "recall": 0.9993333333333333,
-          "f1-score": 0.9993328551265935,
-          "support": 1500.0
+          "precision": 0.8127475428968536,
+          "recall": 0.8256513026052105,
+          "f1-score": 0.8177604244159308,
+          "support": 1497.0
         }
       },
       "selected_threshold": {
-        "threshold": 0.8484861850738525,
-        "precision": 1.0,
-        "recall": 0.9963235294117647,
-        "f1": 0.998158379373849,
+        "threshold": 0.5129303336143494,
+        "precision": 0.5253456221198156,
+        "recall": 0.41911764705882354,
+        "f1": 0.46625766871165636,
         "threshold_selection_metric": "maximum_validation_f1",
-        "pr_auc": 0.9999598930481283
+        "pr_auc": 0.5241341432525523
       }
     },
     "test": {
       "metrics": {
-        "threshold": 0.8484861850738525,
-        "balanced_accuracy": 0.9963235294117647,
-        "precision": 1.0,
-        "recall": 0.9926470588235294,
-        "f1": 0.996309963099631,
-        "tp": 270,
-        "fp": 0,
-        "fn": 2,
-        "tn": 1228,
-        "support_0": 1228,
+        "threshold": 0.5129303336143494,
+        "balanced_accuracy": 0.6699157101865136,
+        "precision": 0.5485436893203883,
+        "recall": 0.41544117647058826,
+        "f1": 0.47280334728033474,
+        "tp": 113,
+        "fp": 93,
+        "fn": 159,
+        "tn": 1137,
+        "support_0": 1230,
         "support_1": 272,
-        "pr_auc": 0.9999865330747684,
-        "roc_auc": 0.9999970061314428
+        "pr_auc": 0.5343254663979156,
+        "roc_auc": 0.6891887852702057
       },
       "classification_report": {
         "Normal": {
-          "precision": 0.9983739837398374,
-          "recall": 1.0,
-          "f1-score": 0.9991863303498779,
-          "support": 1228.0
+          "precision": 0.8773148148148148,
+          "recall": 0.9243902439024391,
+          "f1-score": 0.9002375296912114,
+          "support": 1230.0
         },
         "Anomaly": {
-          "precision": 1.0,
-          "recall": 0.9926470588235294,
-          "f1-score": 0.996309963099631,
+          "precision": 0.5485436893203883,
+          "recall": 0.41544117647058826,
+          "f1-score": 0.47280334728033474,
           "support": 272.0
         },
-        "accuracy": 0.9986666666666667,
+        "accuracy": 0.8322237017310253,
         "macro avg": {
-          "precision": 0.9991869918699188,
-          "recall": 0.9963235294117647,
-          "f1-score": 0.9977481467247544,
-          "support": 1500.0
+          "precision": 0.7129292520676016,
+          "recall": 0.6699157101865136,
+          "f1-score": 0.686520438485773,
+          "support": 1502.0
         },
         "weighted avg": {
-          "precision": 0.9986688346883469,
-          "recall": 0.9986666666666667,
-          "f1-score": 0.9986647490884998,
-          "support": 1500.0
+          "precision": 0.8177770344323354,
+          "recall": 0.8322237017310253,
+          "f1-score": 0.8228326710921713,
+          "support": 1502.0
         }
       }
     },
     "selected_model": {
       "selected_model": "xgboost_undersampling",
-      "threshold": 0.8484861850738525,
+      "threshold": 0.5129303336143494,
       "selection_metric": "validation_f1",
       "validation_metrics": {
-        "threshold": 0.8484861850738525,
-        "precision": 1.0,
-        "recall": 0.9963235294117647,
-        "f1": 0.998158379373849,
+        "threshold": 0.5129303336143494,
+        "precision": 0.5253456221198156,
+        "recall": 0.41911764705882354,
+        "f1": 0.46625766871165636,
         "threshold_selection_metric": "maximum_validation_f1",
-        "pr_auc": 0.9999598930481283
+        "pr_auc": 0.5241341432525523
       },
       "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost_auth_undersampling.joblib",
       "threshold_embedded_in_model": true

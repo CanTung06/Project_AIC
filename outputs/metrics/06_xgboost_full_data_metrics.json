@@ -8,49 +8,36 @@
     "model": "XGBoost",
     "strategy": "full_data",
     "model_code_source": "Project_AIC authentication anomaly pipeline",
-    "training_rows": 7000,
+    "training_rows": 7001,
     "train_class_counts": {
-      "0": 5729,
+      "0": 5730,
       "1": 1271
     },
-    "validation_rows": 1500,
-    "feature_count": 30,
+    "validation_rows": 1497,
+    "feature_count": 17,
     "feature_columns": [
-      "Session Duration",
-      "Failed Attempts",
-      "Behavioral Score",
       "login_hour_sin",
       "login_hour_cos",
       "login_weekday_sin",
       "login_weekday_cos",
+      "user_logins_before",
+      "seconds_since_previous_login",
+      "user_ip_seen_before",
+      "user_ip_logins_before",
+      "user_distinct_ips_before",
+      "user_location_seen_before",
+      "user_location_logins_before",
+      "user_distinct_locations_before",
+      "user_device_seen_before",
+      "user_device_logins_before",
+      "user_distinct_devices_before",
       "Login Status__Fail",
-      "Login Status__Success",
-      "IP Address__10.10.10.4",
-      "IP Address__10.10.10.5",
-      "IP Address__10.10.10.8",
-      "IP Address__192.168.1.14",
-      "IP Address__192.168.1.16",
-      "IP Address__192.168.1.20",
-      "IP Address__192.168.1.25",
-      "IP Address__192.168.1.27",
-      "IP Address__192.168.1.36",
-      "IP Address__192.168.1.54",
-      "IP Address__192.168.1.65",
-      "IP Address__192.168.1.95",
-      "Device Type__Desktop",
-      "Device Type__Mobile",
-      "Device Type__Tablet",
-      "Location__Antarctica",
-      "Location__Canada",
-      "Location__Germany",
-      "Location__Japan",
-      "Location__Mars",
-      "Location__USA"
+      "Login Status__Success"
     ],
-    "scale_pos_weight": 4.507474429583006,
-    "fit_seconds": 0.07,
+    "scale_pos_weight": 4.508261211644374,
+    "fit_seconds": 0.04,
     "fit_time": "00:00:00",
-    "best_iteration": 22,
+    "best_iteration": 2,
     "early_stopping_split": "validation",
     "early_stopping_rounds": 15,
     "data_resplit_or_resampled": false,
@@ -60,13 +47,13 @@
     "data_files": {
       "train": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\auth_train.csv",
-        "size_bytes": 1118704,
-        "mtime_ns": 1793723278446977700
+        "size_bytes": 717357,
+        "mtime_ns": 1793764238575525200
       },
       "validation": {
         "path": "D:\\Code\\Python\\Project_AIC\\data\\processed\\auth_validation.csv",
-        "size_bytes": 240480,
-        "mtime_ns": 1793723278468865700
+        "size_bytes": 153814,
+        "mtime_ns": 1793764238591560200
       }
     }
   },
@@ -74,111 +61,111 @@
     "rule": "maximize_validation_f1",
     "validation": {
       "metrics": {
-        "threshold": 0.8037830591201782,
-        "balanced_accuracy": 0.9981617647058824,
-        "precision": 1.0,
-        "recall": 0.9963235294117647,
-        "f1": 0.998158379373849,
-        "tp": 271,
-        "fp": 0,
-        "fn": 1,
-        "tn": 1228,
-        "support_0": 1228,
+        "threshold": 0.5097287893295288,
+        "balanced_accuracy": 0.6513640456182472,
+        "precision": 0.6595744680851063,
+        "recall": 0.34191176470588236,
+        "f1": 0.45036319612590797,
+        "tp": 93,
+        "fp": 48,
+        "fn": 179,
+        "tn": 1177,
+        "support_0": 1225,
         "support_1": 272,
-        "pr_auc": 0.9999598930481284,
-        "roc_auc": 0.999992515328607
+        "pr_auc": 0.508963577768279,
+        "roc_auc": 0.6977701080432173
       },
       "classification_report": {
         "Normal": {
-          "precision": 0.9991863303498779,
-          "recall": 1.0,
-          "f1-score": 0.9995929995929996,
-          "support": 1228.0
+          "precision": 0.8679941002949852,
+          "recall": 0.9608163265306122,
+          "f1-score": 0.9120495931809376,
+          "support": 1225.0
         },
         "Anomaly": {
-          "precision": 1.0,
-          "recall": 0.9963235294117647,
-          "f1-score": 0.998158379373849,
+          "precision": 0.6595744680851063,
+          "recall": 0.34191176470588236,
+          "f1-score": 0.45036319612590797,
           "support": 272.0
         },
-        "accuracy": 0.9993333333333333,
+        "accuracy": 0.8483633934535738,
         "macro avg": {
-          "precision": 0.999593165174939,
-          "recall": 0.9981617647058824,
-          "f1-score": 0.9988756894834243,
-          "support": 1500.0
+          "precision": 0.7637842841900457,
+          "recall": 0.6513640456182472,
+          "f1-score": 0.6812063946534228,
+          "support": 1497.0
         },
         "weighted avg": {
-          "precision": 0.9993338757797667,
-          "recall": 0.9993333333333333,
-          "f1-score": 0.9993328551265935,
-          "support": 1500.0
+          "precision": 0.8301249353243192,
+          "recall": 0.8483633934535738,
+          "f1-score": 0.8281626860339982,
+          "support": 1497.0
         }
       },
       "selected_threshold": {
-        "threshold": 0.8037830591201782,
-        "precision": 1.0,
-        "recall": 0.9963235294117647,
-        "f1": 0.998158379373849,
+        "threshold": 0.5097287893295288,
+        "precision": 0.6595744680851063,
+        "recall": 0.34191176470588236,
+        "f1": 0.4503631961259081,
         "threshold_selection_metric": "maximum_validation_f1",
-        "pr_auc": 0.9999598930481284
+        "pr_auc": 0.508963577768279
       }
     },
     "test": {
       "metrics": {
-        "threshold": 0.8037830591201782,
-        "balanced_accuracy": 0.9944852941176471,
-        "precision": 1.0,
-        "recall": 0.9889705882352942,
-        "f1": 0.9944547134935305,
-        "tp": 269,
-        "fp": 0,
-        "fn": 3,
-        "tn": 1228,
-        "support_0": 1228,
+        "threshold": 0.5097287893295288,
+        "balanced_accuracy": 0.6659373505499762,
+        "precision": 0.6944444444444444,
+        "recall": 0.36764705882352944,
+        "f1": 0.4807692307692308,
+        "tp": 100,
+        "fp": 44,
+        "fn": 172,
+        "tn": 1186,
+        "support_0": 1230,
         "support_1": 272,
-        "pr_auc": 0.9999999999999999,
-        "roc_auc": 1.0
+        "pr_auc": 0.5221548668255291,
+        "roc_auc": 0.6790441176470589
       },
       "classification_report": {
         "Normal": {
-          "precision": 0.9975629569455727,
-          "recall": 1.0,
-          "f1-score": 0.9987799918666125,
-          "support": 1228.0
+          "precision": 0.8733431516936672,
+          "recall": 0.9642276422764228,
+          "f1-score": 0.9165378670788253,
+          "support": 1230.0
         },
         "Anomaly": {
-          "precision": 1.0,
-          "recall": 0.9889705882352942,
-          "f1-score": 0.9944547134935305,
+          "precision": 0.6944444444444444,
+          "recall": 0.36764705882352944,
+          "f1-score": 0.4807692307692308,
           "support": 272.0
         },
-        "accuracy": 0.998,
+        "accuracy": 0.8561917443408789,
         "macro avg": {
-          "precision": 0.9987814784727864,
-          "recall": 0.9944852941176471,
-          "f1-score": 0.9966173526800715,
-          "support": 1500.0
+          "precision": 0.7838937980690558,
+          "recall": 0.6659373505499762,
+          "f1-score": 0.6986535489240281,
+          "support": 1502.0
         },
         "weighted avg": {
-          "precision": 0.9980048740861089,
-          "recall": 0.998,
-          "f1-score": 0.997995674721627,
-          "support": 1500.0
+          "precision": 0.8409460489161781,
+          "recall": 0.8561917443408789,
+          "f1-score": 0.8376237065753568,
+          "support": 1502.0
         }
       }
     },
     "selected_model": {
       "selected_model": "xgboost_full_data",
-      "threshold": 0.8037830591201782,
+      "threshold": 0.5097287893295288,
       "selection_metric": "validation_f1",
       "validation_metrics": {
-        "threshold": 0.8037830591201782,
-        "precision": 1.0,
-        "recall": 0.9963235294117647,
-        "f1": 0.998158379373849,
+        "threshold": 0.5097287893295288,
+        "precision": 0.6595744680851063,
+        "recall": 0.34191176470588236,
+        "f1": 0.4503631961259081,
         "threshold_selection_metric": "maximum_validation_f1",
-        "pr_auc": 0.9999598930481284
+        "pr_auc": 0.508963577768279
       },
       "model_path": "D:\\Code\\Python\\Project_AIC\\outputs\\models\\06_xgboost_auth_full_data.joblib",
       "threshold_embedded_in_model": true

@@ -1,12 +1,12 @@
-Classification report | Logistic Regression (undersampling) | threshold=0.17636802
+Classification report | Logistic Regression (undersampling) | threshold=0.28961630
               precision    recall  f1-score   support
 
-      Normal     0.9441    0.9756    0.9596      1228
-     Anomaly     0.8701    0.7390    0.7992       272
+      Normal     0.8774    0.9138    0.8953      1230
+     Anomaly     0.5204    0.4228    0.4665       272
 
-    accuracy                         0.9327      1500
-   macro avg     0.9071    0.8573    0.8794      1500
-weighted avg     0.9306    0.9327    0.9305      1500
+    accuracy                         0.8249      1502
+   macro avg     0.6989    0.6683    0.6809      1502
+weighted avg     0.8128    0.8249    0.8176      1502
 
-AUC-ROC: 0.9055
-PR-AUC: 0.8683
+AUC-ROC: 0.7209
+PR-AUC: 0.5515

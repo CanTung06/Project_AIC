@@ -2,58 +2,45 @@
   "input_rows": 10000,
   "split_counts": {
     "train": {
-      "0": 5729,
+      "0": 5730,
       "1": 1271
     },
     "validation": {
-      "0": 1228,
+      "0": 1225,
       "1": 272
     },
     "test": {
-      "0": 1228,
+      "0": 1230,
       "1": 272
     }
   },
-  "split_strategy": "stratified_random_split_by_target",
+  "split_strategy": "stratified_group_split_by_user_id",
   "random_seed": 42,
   "split_fractions": {
     "train": 0.7,
     "validation": 0.15,
     "test": 0.15
   },
-  "feature_count": 30,
+  "feature_count": 17,
   "feature_columns": [
-    "Session Duration",
-    "Failed Attempts",
-    "Behavioral Score",
     "login_hour_sin",
     "login_hour_cos",
     "login_weekday_sin",
     "login_weekday_cos",
+    "user_logins_before",
+    "seconds_since_previous_login",
+    "user_ip_seen_before",
+    "user_ip_logins_before",
+    "user_distinct_ips_before",
+    "user_location_seen_before",
+    "user_location_logins_before",
+    "user_distinct_locations_before",
+    "user_device_seen_before",
+    "user_device_logins_before",
+    "user_distinct_devices_before",
     "Login Status__Fail",
-    "Login Status__Success",
-    "IP Address__10.10.10.4",
-    "IP Address__10.10.10.5",
-    "IP Address__10.10.10.8",
-    "IP Address__192.168.1.14",
-    "IP Address__192.168.1.16",
-    "IP Address__192.168.1.20",
-    "IP Address__192.168.1.25",
-    "IP Address__192.168.1.27",
-    "IP Address__192.168.1.36",
-    "IP Address__192.168.1.54",
-    "IP Address__192.168.1.65",
-    "IP Address__192.168.1.95",
-    "Device Type__Desktop",
-    "Device Type__Mobile",
-    "Device Type__Tablet",
-    "Location__Antarctica",
-    "Location__Canada",
-    "Location__Germany",
-    "Location__Japan",
-    "Location__Mars",
-    "Location__USA"
+    "Login Status__Success"
   ],
   "target_column": "is_anomaly",
-  "elapsed_seconds": 0.21
+  "elapsed_seconds": 1.35
 }

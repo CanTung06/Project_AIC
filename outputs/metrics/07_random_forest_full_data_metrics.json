@@ -7,44 +7,31 @@
   "confusion_matrix_figure": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\07_confusion_random_forest_full_data_test.png",
   "validation_pr_curve": "D:\\Code\\Python\\Project_AIC\\outputs\\figures\\07_random_forest_full_data_validation_pr_curve.png",
   "training_summary": {
-    "training_rows": 7000,
+    "training_rows": 7001,
     "train_class_counts": {
-      "0": 5729,
+      "0": 5730,
       "1": 1271
     },
-    "validation_rows": 1500,
-    "feature_count": 30,
+    "validation_rows": 1497,
+    "feature_count": 17,
     "feature_columns": [
-      "Session Duration",
-      "Failed Attempts",
-      "Behavioral Score",
       "login_hour_sin",
       "login_hour_cos",
       "login_weekday_sin",
       "login_weekday_cos",
+      "user_logins_before",
+      "seconds_since_previous_login",
+      "user_ip_seen_before",
+      "user_ip_logins_before",
+      "user_distinct_ips_before",
+      "user_location_seen_before",
+      "user_location_logins_before",
+      "user_distinct_locations_before",
+      "user_device_seen_before",
+      "user_device_logins_before",
+      "user_distinct_devices_before",
       "Login Status__Fail",
-      "Login Status__Success",
-      "IP Address__10.10.10.4",
-      "IP Address__10.10.10.5",
-      "IP Address__10.10.10.8",
-      "IP Address__192.168.1.14",
-      "IP Address__192.168.1.16",
-      "IP Address__192.168.1.20",
-      "IP Address__192.168.1.25",
-      "IP Address__192.168.1.27",
-      "IP Address__192.168.1.36",
-      "IP Address__192.168.1.54",
-      "IP Address__192.168.1.65",
-      "IP Address__192.168.1.95",
-      "Device Type__Desktop",
-      "Device Type__Mobile",
-      "Device Type__Tablet",
-      "Location__Antarctica",
-      "Location__Canada",
-      "Location__Germany",
-      "Location__Japan",
-      "Location__Mars",
-      "Location__USA"
+      "Login Status__Success"
     ],
     "parameters": {
       "n_estimators": 200,
@@ -56,7 +43,7 @@
       "n_jobs": -1,
       "random_state": 42
     },
-    "fit_seconds": 0.63,
+    "fit_seconds": 0.69,
     "fit_time": "00:00:00",
     "test_used_for_training": false
   },
@@ -64,55 +51,55 @@
     "rule": "maximize_validation_f1",
     "validation": {
       "selected_threshold": {
-        "threshold": 0.6996592366803911,
-        "precision": 1.0,
-        "recall": 0.9963235294117647,
-        "f1": 0.998158379373849,
+        "threshold": 0.33683781982210526,
+        "precision": 0.4262295081967213,
+        "recall": 0.47794117647058826,
+        "f1": 0.45060658578856155,
         "threshold_selection_metric": "maximum_validation_f1",
-        "pr_auc": 0.9999467178175618
+        "pr_auc": 0.5089551562031551
       }
     },
     "test": {
       "metrics": {
-        "threshold": 0.6996592366803911,
-        "balanced_accuracy": 0.9963235294117647,
-        "precision": 1.0,
-        "recall": 0.9926470588235294,
-        "f1": 0.996309963099631,
-        "tp": 270,
-        "fp": 0,
-        "fn": 2,
-        "tn": 1228,
-        "support_0": 1228,
+        "threshold": 0.33683781982210526,
+        "balanced_accuracy": 0.651306193208991,
+        "precision": 0.4006514657980456,
+        "recall": 0.4522058823529412,
+        "f1": 0.42487046632124353,
+        "tp": 123,
+        "fp": 184,
+        "fn": 149,
+        "tn": 1046,
+        "support_0": 1230,
         "support_1": 272,
-        "pr_auc": 1.0,
-        "roc_auc": 1.0
+        "pr_auc": 0.5072475527976427,
+        "roc_auc": 0.6656593735054998
       },
       "classification_report": {
         "Normal": {
-          "precision": 0.9983739837398374,
-          "recall": 1.0,
-          "f1-score": 0.9991863303498779,
-          "support": 1228.0
+          "precision": 0.8753138075313808,
+          "recall": 0.8504065040650407,
+          "f1-score": 0.862680412371134,
+          "support": 1230.0
         },
         "Anomaly": {
-          "precision": 1.0,
-          "recall": 0.9926470588235294,
-          "f1-score": 0.996309963099631,
+          "precision": 0.4006514657980456,
+          "recall": 0.4522058823529412,
+          "f1-score": 0.42487046632124353,
           "support": 272.0
         },
-        "accuracy": 0.9986666666666667,
+        "accuracy": 0.7782956058588548,
         "macro avg": {
-          "precision": 0.9991869918699188,
-          "recall": 0.9963235294117647,
-          "f1-score": 0.9977481467247544,
-          "support": 1500.0
+          "precision": 0.6379826366647132,
+          "recall": 0.651306193208991,
+          "f1-score": 0.6437754393461887,
+          "support": 1502.0
         },
         "weighted avg": {
-          "precision": 0.9986688346883469,
-          "recall": 0.9986666666666667,
-          "f1-score": 0.9986647490884998,
-          "support": 1500.0
+          "precision": 0.7893563128899246,
+          "recall": 0.7782956058588548,
+          "f1-score": 0.7833965872542431,
+          "support": 1502.0
         }
       }
     },

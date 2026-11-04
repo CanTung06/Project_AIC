@@ -1,12 +1,12 @@
-Classification report | Logistic Regression (full_data) | threshold=0.13392208
+Classification report | Logistic Regression (full_data) | threshold=0.21835196
               precision    recall  f1-score   support
 
-      Normal     0.9393    0.9821    0.9602      1228
-     Anomaly     0.8981    0.7132    0.7951       272
+      Normal     0.8806    0.9236    0.9016      1230
+     Anomaly     0.5566    0.4338    0.4876       272
 
-    accuracy                         0.9333      1500
-   macro avg     0.9187    0.8477    0.8776      1500
-weighted avg     0.9318    0.9333    0.9303      1500
+    accuracy                         0.8349      1502
+   macro avg     0.7186    0.6787    0.6946      1502
+weighted avg     0.8219    0.8349    0.8266      1502
 
-AUC-ROC: 0.9083
-PR-AUC: 0.8728
+AUC-ROC: 0.7206
+PR-AUC: 0.5534

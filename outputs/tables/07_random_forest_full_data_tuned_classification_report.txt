@@ -1,12 +1,12 @@
-Classification report | Random Forest (full_data) | threshold=0.69965924
+Classification report | Random Forest (full_data) | threshold=0.33683782
               precision    recall  f1-score   support
 
-      Normal     0.9984    1.0000    0.9992      1228
-     Anomaly     1.0000    0.9926    0.9963       272
+      Normal     0.8753    0.8504    0.8627      1230
+     Anomaly     0.4007    0.4522    0.4249       272
 
-    accuracy                         0.9987      1500
-   macro avg     0.9992    0.9963    0.9977      1500
-weighted avg     0.9987    0.9987    0.9987      1500
+    accuracy                         0.7783      1502
+   macro avg     0.6380    0.6513    0.6438      1502
+weighted avg     0.7894    0.7783    0.7834      1502
 
-AUC-ROC: 1.0000
-PR-AUC: 1.0000
+AUC-ROC: 0.6657
+PR-AUC: 0.5072
